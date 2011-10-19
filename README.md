@@ -3,8 +3,8 @@ Space Flight Dynamics as a Service (SFDaaS)
 
 Overview
 --------
-A web based implementation of an orbit propagation using the free and open 
-source OreKit [http://orekit.org] a "A free low level space dynamics library".
+A web based implementation of an orbit propagation using the open source OreKit
+library [http://orekit.org], which is "A free low level space dynamics library".
 
 Usage
 -----
@@ -58,7 +58,7 @@ Useful packages
 
 Licensing
 ---------
-SFDaaS is free and is licensed by Haisam K. Ido under the GPL License.  A copy 
+SFDaaS is free and is licensed by Haisam K. Ido under the LGPL License version 3.0.  A copy 
 of this license is provided in the LGPL-LICENSE.txt file.
 
 SFDaaS relies upon Orekit and the Apache commons-math library.
