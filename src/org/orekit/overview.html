@@ -1,0 +1,192 @@
+<html>
+OREKIT
+<body>
+<h2>1. Purpose</h2>
+<p> 
+  OREKIT library is a low level library for space mechanics projects. It is 
+implemented in the JAVA language. 
+</p>
+<p>OREKIT project was initiated by CS with the following goals in mind:</p>
+<ul>
+ <li>provide a common base layer for space projects</li>
+ <li>support both quick developments with loose requirements and complex
+     projects with rich physical modeling, fine customization, and high accuracy</li>
+ <li>be user-extensible through clear and as simple as possible architecture</li> 
+ <li>use unified interfaces to allow models and algorithms switching with almost no effort</li>
+ <li>provide both basic and rich models that can be plugged interchangeably to ease
+     applications validation</li> 
+ <li>separate models configuration from models usage to hide away complexity and keep
+     caller code simple</li>
+ <li>support both development of standalone and embedded applications (web services,
+     plugins, scripting frameworks ...)</li>
+ <li>use up-to-date techniques for low cost development and maintenance</li>
+ <li>remove platforms and system dependencies and leverage environment-hell
+     (environment variables, dynamic libraries versions, operating system,
+      filesystem layout ...)</li>
+</ul>
+
+<h2>2. Features</h2>
+<p>
+Orekit can be used for many purposes, from simple geometrical or orbital tools 
+up to complex orbits propagators with several perturbing forces, maneuvers and
+discrete events. Here is a short list of the features offered by the library:</p>
+
+<ul>
+  <li>Time
+    <ul>
+      <li>high accuracy absolute dates</li>
+      <li>time scales (TAI, UTC, GPS, TCG, TT, TDB ...)</li>
+      <li>transparent handling of leap seconds</li>
+    </ul>
+  </li>
+  <li>Geometry
+    <ul>
+      <li>frames hierarchy supporting fixed and time-dependent (or telemetry-dependent) frames</li>
+      <li>predefined frames (EME2000/J2000, GCRF, ITRF2005 and intermediate frames, TEME, MEME and PEF frames,
+          Veis, topocentric, tnw and qsw local orbital frames, spacecraft body, Moon, Sun, planets,
+          solar system barycenter, Earth-Moon barycenter)</li>
+      <li>user extensible (used operationally in real time with a set of about 60 frames on several spacecrafts)</li>
+      <li>transparent handling of IERS Earth Orientation Parameters (for both new CIO-based frames and
+          old equinox-based frames)</li>
+      <li>transparent handling of JPL DE 405 and DE 406 ephemerides</li>
+      <li>transforms including kinematic combination effects</li>
+      <li>composite transforms reduction and caching for efficiency</li>
+      <li>extensible central body shapes models (with predefined spherical and ellipsoidic shapes)</li>
+      <li>cartesian and geodesic coordinates, kinematics</li>
+    </ul>
+  </li>
+  <li>Spacecraft state
+    <ul>
+      <li>cartesian, elliptical keplerian, circular and equinoctial parameters</li>
+      <li>Two-Lines Elements</li>
+      <li>transparent conversion between all parameters</li>
+      <li>automatic binding with frames</li>
+      <li>attitude state and derivative</li>
+      <li>mass management</li>
+    </ul>
+  </li>
+  <li>Propagation
+    <ul>
+      <li>analytical propagation models (Kepler, Eckstein-Heschler, SDP4/SGP4 with 2006 corrections)</li>
+      <li>numerical propagators
+        <ul>
+          <li>customizable force models
+            <ul>
+              <li>central attraction</li>
+              <li>gravity models (automatic reading of ICGEM (new Eigen models), SHM (old Eigen models),
+              EGM and GRGS gravity field files formats, even compressed)</li>
+              <li>atmospheric drag (DTM2000, Jacchia-Bowman 2006 and simple exponential models)</li>
+              <li>third body attraction (with data for Sun, Moon and all solar systems planets)</li>
+              <li>radiation pressure with eclipses</li>
+              <li>multiple maneuvers
+            </ul>
+          </li>
+          <li>state of the art ODE integrators (adaptive stepsize with error control,
+              continuous output, switching functions, G-stop, step normalization ...)</li>
+          <li>can be used in master mode (propagator drives application callback functions),
+              slave mode (propagator is driven by calling application) or ephemeris generation
+              mode (all intermediate results solved and navigation feature enabled, to use the
+              generated ephemeris later as if it was an analytical model, ideal for search and
+              iterative algorithms)</li>
+          <li>computation of jacobians with respect to orbital parameters and selected force models parameters</li>
+          <li>serialization mechanism to store complete results on persistent storage for later use</li>
+        </ul>
+      </li>
+      <li>tabulated ephemerides
+        <ul>
+          <li>file based</li>
+          <li>memory based</li>
+          <li>integration based</li>
+        </ul>
+      </li>
+      <li>unified interface above analytical/numerical/tabulated propagators for easy
+          switch from coarse analysis to fine simulation with one line change</li>
+      <li>all propagators can be used in several different modes
+        <ul>
+          <li>slave mode: propagator is driven by calling application</li>
+          <li>master mode: propagator drives application callback functions</li>
+          <li>ephemeris generation mode: all intermediate results are stored during
+              propagation and provided back to the application which can navigate at will
+              through them, effectively using the propagated orbit as if it was an
+              analytical model, even if it really is a numerically propagated one, which
+              is ideal for search and iterative algorithms</li>
+        </ul>
+      </li>
+      <li>handling of discrete events during integration
+          (models changes, G-stop, simple notifications ...)</li>
+      <li>predefined discrete events
+        <ul>
+          <li>eclipse (both umbra and penumbra)</li>
+          <li>ascending and descending node crossing</li>
+          <li>apogee and perigee crossing</li>
+          <li>raising/setting with respect to a ground location
+              (with customizable triggering elevation)</li>
+          <li>date</li>
+          <li>altitude crossing</li>
+          <li>impulse maneuvers occurrence</li>
+          <li>eclipse (either umbra or penumbra</li>
+        </ul>
+      </li>
+      <li>possibility to slightly shift events in time (for example to switch from
+          solar pointing mode to something else a few minutes before eclipse entry and
+          reverting to solar pointing mode a few minutes after eclipse exit)</li>
+    </ul>
+  </li>
+  <li>Attitude
+    <ul>
+      <li>extensible attitude evolution models</li>
+      <li>predefined laws
+        <ul>
+          <li>central body related attitude
+              (nadir pointing, center pointing, target pointing,
+               yaw compensation, yaw-steering)</li>
+          <li>orbit referenced attitudes (LOF aligned, offset on all axes)</li>
+          <li>space referenced attitudes (inertial, celestial body pointed, spin stabilized)</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Customizable data loading
+    <ul>
+      <li>loading from local disk</li>
+      <li>loading from classpath</li>
+      <li>loading from network (even through internet proxies)</li>
+      <li>support for zip archives</li>
+      <li>support from gzip compressed files</li>
+      <li>plugin mechanism to delegate loading to user defined database or data access library</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>3. Dependency</h2>
+<p>
+OREKIT has only one dependency: the <a href="http://commons.apache.org/math/">commons-math</a>
+open-source library. This library provides mathematical tools for many purposes: geometry,
+polynomial equations, differential equations, and more... It is distributed under the
+business-friendly Apache Software License version 2.0.
+</p>
+<p>
+OREKIT is based on two commons-math packages:
+</p>
+<ul>
+ <li>geometry, which provides very useful objects as vectors
+   and rotations (internally represented by quaternions)</li>
+ <li>ode, which provides numerical solutions to solve 
+   Ordinary Differential Equations (ODE).</li>
+</ul>
+<p>
+The use of commons-math is hidden in OREKIT as much as possible so users don't 
+need to fully master this library. If they wish, they can limit themselves to understanding
+the simple classes Vector3D and Rotation from the geometry package, and the interface
+FirstOrderIntegrator from the ode package. 
+</p>
+
+@author Luc Maisonobe
+@author Thierry Ceolin
+@author Fabien Maussion
+@author Pascal Parraud
+@author V&eacute;ronique Pommier-Maurussane
+@author Guylaine Prat
+
+</body>
+</html>
