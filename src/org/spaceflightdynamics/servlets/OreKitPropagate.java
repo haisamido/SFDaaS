@@ -111,16 +111,16 @@ public class OreKitPropagate extends HttpServlet {
         out.println("Run &nbsp;&nbsp;End : "+strDatef+"<br><hr><br>");
 
         out.println("A priori state : <br>");
-        out.println("&nbsp;&nbsp;Epoch = " + t0 + "<br>");
-        out.println("&nbsp;&nbsp;r = " + r0 + "<br>");
-        out.println("&nbsp;&nbsp;v = " + v0 + "<br>");
+        out.println("&nbsp;&nbsp;t0 = " + t0 + "<br>");
+        out.println("&nbsp;&nbsp;r0 = " + r0 + "<br>");
+        out.println("&nbsp;&nbsp;v0 = " + v0 + "<br>");
         out.println("<br><br>");
 
         out.println("A posteriori state : <br>");
-        out.println("&nbsp;&nbsp;Epoch = " + tf + "<br>");
-        out.println("&nbsp;&nbsp;r = " + rf + "<br>");
-        out.println("&nbsp;&nbsp;v = " + vf + "<br><br><hr><br>");
-        out.println("The epochs are assumed to be UTC and r0 and v0 are in meters and meters/second.  The frame is also assumed to be the J2000 Earth-centered one.");
+        out.println("&nbsp;&nbsp;tf = " + tf + "<br>");
+        out.println("&nbsp;&nbsp;rf = " + rf + "<br>");
+        out.println("&nbsp;&nbsp;vf = " + vf + "<br><br><hr><br>");
+        out.println("The epochs, t0 and tf, are assumed to be in UTC. The radius and veclocity vectors are in meters and meters/second, respectively.  The frame is assumed to be the J2000 Earth-centered one.");
         
         out.println("</font>");
 
