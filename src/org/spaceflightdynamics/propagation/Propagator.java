@@ -73,7 +73,7 @@ public class Propagator {
      * Change this to the correct path for your machine.
      */
     private static String UTCTAI_PATH = 
-    		"/Users/haisam/Documents/workspace/SFDaaS/data/orekit-data";
+    		"/Users/haisam/Documents/workspace.indigo/SFDaaS/data";
 //		"resource_files/orekit/regular-data";
     
     /**
