@@ -9,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -78,12 +79,21 @@ public class OreKitPropagate extends HttpServlet {
 
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
+		HttpSession session = request.getSession(true);
+		String JSESSIONID   = session.getId();
+		String USERNAME     = System.getProperty("user.name");
+        String _KEY1        = USERNAME + "]|[" + JSESSIONID;
+		
     	PrintWriter out = response.getWriter();
         
         String t0 = request.getParameter("t0");
         String r0 = request.getParameter("r0");
         String v0 = request.getParameter("v0");
         String tf = request.getParameter("tf");
+
+        // Set part of the key for caching
+        String _KEY2 = t0 + "]|[" + r0 + "]|[" + v0 + "]|[" + tf;
+        String KEY   = _KEY1 + "]|[" + _KEY2;
         
         /*
          * Normal use of this class starts here.  Construct the propapgator 
@@ -104,24 +114,47 @@ public class OreKitPropagate extends HttpServlet {
         String vf = finalState.get("vf");
        
         out.println(DOCTYPE);
-        out.println("<br>");
-        out.println("<font face=\"Courier\">");
-        out.println("Run Start : "+strDate0+"<br>");
-        out.println("Run &nbsp;&nbsp;End : "+strDatef+"<br><hr><br>");
 
-        out.println("A priori state : <br>");
-        out.println("&nbsp;&nbsp;t0 = " + t0 + "<br>");
-        out.println("&nbsp;&nbsp;r0 = " + r0 + "<br>");
-        out.println("&nbsp;&nbsp;v0 = " + v0 + "<br>");
-        out.println("<br><br>");
+        out.println("<hr>");
+        out.println("Space Flight Dynamics as a Service (SFDaaS)");
+        out.println("<hr>");
+        out.println("<pre>");
+        out.println("A priori state:");
+        out.println(" t0 = " + t0);
+        out.println(" r0 = " + r0);
+        out.println(" v0 = " + v0);
+        out.println("");
 
-        out.println("A posteriori state : <br>");
-        out.println("&nbsp;&nbsp;tf = " + tf + "<br>");
-        out.println("&nbsp;&nbsp;rf = " + rf + "<br>");
-        out.println("&nbsp;&nbsp;vf = " + vf + "<br><br><hr><br>");
-        out.println("The epochs, t0 and tf, are assumed to be in UTC. The radius and veclocity vectors are in meters and meters/second, respectively.  The frame is assumed to be the J2000 Earth-centered one.");
+        out.println("A posteriori state: ");
+        out.println(" tf = " + tf);
+        out.println(" rf = " + rf);
+        out.println(" vf = " + vf);
+        out.println("");
+        out.println("Assumptions:");
+        out.println(" 1) The epochs, t0 and tf, are assumed to be in UTC. ");
+        out.println(" 2) The radius and velocity vectors are in meters and meters/second, respectively.");
+        out.println(" 3) The frame is assumed to be the J2000 Earth-centered one.");
+        out.println("<hr>");
+
+        // Run properties
+        out.println("Run Properties:");
+        out.println(" Run Start     : " + strDate0);
+        out.println(" Run End       : " + strDatef);
+        out.println("");
+        out.println(" Username      : " + USERNAME );
         
-        out.println("</font>");
+        // print session info
+        Date   created     = new Date(session.getCreationTime());
+        String strCreated  = df.format( created ); 
+        Date accessed      = new Date(session.getLastAccessedTime());
+        String strAccessed = df.format( accessed ); 
+        
+        out.println("");
+        out.println(" JSESSIONID    : " + JSESSIONID);
+        out.println(" Created       : " + strCreated);
+        out.println(" Last Accessed : " + strAccessed);
+        out.println("");
+        out.println(" CACHING KEY   : " + KEY);
 
     }
     public static final String DOCTYPE =
