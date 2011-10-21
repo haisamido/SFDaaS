@@ -85,7 +85,6 @@ public class OreKitPropagate extends HttpServlet {
         String v0 = request.getParameter("v0");
         String tf = request.getParameter("tf");
         
-        //r0_mag=Vector3D.dotProduct(r0,r0);
         /*
          * Normal use of this class starts here.  Construct the propapgator 
          * using the strings.
@@ -128,14 +127,12 @@ public class OreKitPropagate extends HttpServlet {
     public static final String DOCTYPE =
         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">";
 
-//    private static String UTCTAI_PATH = 
-//    	"war/resource_files/orekit/regular-data/";
-
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+        doGet(request, response);
 	}
 
 }
