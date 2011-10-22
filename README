@@ -27,25 +27,39 @@ Epochs are in the ISO-8601 format, i.e. http://en.wikipedia.org/wiki/ISO_8601
   rf = [ xf,   yf,  zf ]
   vf = [ vxf, vyf, vzf ]
 
-Epochs are assumed to be UTC and J2000 Earth-centered is the assumed frame. State can be propagated forwards or backwards in time.  
+Epochs are assumed to be UTC and J2000 Earth-centered is the assumed frame. The
+state can be propagated forwards or backwards in time.  
 
 Expected Output
 ---------------
-Run Start : 2011-10-19T09:04:54.819-0400
-Run   End : 2011-10-19T09:04:54.826-0400
 
-A priori state : 
-  Epoch = 2010-05-28T12:00:00.000
-  r = [3198022.67,2901879.73,5142928.95]
-  v = [-6129.640631,4489.647187,1284.511245]
+A priori state:
+ t0 = 2010-05-28T12:00:00.000
+ r0 = [3198022.67,2901879.73,5142928.95]
+ v0 = [-6129.640631,4489.647187,1284.511245]
 
-A posteriori state : 
-  Epoch = 2010-05-28T13:00:00.000
-  r = [2675781.697895,-4864168.991743,-3780046.7712272173]
-  v = [6450.161074,288.065314,4204.487908334615]
+A posteriori state: 
+ tf = 2010-05-28T14:00:00.000
+ rf = [-6174454.063243,2474544.324750,-976156.9807064387]
+ vf = [-991.274325,-4808.930607,-5927.623934582873]
 
-The epochs are assumed to be UTC and r0 and v0 are in meters and in the J2000 Earth-centered frame.
+Assumptions:
+ 1) The epochs, t0 and tf, are assumed to be in UTC. 
+ 2) The radius and velocity vectors are in meters and meters/second, respectively.
+ 3) The frame is assumed to be the J2000 Earth-centered one.
 
+Run Properties:
+ Run Start     : 2011-10-21T16:59:12.736-0400
+ Run End       : 2011-10-21T16:59:12.755-0400
+
+ Username      : haisam
+
+ JSESSIONID    : 1A3280005C04F6A2BDC4343070E1BBBF
+ Created       : 2011-10-21T16:13:06.195-0400
+ Last Accessed : 2011-10-21T16:58:28.495-0400
+
+ CACHING KEY   : haisam]|[1A3280005C04F6A2BDC4343070E1BBBF]|[2010-05-28T12:00:00.000]|.......
+ 
 Required packages
 -----------------
 * OreKit:       https://www.orekit.org/forge/attachments/download/48/orekit-5.0.3-sources.zip
@@ -53,8 +67,9 @@ Required packages
 
 Useful packages
 ---------------
-* Tomcat 7:    http://mirrors.axint.net/apache/tomcat/tomcat-7/v7.0.22/bin/apache-tomcat-7.0.22.zip
-* Eclipse IDE: http://eclipse.org/downloads/packages/eclipse-ide-java-developers/indigosr1
+* Tomcat 7:     http://mirrors.axint.net/apache/tomcat/tomcat-7/v7.0.22/bin/apache-tomcat-7.0.22.zip
+* Eclipse IDE:  http://eclipse.org/downloads/packages/eclipse-ide-java-developers/indigosr1
+* Spymemcached: http://spymemcached.googlecode.com/files/spymemcached-2.7.3-sources.jar
 
 Licensing
 ---------
