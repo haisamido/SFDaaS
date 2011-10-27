@@ -68,14 +68,14 @@ public class Propagator {
      */
 //    private static String VECTOR_REGEX = 
 //        "\\[\\s*([0-9\\.\\+\\-]+)\\s*,\\s*([0-9\\.\\+\\-]+)\\s*,\\s*([0-9\\.\\+\\-]+)\\s*\\]";
-	private static String NUMBER_ANY_REGEX =
-        	"[-+]?[0-9]*\\.?[0-9]+(?:[eEdD][-+]?[0-9]+)?";
+    private static String NUMBER_ANY_REGEX =
+    		"[-+]?[0-9]*\\.?[0-9]+(?:[eEdD][-+]?[0-9]+)?";
 
-	private static String NUMBER_FLOATINGPOINT_REGEX =
-			"[-+]?[0-9]*\\.[0-9]+(?:[eEdD][-+]?[0-9]+)?";
+    private static String NUMBER_FLOATINGPOINT_REGEX =
+    		"[-+]?[0-9]*\\.[0-9]+(?:[eEdD][-+]?[0-9]+)?";
 
     private static String NUMBER_INTEGER_REGEX =
-            "[+-]?\\d+";
+    		"[+-]?\\d+";
 
     private static String VECTOR_REGEX = 
             "\\[\\s*("+
