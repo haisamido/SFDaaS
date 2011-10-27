@@ -66,8 +66,26 @@ public class Propagator {
     /* Should change regex using samples from 
      * http://www.regular-expressions.info/floatingpoint.html
      */
+//    private static String VECTOR_REGEX = 
+//        "\\[\\s*([0-9\\.\\+\\-]+)\\s*,\\s*([0-9\\.\\+\\-]+)\\s*,\\s*([0-9\\.\\+\\-]+)\\s*\\]";
+	private static String NUMBER_ANY_REGEX =
+        	"[-+]?[0-9]*\\.?[0-9]+(?:[eEdD][-+]?[0-9]+)?";
+
+	private static String NUMBER_FLOATINGPOINT_REGEX =
+			"[-+]?[0-9]*\\.[0-9]+(?:[eEdD][-+]?[0-9]+)?";
+
+    private static String NUMBER_INTEGER_REGEX =
+            "[+-]?\\d+";
+
     private static String VECTOR_REGEX = 
-        "\\[\\s*([0-9\\.\\+\\-]+)\\s*,\\s*([0-9\\.\\+\\-]+)\\s*,\\s*([0-9\\.\\+\\-]+)\\s*\\]";
+            "\\[\\s*("+
+            NUMBER_FLOATINGPOINT_REGEX +
+            ")\\s*,\\s*+("+
+            NUMBER_FLOATINGPOINT_REGEX +
+            ")\\s*,\\s*(" +
+            NUMBER_FLOATINGPOINT_REGEX +
+            ")\\s*\\]";
+ 
     
     /*
      * Change this to the correct path for your machine.
@@ -178,6 +196,7 @@ public class Propagator {
 
         if (!matcher.find()) {
             System.out.println("Couldn't match the position parameter");
+            System.out.println(parms.get("r0"));
         }
                 
         Vector3D v3r = new Vector3D(Double.parseDouble(matcher.group(1)), 
