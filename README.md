@@ -6,8 +6,13 @@ Overview
 A web based implementation of an orbit propagation using the open source OreKit
 library [http://orekit.org], which is "A free low level space dynamics library".
 
+SFDaaS has the capability to add output in local or remote memcached servers 
+for later retrieval.
+
 Usage
 -----
+Full usage capabilities can be found here:
+ http://localhost:8080/SFDaaS/orekit/propagate/usage
 
 In a web browser (should be all one line, i.e. remove \ and linefeeds)
  http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000& \ 
