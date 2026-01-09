@@ -4,13 +4,12 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.math.geometry.Vector3D;
-import org.apache.commons.math.ode.nonstiff.ClassicalRungeKuttaIntegrator;
+import org.hipparchus.geometry.euclidean.threed.Vector3D;
+import org.hipparchus.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 
 import org.orekit.bodies.CelestialBodyFactory;
 import org.orekit.data.DataProvidersManager;
 import org.orekit.errors.OrekitException;
-import org.orekit.errors.PropagationException;
 import org.orekit.frames.FramesFactory;
 import org.orekit.orbits.CartesianOrbit;
 import org.orekit.orbits.Orbit;
@@ -88,11 +87,12 @@ public class Propagator {
  
     
     /*
-     * Change this to the correct path for your machine.
+     * Data path - defaults to 'data' directory relative to working directory
+     * Can be overridden via system property: orekit.data.path
      */
-    private static String UTCTAI_PATH = 
-    		"/Users/haisam/Documents/workspace.indigo/SFDaaS/data";
-//		"resource_files/orekit/regular-data";
+    private static String UTCTAI_PATH =
+    		System.getProperty("orekit.data.path",
+    			System.getProperty("user.dir") + "/data");
     
     /**
      * Empty (default) constructor.
@@ -274,23 +274,19 @@ public class Propagator {
         SpacecraftState final_state = null;
         
         try {
-            
-            final_state = numericalPropagator.propagate(
-                            new AbsoluteDate(parms.get("tf"), 
-                            TimeScalesFactory.getUTC()));
-            
-        } catch (PropagationException e) {
 
-            e.printStackTrace();
-            
+            final_state = numericalPropagator.propagate(
+                            new AbsoluteDate(parms.get("tf"),
+                            TimeScalesFactory.getUTC()));
+
         } catch (IllegalArgumentException e) {
 
             e.printStackTrace();
-            
+
         } catch (OrekitException e) {
 
             e.printStackTrace();
-            
+
         }
 
         /*

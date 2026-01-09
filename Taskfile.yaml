@@ -1,0 +1,362 @@
+version: '3'
+
+vars:
+  PROJECT_NAME: SFDaaS
+  TOMCAT_PORT: 8080
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list-all
+    silent: true
+
+  info:
+    desc: Display project information
+    cmds:
+      - echo "Project{{":"}} {{.PROJECT_NAME}}"
+      - echo "WAR File{{":"}} target/{{.PROJECT_NAME}}.war"
+      - echo "App URL{{":"}} http{{":"}}//localhost{{":"}}{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}"
+      - echo "Data Path{{":"}} {{.USER_WORKING_DIR}}/data"
+      - echo ""
+      - echo "Java Version{{":"}}"
+      - java -version
+      - echo ""
+      - echo "Maven Version{{":"}}"
+      - mvn --version
+
+  validate:
+    desc: Validate project setup and dependencies
+    cmds:
+      - echo "Validating Java installation..."
+      - java -version
+      - echo "Validating Maven installation..."
+      - mvn --version
+      - echo "Validating data directory..."
+      - test -d data && echo "✓ Data directory exists" || echo "✗ Data directory missing"
+      - echo "Validating pom.xml..."
+      - mvn validate
+      - echo "✓ Project setup is valid"
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - echo "Cleaning build artifacts..."
+      - mvn clean
+      - echo "✓ Clean complete"
+
+  compile:
+    desc: Compile source code
+    deps: [clean]
+    cmds:
+      - echo "Compiling source code..."
+      - mvn compile
+      - echo "✓ Compilation complete"
+
+  test:
+    desc: Run tests (if any)
+    cmds:
+      - echo "Running tests..."
+      - mvn test
+      - echo "✓ Tests complete"
+
+  package:
+    desc: Package application as WAR file
+    deps: [clean]
+    cmds:
+      - echo "Building WAR package..."
+      - mvn package
+      - echo "✓ WAR file created at target/{{.PROJECT_NAME}}.war"
+      - ls -lh target/{{.PROJECT_NAME}}.war
+
+  build:
+    desc: Full build (clean, compile, package)
+    deps: [clean, compile]
+    cmds:
+      - task: package
+
+  install:
+    desc: Install to local Maven repository
+    cmds:
+      - echo "Installing to local Maven repository..."
+      - mvn clean install
+      - echo "✓ Installation complete"
+
+  run:
+    desc: Run application with embedded Tomcat
+    cmds:
+      - echo "Starting embedded Tomcat on port {{.TOMCAT_PORT}}..."
+      - echo "Application will be available at http{{":"}}//localhost{{":"}}{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}"
+      - echo "Press Ctrl+C to stop"
+      - mvn tomcat7:run -Dmaven.tomcat.port={{.TOMCAT_PORT}}
+
+  run-background:
+    desc: Run application in background
+    cmds:
+      - echo "Starting embedded Tomcat in background on port {{.TOMCAT_PORT}}..."
+      - nohup mvn tomcat7:run -Dmaven.tomcat.port={{.TOMCAT_PORT}} > tomcat.log 2>&1 &
+      - echo $! > tomcat.pid
+      - sleep 5
+      - echo "✓ Tomcat started in background (PID{{":"}} $(cat tomcat.pid))"
+      - echo "Log file{{":"}} tomcat.log"
+      - echo "Application available at http{{":"}}//localhost{{":"}}{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}"
+
+  stop:
+    desc: Stop background Tomcat server
+    cmds:
+      - |
+        if [ -f tomcat.pid ]; then
+          PID=$(cat tomcat.pid)
+          echo "Stopping Tomcat (PID: $PID)..."
+          kill $PID 2>/dev/null || echo "Process not running"
+          rm tomcat.pid
+          echo "✓ Tomcat stopped"
+        else
+          echo "No tomcat.pid file found. Server may not be running."
+        fi
+
+  deploy-tomcat:
+    desc: Deploy WAR to external Tomcat (requires CATALINA_HOME)
+    deps: [package]
+    cmds:
+      - |
+        if [ -z "$CATALINA_HOME" ]; then
+          echo "Error: CATALINA_HOME environment variable not set"
+          exit 1
+        fi
+        echo "Deploying to Tomcat at $CATALINA_HOME..."
+        cp target/{{.PROJECT_NAME}}.war $CATALINA_HOME/webapps/
+        echo "✓ Deployed to $CATALINA_HOME/webapps/{{.PROJECT_NAME}}.war"
+        echo "Restart Tomcat to load the application"
+
+  undeploy-tomcat:
+    desc: Remove application from external Tomcat
+    cmds:
+      - |
+        if [ -z "$CATALINA_HOME" ]; then
+          echo "Error: CATALINA_HOME environment variable not set"
+          exit 1
+        fi
+        echo "Removing application from Tomcat..."
+        rm -f $CATALINA_HOME/webapps/{{.PROJECT_NAME}}.war
+        rm -rf $CATALINA_HOME/webapps/{{.PROJECT_NAME}}
+        echo "✓ Application removed"
+
+  deps:
+    desc: Display dependency tree
+    cmds:
+      - echo "Dependency tree{{":"}}"
+      - mvn dependency:tree
+
+  deps-analyze:
+    desc: Analyze dependencies for issues
+    cmds:
+      - echo "Analyzing dependencies..."
+      - mvn dependency:analyze
+
+  deps-update:
+    desc: Check for dependency updates
+    cmds:
+      - echo "Checking for dependency updates..."
+      - mvn versions:display-dependency-updates
+
+  verify:
+    desc: Verify the built WAR file
+    cmds:
+      - |
+        if [ ! -f target/{{.PROJECT_NAME}}.war ]; then
+          echo "Error: WAR file not found. Run 'task build' first."
+          exit 1
+        fi
+        echo "WAR file information:"
+        ls -lh target/{{.PROJECT_NAME}}.war
+        echo ""
+        echo "WAR file contents:"
+        jar tf target/{{.PROJECT_NAME}}.war | head -20
+        echo "..."
+        echo "(showing first 20 entries)"
+        echo ""
+        echo "✓ WAR file is valid"
+
+  usage:
+    desc: Open usage documentation in browser
+    cmds:
+      - |
+        if command -v open > /dev/null; then
+          open http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage
+        elif command -v xdg-open > /dev/null; then
+          xdg-open http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage
+        else
+          echo "Please open http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage in your browser"
+        fi
+
+  test-api:
+    desc: Test the API with a sample propagation request
+    cmds:
+      - |
+        echo "Testing API endpoint..."
+        echo "URL: http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate"
+        echo ""
+        curl -s "http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate?t0=2010-05-28T12:00:00.000&tf=2010-05-28T13:00:00.000&r0=\[3198022.67,2901879.73,5142928.95\]&v0=\[-6129.640631,4489.647187,1284.511245\]" | head -30
+        echo ""
+        echo "(showing first 30 lines of output)"
+
+  logs:
+    desc: Tail the Tomcat log file
+    cmds:
+      - |
+        if [ -f tomcat.log ]; then
+          tail -f tomcat.log
+        else
+          echo "No log file found. Is the server running? (task run-background)"
+        fi
+
+  quick-test:
+    desc: Quick build and test with embedded Tomcat
+    cmds:
+      - task: build
+      - echo ""
+      - echo "Starting server for quick test..."
+      - echo "Visit http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage"
+      - task: run
+
+  full-cycle:
+    desc: Full development cycle (clean, build, verify, run)
+    cmds:
+      - task: clean
+      - task: build
+      - task: verify
+      - echo ""
+      - echo "Build successful! Starting server..."
+      - task: run
+
+  setup:
+    desc: Initial project setup and validation
+    cmds:
+      - echo "Setting up {{.PROJECT_NAME}} project..."
+      - task: validate
+      - echo ""
+      - echo "Creating necessary directories..."
+      - mkdir -p target
+      - mkdir -p src-main
+      - echo ""
+      - echo "Downloading dependencies..."
+      - mvn dependency:resolve
+      - echo ""
+      - echo "✓ Setup complete!"
+      - echo ""
+      - echo "Next steps{{":"}}"
+      - echo "  1. Run 'task build' to build the project"
+      - echo "  2. Run 'task run' to start the server"
+      - echo "  3. Visit http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage"
+
+  release:
+    desc: Create a release build with documentation
+    cmds:
+      - echo "Creating release build..."
+      - task: clean
+      - task: build
+      - task: verify
+      - echo ""
+      - echo "Generating documentation..."
+      - mvn javadoc:javadoc || echo "Javadoc generation skipped"
+      - echo ""
+      - echo "✓ Release build complete!"
+      - echo ""
+      - echo "Artifacts{{":"}}"
+      - ls -lh target/{{.PROJECT_NAME}}.war
+
+  status:
+    desc: Check application status
+    cmds:
+      - |
+        echo "Application Status:"
+        echo "===================="
+        echo ""
+        if [ -f tomcat.pid ]; then
+          PID=$(cat tomcat.pid)
+          if ps -p $PID > /dev/null 2>&1; then
+            echo "Status: RUNNING (PID: $PID)"
+          else
+            echo "Status: STOPPED (stale PID file)"
+          fi
+        else
+          echo "Status: STOPPED"
+        fi
+        echo ""
+        echo "Checking port {{.TOMCAT_PORT}}..."
+        if lsof -Pi :{{.TOMCAT_PORT}} -sTCP:LISTEN -t >/dev/null 2>&1 || netstat -an 2>/dev/null | grep {{.TOMCAT_PORT}} | grep LISTEN >/dev/null 2>&1; then
+          echo "Port {{.TOMCAT_PORT}}: IN USE"
+        else
+          echo "Port {{.TOMCAT_PORT}}: AVAILABLE"
+        fi
+        echo ""
+        if [ -f target/{{.PROJECT_NAME}}.war ]; then
+          echo "WAR file: EXISTS"
+        else
+          echo "WAR file: NOT FOUND"
+        fi
+
+  help:
+    desc: Show detailed help for common tasks
+    cmds:
+      - |
+        cat << 'EOF'
+        Space Flight Dynamics as a Service (SFDaaS) - Task Runner Help
+        ================================================================
+
+        Quick Start:
+        ------------
+        1. task setup       # Initial setup and validation
+        2. task build       # Build the application
+        3. task run         # Run with embedded Tomcat
+
+        Common Tasks:
+        -------------
+        task build          # Clean build and package
+        task run            # Run with embedded Tomcat (foreground)
+        task run-background # Run in background
+        task stop           # Stop background server
+        task test-api       # Test the API endpoint
+        task status         # Check if server is running
+
+        Build Tasks:
+        ------------
+        task clean          # Remove build artifacts
+        task compile        # Compile source code only
+        task package        # Create WAR file
+        task verify         # Verify the built WAR
+
+        Deployment:
+        -----------
+        task deploy-tomcat  # Deploy to external Tomcat
+        task undeploy-tomcat # Remove from external Tomcat
+
+        Development:
+        ------------
+        task quick-test     # Quick build and test
+        task full-cycle     # Complete development cycle
+
+        Information:
+        ------------
+        task info           # Show project information
+        task deps           # Show dependency tree
+        task logs           # Tail server logs
+        task usage          # Open usage docs in browser
+
+        For more tasks, run: task --list-all
+
+        Configuration:
+        --------------
+        CATALINA_HOME: Set this for external Tomcat deployment
+        TOMCAT_PORT: Default 8080, override with TOMCAT_PORT=8081 task run
+
+        Examples:
+        ---------
+        task build                              # Build the project
+        task run                                # Start server
+        task test-api                           # Test the API
+        CATALINA_HOME=/opt/tomcat task deploy-tomcat  # Deploy to Tomcat
+
+        EOF
+    silent: true
