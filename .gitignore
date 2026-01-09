@@ -1,2 +1,40 @@
-#.project
+# Maven build artifacts
+target/
+*.war
+*.jar
+*.class
+
+# Eclipse project files
+.project
 .metadata
+.classpath
+.settings/
+bin/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# VS Code
+.vscode/
+
+# Mac OS
+.DS_Store
+
+# Task runner
+tomcat.log
+tomcat.pid
+nohup.out
+
+# Build helper
+src-main/
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+*~
