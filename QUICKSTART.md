@@ -24,7 +24,18 @@ The Space Flight Dynamics as a Service (SFDaaS) project has been successfully mo
 
 ### Option A: Using Task Runner (Recommended)
 
-If you have [Task](https://taskfile.dev/) installed:
+If you don't have [Task](https://taskfile.dev/) installed yet:
+
+```bash
+# Install Task using the Makefile
+make install-task
+
+# Or install manually:
+# macOS: brew install go-task/tap/go-task
+# Linux: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin
+```
+
+Once Task is installed:
 
 ```bash
 # Show all available tasks
@@ -39,6 +50,8 @@ task build
 # Run with embedded Tomcat
 task run
 ```
+
+**Note:** If you run `make` commands, you'll be redirected to use `task` instead.
 
 ### Option B: Using Maven Directly
 
