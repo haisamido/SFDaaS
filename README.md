@@ -482,11 +482,12 @@ task logs
 
 # 6. Stop when done
 task stop
+
 ```
 
 ### Project Structure
 
-```
+```bash
 SFDaaS/
 ├── pom.xml                          # Maven build configuration
 ├── Taskfile.yaml                    # Task automation
