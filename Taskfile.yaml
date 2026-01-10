@@ -3,7 +3,7 @@ version: '3'
 vars:
   PROJECT_NAME: SFDaaS
   TOMCAT_PORT: 8080
-  M2_REPO: './.m2/repository'
+  M2_REPO: './.m2/sfdaas/repository'
   MVN_FLAGS: '-Dmaven.repo.local={{.M2_REPO}}'
 
 tasks:
