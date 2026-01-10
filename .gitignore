@@ -38,3 +38,9 @@ src-main/
 *.tmp
 *.swp
 *~
+
+# m2 repository
+.m2/
+
+# Claude AI files
+.claude/
