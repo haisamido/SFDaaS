@@ -109,11 +109,9 @@ make install-task
 ### Test the API
 
 ```bash
-# Quick API test
-task test-api
-
-# Or manually with curl
+# Manually with curl
 curl "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000&tf=2010-05-28T13:00:00.000&r0=\[3198022.67,2901879.73,5142928.95\]&v0=\[-6129.640631,4489.647187,1284.511245\]"
+
 ```
 
 ---
