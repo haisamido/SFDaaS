@@ -24,6 +24,7 @@ tasks:
       - echo ""
       - echo "Maven Version{{":"}}"
       - mvn --version
+    silent: true
 
   validate:
     desc: Validate project setup and dependencies
@@ -37,6 +38,7 @@ tasks:
       - echo "Validating pom.xml..."
       - mvn validate
       - echo "✓ Project setup is valid"
+    silent: true
 
   clean:
     desc: Clean build artifacts
@@ -44,6 +46,7 @@ tasks:
       - echo "Cleaning build artifacts..."
       - mvn clean
       - echo "✓ Clean complete"
+    silent: true
 
   compile:
     desc: Compile source code
@@ -52,6 +55,7 @@ tasks:
       - echo "Compiling source code..."
       - mvn compile
       - echo "✓ Compilation complete"
+    silent: true
 
   test:
     desc: Run tests (if any)
@@ -59,6 +63,7 @@ tasks:
       - echo "Running tests..."
       - mvn test
       - echo "✓ Tests complete"
+    silent: true
 
   package:
     desc: Package application as WAR file
@@ -68,12 +73,14 @@ tasks:
       - mvn package
       - echo "✓ WAR file created at target/{{.PROJECT_NAME}}.war"
       - ls -lh target/{{.PROJECT_NAME}}.war
+    silent: true
 
   build:
     desc: Full build (clean, compile, package)
     deps: [clean, compile]
     cmds:
       - task: package
+    silent: true
 
   install:
     desc: Install to local Maven repository
@@ -81,25 +88,23 @@ tasks:
       - echo "Installing to local Maven repository..."
       - mvn clean install
       - echo "✓ Installation complete"
+    silent: true
 
   run:
-    desc: Run application with embedded Tomcat
-    cmds:
-      - echo "Starting embedded Tomcat on port {{.TOMCAT_PORT}}..."
-      - echo "Application will be available at http{{":"}}//localhost{{":"}}{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}"
-      - echo "Press Ctrl+C to stop"
-      - mvn tomcat7:run -Dmaven.tomcat.port={{.TOMCAT_PORT}}
-
-  run-background:
     desc: Run application in background
+    deps:
+      - stop
+      - setup
+      - build
     cmds:
       - echo "Starting embedded Tomcat in background on port {{.TOMCAT_PORT}}..."
       - nohup mvn tomcat7:run -Dmaven.tomcat.port={{.TOMCAT_PORT}} > tomcat.log 2>&1 &
       - echo $! > tomcat.pid
       - sleep 5
       - echo "✓ Tomcat started in background (PID{{":"}} $(cat tomcat.pid))"
-      - echo "Log file{{":"}} tomcat.log"
-      - echo "Application available at http{{":"}}//localhost{{":"}}{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}"
+      - echo "Log file{{":"}} tomcat.log"; echo
+      - echo "Visit http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage"; echo
+    silent: true
 
   stop:
     desc: Stop background Tomcat server
@@ -114,6 +119,7 @@ tasks:
         else
           echo "No tomcat.pid file found. Server may not be running."
         fi
+    silent: true
 
   deploy-tomcat:
     desc: Deploy WAR to external Tomcat (requires CATALINA_HOME)
@@ -128,6 +134,7 @@ tasks:
         cp target/{{.PROJECT_NAME}}.war $CATALINA_HOME/webapps/
         echo "✓ Deployed to $CATALINA_HOME/webapps/{{.PROJECT_NAME}}.war"
         echo "Restart Tomcat to load the application"
+    silent: true
 
   undeploy-tomcat:
     desc: Remove application from external Tomcat
@@ -141,6 +148,7 @@ tasks:
         rm -f $CATALINA_HOME/webapps/{{.PROJECT_NAME}}.war
         rm -rf $CATALINA_HOME/webapps/{{.PROJECT_NAME}}
         echo "✓ Application removed"
+    silent: true
 
   deps:
     desc: Display dependency tree
@@ -153,12 +161,14 @@ tasks:
     cmds:
       - echo "Analyzing dependencies..."
       - mvn dependency:analyze
+    silent: true
 
   deps-update:
     desc: Check for dependency updates
     cmds:
       - echo "Checking for dependency updates..."
       - mvn versions:display-dependency-updates
+    silent: true
 
   verify:
     desc: Verify the built WAR file
@@ -177,8 +187,9 @@ tasks:
         echo "(showing first 20 entries)"
         echo ""
         echo "✓ WAR file is valid"
+    silent: true
 
-  usage:
+  open:
     desc: Open usage documentation in browser
     cmds:
       - |
@@ -189,17 +200,12 @@ tasks:
         else
           echo "Please open http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage in your browser"
         fi
+    silent: true
 
-  test-api:
-    desc: Test the API with a sample propagation request
+  usage:
     cmds:
-      - |
-        echo "Testing API endpoint..."
-        echo "URL: http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate"
-        echo ""
-        curl -s "http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate?t0=2010-05-28T12:00:00.000&tf=2010-05-28T13:00:00.000&r0=\[3198022.67,2901879.73,5142928.95\]&v0=\[-6129.640631,4489.647187,1284.511245\]" | head -30
-        echo ""
-        echo "(showing first 30 lines of output)"
+      - echo "Please open http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage in your browser"
+    silent: true
 
   logs:
     desc: Tail the Tomcat log file
@@ -208,27 +214,9 @@ tasks:
         if [ -f tomcat.log ]; then
           tail -f tomcat.log
         else
-          echo "No log file found. Is the server running? (task run-background)"
+          echo "No log file found. Is the server running?"
         fi
-
-  quick-test:
-    desc: Quick build and test with embedded Tomcat
-    cmds:
-      - task: build
-      - echo ""
-      - echo "Starting server for quick test..."
-      - echo "Visit http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage"
-      - task: run
-
-  full-cycle:
-    desc: Full development cycle (clean, build, verify, run)
-    cmds:
-      - task: clean
-      - task: build
-      - task: verify
-      - echo ""
-      - echo "Build successful! Starting server..."
-      - task: run
+    silent: true
 
   setup:
     desc: Initial project setup and validation
@@ -246,9 +234,9 @@ tasks:
       - echo "✓ Setup complete!"
       - echo ""
       - echo "Next steps{{":"}}"
-      - echo "  1. Run 'task build' to build the project"
-      - echo "  2. Run 'task run' to start the server"
-      - echo "  3. Visit http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage"
+      - echo "  1. Run 'task run' to setup, build and start the server"
+      - echo "  2. Visit http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage"
+    silent: true
 
   release:
     desc: Create a release build with documentation
@@ -265,6 +253,7 @@ tasks:
       - echo ""
       - echo "Artifacts{{":"}}"
       - ls -lh target/{{.PROJECT_NAME}}.war
+    silent: true
 
   status:
     desc: Check application status
@@ -296,6 +285,7 @@ tasks:
         else
           echo "WAR file: NOT FOUND"
         fi
+    silent: true
 
   help:
     desc: Show detailed help for common tasks
@@ -314,10 +304,8 @@ tasks:
         Common Tasks:
         -------------
         task build          # Clean build and package
-        task run            # Run with embedded Tomcat (foreground)
-        task run-background # Run in background
-        task stop           # Stop background server
-        task test-api       # Test the API endpoint
+        task run            # Run with embedded Tomcat
+        task stop           # Stop server
         task status         # Check if server is running
 
         Build Tasks:
@@ -355,7 +343,6 @@ tasks:
         ---------
         task build                              # Build the project
         task run                                # Start server
-        task test-api                           # Test the API
         CATALINA_HOME=/opt/tomcat task deploy-tomcat  # Deploy to Tomcat
 
         EOF

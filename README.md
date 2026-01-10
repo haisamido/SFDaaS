@@ -1,13 +1,16 @@
 # Space Flight Dynamics as a Service (SFDaaS)
 
+Overview
+--------
+A modern web based implementation of orbit propagation using the open source OreKit library [http://orekit.org], which is "A free low level space dynamics library". SFDaaS has the capability to add output in local or remote memcached servers for later retrieval.
+
 [![Build System](https://img.shields.io/badge/build-Maven-C71A36?logo=apache-maven)](https://maven.apache.org/)
 [![OreKit](https://img.shields.io/badge/OreKit-11.3.3-blue)](https://www.orekit.org/)
 [![Java](https://img.shields.io/badge/Java-8+-orange?logo=java)](https://openjdk.org/)
 [![License](https://img.shields.io/badge/license-LGPL--3.0-green)](LGPL-LICENSE.txt)
 
-> A modern web-based orbit propagation service using the open source [OreKit](https://www.orekit.org/) library - "A free low level space dynamics library"
-
 **Recent Updates (January 2026):**
+
 - ✅ Migrated to Maven build system
 - ✅ Updated to OreKit 11.3.3 and Hipparchus 2.3
 - ✅ Added Task automation with Taskfile.yaml
@@ -64,9 +67,11 @@ cd SFDaaS
 
 # Install Task (optional but recommended)
 make install-task
+
 # Or manually:
 # macOS: brew install go-task/tap/go-task
 # Linux: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin
+
 ```
 
 ### Build and Run
@@ -74,14 +79,9 @@ make install-task
 #### Option A: Using Task (Recommended)
 
 ```bash
-# Setup and validate
-task setup
-
-# Build the WAR file
-task build
-
-# Run with embedded Tomcat
+# Run with embedded Tomcat. This task has dependencies that are executed before the run
 task run
+
 ```
 
 Then open: http://localhost:8080/SFDaaS/orekit/propagate/usage
@@ -241,10 +241,10 @@ mvn tomcat7:run
 **Background Mode:**
 ```bash
 # With Task
-task run-background  # Start
-task status          # Check status
-task logs            # View logs
-task stop            # Stop server
+task run     # Start
+task status  # Check status
+task logs    # View logs
+task stop    # Stop server
 ```
 
 Application available at: http://localhost:8080/SFDaaS/
@@ -290,12 +290,14 @@ rm -rf $CATALINA_HOME/webapps/SFDaaS
 ### Basic Propagation
 
 **Required Parameters:**
+
 - `t0` - Initial epoch (format: `YYYY-MM-DDTHH:MM:SS.SSS`, UTC timezone)
 - `tf` - Final epoch (same format)
 - `r0` - Initial position vector `[x,y,z]` in meters (J2000 Earth-centered frame)
 - `v0` - Initial velocity vector `[vx,vy,vz]` in meters/second
 
 **Example Request:**
+
 ```bash
 curl "http://localhost:8080/SFDaaS/orekit/propagate?\
 t0=2010-05-28T12:00:00.000&\
@@ -305,7 +307,8 @@ v0=[-6129.640631,4489.647187,1284.511245]"
 ```
 
 **Example Response:**
-```
+
+```bash
 A priori state:
  t0 = 2010-05-28T12:00:00.000
  r0 = [3198022.67,2901879.73,5142928.95]
@@ -330,6 +333,7 @@ Run Properties:
 - `ck={KEY}` - Custom cache key (optional)
 
 **Example Request:**
+
 ```bash
 curl "http://localhost:8080/SFDaaS/orekit/propagate?\
 cf=1&\
@@ -344,12 +348,14 @@ v0=[-6129.640631,4489.647187,1284.511245]"
 ### Browser Access
 
 Open in browser:
-```
+
+```bash
 http://localhost:8080/SFDaaS/orekit/propagate/usage
 ```
 
 Or test propagation (remove backslashes - shown for readability):
-```
+
+```bash
 http://localhost:8080/SFDaaS/orekit/propagate?\
   t0=2010-05-28T12:00:00.000&\
   tf=2010-05-28T13:00:00.000&\
@@ -375,6 +381,7 @@ The application requires OreKit data files (UTC-TAI tables, etc.). Default locat
 **To customize:**
 
 **For Embedded Tomcat:**
+
 ```bash
 # With Task
 task run DATA_PATH=/custom/path/to/data
@@ -443,7 +450,6 @@ memcached -d -m 64 -p 11211
 | Clean build | `task build` |
 | Compile only | `task compile` |
 | Run server | `task run` |
-| Run in background | `task run-background` |
 | Stop background server | `task stop` |
 | Check status | `task status` |
 | Test API | `task test-api` |
@@ -464,32 +470,21 @@ memcached -d -m 64 -p 11211
 ### Development Workflow
 
 **Daily Development:**
+
 ```bash
 # 1. Start server in background
-task run-background
+task run
 
 # 2. Make code changes...
 
 # 3. Rebuild
 task build
 
-# 4. Test
-task test-api
-
 # 5. View logs if needed
 task logs
 
 # 6. Stop when done
 task stop
-```
-
-**Quick Test Cycle:**
-```bash
-# Build and run in one command
-task quick-test
-
-# Or full cycle with verification
-task full-cycle
 ```
 
 ### Project Structure
@@ -500,9 +495,6 @@ SFDaaS/
 ├── Taskfile.yaml                    # Task automation
 ├── Makefile                         # Redirects to Task with install helper
 ├── README.md                        # This file
-├── BUILD.md                         # Detailed build guide (archived)
-├── QUICKSTART.md                    # Quick start guide (archived)
-├── SETUP_COMPLETE.md                # Setup summary
 ├── Usage.html                       # Original usage documentation
 │
 ├── src/
@@ -530,6 +522,7 @@ SFDaaS/
 ### Making Changes
 
 **Code Updates:**
+
 ```bash
 # Edit source files in src/org/spaceflightdynamics/
 # Rebuild
@@ -537,18 +530,20 @@ task build
 
 # Test locally
 task run
-task test-api
+
 ```
 
 **Updating Dependencies:**
 
 Edit [pom.xml](pom.xml) and rebuild:
+
 ```bash
 # Check for updates
 task deps-update
 
 # Rebuild
 task build
+
 ```
 
 ---
@@ -558,6 +553,7 @@ task build
 ### Build Issues
 
 **Problem: "cannot find symbol" errors**
+
 ```bash
 # Clean and rebuild
 task clean
@@ -568,6 +564,7 @@ mvn clean package
 ```
 
 **Problem: Java version issues**
+
 ```bash
 # Check Java version (need 8+)
 java -version
@@ -577,6 +574,7 @@ export JAVA_HOME=/path/to/jdk-11
 ```
 
 **Problem: Maven not found**
+
 ```bash
 # Install Maven
 # macOS: brew install maven
@@ -587,6 +585,7 @@ export JAVA_HOME=/path/to/jdk-11
 ### Server Issues
 
 **Problem: Port 8080 already in use**
+
 ```bash
 # Find process using port 8080
 lsof -ti:8080
@@ -599,6 +598,7 @@ task run TOMCAT_PORT=8081
 ```
 
 **Problem: Server won't start**
+
 ```bash
 # Check status
 task status
@@ -616,10 +616,12 @@ task run
 **Problem: 404 Not Found at root URL**
 
 This is expected. The servlet is only mapped to:
+
 - `/SFDaaS/orekit/propagate/usage`
 - `/SFDaaS/orekit/propagate`
 
 **Problem: "OreKit data path not found"**
+
 ```bash
 # Verify data directory exists
 ls -la data/
@@ -629,13 +631,12 @@ task run DATA_PATH=$(pwd)/data
 
 # Or check configuration
 echo $JAVA_OPTS
+
 ```
 
 **Problem: Propagation returns errors**
-```bash
-# Test with known working parameters
-task test-api
 
+```bash
 # Check logs
 task logs
 
@@ -646,6 +647,7 @@ task logs
 ### Development Issues
 
 **Problem: Changes not reflected**
+
 ```bash
 # Clean build
 task clean
@@ -657,18 +659,19 @@ task run
 ```
 
 **Problem: Task command not found**
+
 ```bash
 # Install Task
+#   See: https://taskfile.dev/installation/
 make install-task
 
-# Or manually
-brew install go-task/tap/go-task  # macOS
-# See: https://taskfile.dev/installation/
 ```
 
 ### Validation
 
+
 **Validate entire setup:**
+
 ```bash
 # With Task
 task validate
@@ -703,6 +706,7 @@ task deps
 
 # With Maven
 mvn dependency:tree
+
 ```
 
 ### Check for Updates
@@ -713,6 +717,7 @@ task deps-update
 
 # With Maven
 mvn versions:display-dependency-updates
+
 ```
 
 ---
