@@ -450,7 +450,6 @@ memcached -d -m 64 -p 11211
 | Run server | `task run` |
 | Stop background server | `task stop` |
 | Check status | `task status` |
-| Test API | `task test-api` |
 | View logs | `task logs` |
 | View dependencies | `task deps` |
 | Verify WAR | `task verify` |
