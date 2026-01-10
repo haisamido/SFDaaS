@@ -5,7 +5,7 @@ Overview
 A modern web based implementation of orbit propagation using the open source OreKit library [http://orekit.org], which is "A free low level space dynamics library". SFDaaS has the capability to add output in local or remote memcached servers for later retrieval.
 
 [![Build System](https://img.shields.io/badge/build-Maven-C71A36?logo=apache-maven)](https://maven.apache.org/)
-[![OreKit](https://img.shields.io/badge/OreKit-11.3.3-blue)](https://www.orekit.org/)
+[![OreKit](https://img.shields.io/badge/OreKit-13.1.2-blue)](https://www.orekit.org/)
 [![Java](https://img.shields.io/badge/Java-8+-orange?logo=java)](https://openjdk.org/)
 [![License](https://img.shields.io/badge/license-LGPL--3.0-green)](LGPL-LICENSE.txt)
 
