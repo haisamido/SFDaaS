@@ -94,6 +94,7 @@ mvn clean package
 
 # Run with embedded Tomcat
 mvn tomcat7:run
+
 ```
 
 #### Option C: Using Make (Redirects to Task)
@@ -104,6 +105,7 @@ make
 
 # Install Task
 make install-task
+
 ```
 
 ### Test the API
@@ -133,6 +135,7 @@ curl "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000&t
 ### 1. Install Prerequisites
 
 **Java Development Kit (JDK) 8+**
+
 ```bash
 # Check version
 java -version
@@ -141,9 +144,11 @@ java -version
 # macOS: brew install openjdk@11
 # Ubuntu: sudo apt-get install openjdk-11-jdk
 # RHEL: sudo yum install java-11-openjdk-devel
+
 ```
 
 **Apache Maven**
+
 ```bash
 # Check version
 mvn --version
@@ -152,9 +157,11 @@ mvn --version
 # macOS: brew install maven
 # Ubuntu: sudo apt-get install maven
 # RHEL: sudo yum install maven
+
 ```
 
 **Task (Optional but Recommended)**
+
 ```bash
 # Using the provided Makefile
 make install-task
@@ -165,6 +172,7 @@ brew install go-task/tap/go-task
 
 # Linux
 sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin
+
 ```
 
 ### 2. Clone Repository
@@ -172,6 +180,7 @@ sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin
 ```bash
 git clone <repository-url>
 cd SFDaaS
+
 ```
 
 ### 3. Validate Setup
@@ -182,6 +191,7 @@ task validate
 
 # Or manually
 java -version && mvn --version
+
 ```
 
 ---
@@ -198,6 +208,7 @@ task build
 mvn clean package
 
 # Output: target/SFDaaS.war (13 MB)
+
 ```
 
 ### Compile Only (No Packaging)
@@ -208,6 +219,7 @@ task compile
 
 # With Maven
 mvn clean compile
+
 ```
 
 ### Verify Build
@@ -219,6 +231,7 @@ task verify
 # Or manually
 ls -lh target/SFDaaS.war
 jar tf target/SFDaaS.war | head -20
+
 ```
 
 ---
@@ -228,21 +241,25 @@ jar tf target/SFDaaS.war | head -20
 ### Option 1: Embedded Tomcat (Development)
 
 **Foreground Mode:**
+
 ```bash
 # With Task
 task run
 
 # With Maven
 mvn tomcat7:run
+
 ```
 
 **Background Mode:**
+
 ```bash
 # With Task
 task run     # Start
 task status  # Check status
 task logs    # View logs
 task stop    # Stop server
+
 ```
 
 Application available at: http://localhost:8080/SFDaaS/
@@ -250,10 +267,12 @@ Application available at: http://localhost:8080/SFDaaS/
 ### Option 2: External Tomcat (Production)
 
 **Prerequisites:**
+
 - Apache Tomcat 7+ installed
 - `CATALINA_HOME` environment variable set
 
 **Deploy:**
+
 ```bash
 # With Task
 task deploy-tomcat
@@ -264,9 +283,11 @@ cp target/SFDaaS.war $CATALINA_HOME/webapps/
 # Start Tomcat
 $CATALINA_HOME/bin/startup.sh  # Linux/macOS
 %CATALINA_HOME%\bin\startup.bat  # Windows
+
 ```
 
 **Undeploy:**
+
 ```bash
 # With Task
 task undeploy-tomcat
@@ -274,6 +295,7 @@ task undeploy-tomcat
 # Manually
 rm -f $CATALINA_HOME/webapps/SFDaaS.war
 rm -rf $CATALINA_HOME/webapps/SFDaaS
+
 ```
 
 ---
@@ -302,6 +324,7 @@ t0=2010-05-28T12:00:00.000&\
 tf=2010-05-28T13:00:00.000&\
 r0=[3198022.67,2901879.73,5142928.95]&\
 v0=[-6129.640631,4489.647187,1284.511245]"
+
 ```
 
 **Example Response:**
@@ -338,7 +361,7 @@ cf=1&\
 ca=127.0.0.1:11211&\
 ct=60&\
 t0=2010-05-28T12:00:00.000&\
-tf=2011-05-28T12:00:00.000&\
+tf=2010-05-29T12:00:00.000&\
 r0=[3198022.67,2901879.73,5142928.95]&\
 v0=[-6129.640631,4489.647187,1284.511245]"
 ```
@@ -386,29 +409,36 @@ task run DATA_PATH=/custom/path/to/data
 
 # With Maven
 mvn tomcat7:run -Dorekit.data.path=/custom/path/to/data
+
 ```
 
 **For External Tomcat:**
 
 Create `$CATALINA_HOME/bin/setenv.sh` (Linux/macOS):
+
 ```bash
 export JAVA_OPTS="$JAVA_OPTS -Dorekit.data.path=/path/to/SFDaaS/data"
+
 ```
 
 Or `setenv.bat` (Windows):
+
 ```batch
 set JAVA_OPTS=%JAVA_OPTS% -Dorekit.data.path=C:\path\to\SFDaaS\data
+
 ```
 
 ### Port Configuration
 
 **Change default port (8080):**
+
 ```bash
 # With Task
 task run TOMCAT_PORT=8081
 
 # With Maven
 mvn tomcat7:run -Dmaven.tomcat.port=8081
+
 ```
 
 ### Memcached Setup (Optional)
@@ -431,6 +461,7 @@ sudo systemctl start memcached
 
 # Or run manually
 memcached -d -m 64 -p 11211
+
 ```
 
 ---
@@ -559,6 +590,7 @@ task build
 
 # Or with Maven
 mvn clean package
+
 ```
 
 **Problem: Java version issues**
@@ -569,6 +601,7 @@ java -version
 
 # If using wrong version, set JAVA_HOME
 export JAVA_HOME=/path/to/jdk-11
+
 ```
 
 **Problem: Maven not found**
@@ -593,6 +626,7 @@ lsof -ti:8080 | xargs kill -9
 
 # Or use different port
 task run TOMCAT_PORT=8081
+
 ```
 
 **Problem: Server won't start**
@@ -607,6 +641,7 @@ task logs
 # Stop and restart
 task stop
 task run
+
 ```
 
 ### API Issues
