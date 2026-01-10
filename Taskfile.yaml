@@ -137,13 +137,20 @@ tasks:
     desc: Stop all background Tomcat servers
     cmds:
       - |
+        set +e  # Don't exit on error
         echo "Stopping all Tomcat processes..."
         # Kill all tomcat7:run Maven processes
-        pkill -f "tomcat7:run" 2>/dev/null && echo "✓ Tomcat processes killed" || echo "No Tomcat processes found"
+        if pkill -f "tomcat7:run" 2>/dev/null; then
+          echo "✓ Tomcat processes killed"
+        else
+          echo "No Tomcat processes found"
+        fi
         # Also kill any process on the port as fallback
         PORT_PID=$(lsof -ti:{{.TOMCAT_PORT}} 2>/dev/null)
         if [ -n "$PORT_PID" ]; then
-          kill -9 $PORT_PID 2>/dev/null && echo "✓ Killed process on port {{.TOMCAT_PORT}}" || true
+          if kill -9 $PORT_PID 2>/dev/null; then
+            echo "✓ Killed process on port {{.TOMCAT_PORT}}"
+          fi
         fi
         # Clean up PID file
         rm -f tomcat.pid
