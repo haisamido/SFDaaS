@@ -2,7 +2,7 @@
 # This project uses Task (https://taskfile.dev) for build automation
 # Please use 'task' instead of 'make' for all build operations
 
-.PHONY: help install-task all build run clean test
+.PHONY: help install-task
 
 # Default target - show message about using Task
 help:
