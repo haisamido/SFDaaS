@@ -42,7 +42,7 @@ import org.spaceflightdynamics.propagation.Propagator;
  * OreKit [http://orekit.org] a "A free low level space dynamics library"</p>.
  *
  * <em>Usage:</em>
- *   <a href="http://localhost:8080/SFDaaS/orekit/propagate2?cf=0&ca=127.0.0.1:11211%20127.0.0.1:11211&t0=2010-05-28T12:00:00.000&tf=2011-05-28T12:00:00.000&r0=[3198022.67,2901879.73,5142928.95]&v0=[-6129.640631,4489.647187,1284.511245]">	
+ *   <a href="http://localhost:8080/SFDaaS/orekit/propagate2?cf=0&ca=127.0.0.1:11211%20127.0.0.1:11211&t0=2010-05-28T12:00:00.000&tf=2010-05-29T12:00:00.000&r0=[3198022.67,2901879.73,5142928.95]&v0=[-6129.640631,4489.647187,1284.511245]">	
  * <pre>
  * 
  * Epochs are in the ISO-8601 format, i.e. http://en.wikipedia.org/wiki/ISO_8601
@@ -383,7 +383,7 @@ public class OreKitPropagate extends HttpServlet {
 		usageText = usageText + "  &v0=[vx0,vy0,vz0]       [only in meters/second ]\n\n";
 		usageText = usageText + " Usage examples:\n";
 		usageText = usageText + "  1) <a href=\"http://localhost:8080/SFDaaS/orekit/propagate/usage\" target=\"orekit_eg_1\">Usage</a>\n";
-		usageText = usageText + "  2) <a href=\"http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000&tf=2011-05-28T12:00:00.000&r0=[3198022.67,2901879.73,5142928.95]&v0=[-6129.640631,4489.647187,1284.511245]\" target=\"orekit_eg_2\">Propagation</a>\n";
+		usageText = usageText + "  2) <a href=\"http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000&tf=2010-05-29T12:00:00.000&r0=[3198022.67,2901879.73,5142928.95]&v0=[-6129.640631,4489.647187,1284.511245]\" target=\"orekit_eg_2\">Propagation</a>\n";
 		usageText = usageText + "  3) <a href=\"http://localhost:8080/SFDaaS/orekit/propagate?cf=1&t0=2010-05-28T12:00:00.000&tf=2011-05-28T12:00:00.000&r0=[3198022.67,2901879.73,5142928.95]&v0=[-6129.640631,4489.647187,1284.511245]\" target=\"orekit_eg_3\">Propagation with Memcaching using default values (should return 'HTTP Status 500' error because memcaching server and port are undefined)</a>\n";
 		usageText = usageText + "  4) <a href=\"http://localhost:8080/SFDaaS/orekit/propagate?cf=1&ca=127.0.0.1:11211&%20127.0.0.1:112112%20192.168.1.101:11211&t0=2010-05-28T12:00:00.000&tf=2011-05-28T12:00:00.000&r0=[3198022.67,2901879.73,5142928.95]&v0=[-6129.640631,4489.647187,1284.511245]\" target=\"orekit_eg_4\">Propagation with Memcaching using default values with 3 memcaching servers defined.</a>\n";
 		usageText = usageText + "  5) <a href=\"http://localhost:8080/SFDaaS/orekit/propagate?cf=1&ct=15&ca=127.0.0.1:11211&%20127.0.0.1:112112%20192.168.1.101:11211&t0=2010-05-28T12:00:00.000&tf=2011-05-28T12:00:00.000&r0=[3198022.67,2901879.73,5142928.95]&v0=[-6129.640631,4489.647187,1284.511245]\" target=\"orekit_eg_5\">Propagation with Memcaching using ct=15, i.e. cache for 15 seconds only</a>\n";

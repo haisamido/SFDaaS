@@ -1,10 +1,9 @@
 package org.spaceflightdynamics.utils;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import java.net.URLEncoder;
-import java.net.URLDecoder;
 
 // This class is not used any where else, yet.
 public class QualityControlInput {
@@ -98,8 +97,8 @@ public class QualityControlInput {
 
 //        System.out.println(toMatch);
    
-        String _URL="http://localhost:8080/SFDaaS/orekit/propagate2?cf=1&t0=2010-05-28T12:00:00.000&tf=2011-05-28T12:00:00.000&r0=[+3198022.67,2901879.73,%2B5142928.95e%2B00]&v0=[-6129.640631,4489.647187,1284.511245]";
-        _URL="http://localhost:8080/SFDaaS/orekit/propagate2?cf=1&t0=2010-05-28T12:00:00.000&tf=2011-05-28T12:00:00.000&r0=[+3198022.67,2901879.73,%2B5142928.95e%2B00]&v0=[-6129.640631,4489.647187,1284.511245]";
+        String _URL="http://localhost:8080/SFDaaS/orekit/propagate2?cf=1&t0=2010-05-28T12:00:00.000&tf=2010-05-29T12:00:00.000&r0=[+3198022.67,2901879.73,%2B5142928.95e%2B00]&v0=[-6129.640631,4489.647187,1284.511245]";
+        _URL="http://localhost:8080/SFDaaS/orekit/propagate2?cf=1&t0=2010-05-28T12:00:00.000&tf=2010-05-29T12:00:00.000&r0=[+3198022.67,2901879.73,%2B5142928.95e%2B00]&v0=[-6129.640631,4489.647187,1284.511245]";
         String encoded_URL=URLEncoder.encode(_URL);
         String decoded_URL=URLDecoder.decode(_URL);
         System.out.println(_URL);

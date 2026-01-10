@@ -102,7 +102,8 @@ tasks:
       - echo $! > tomcat.pid
       - sleep 5
       - echo "✓ Tomcat started in background (PID{{":"}} $(cat tomcat.pid))"
-      - echo "Log file{{":"}} tomcat.log"; echo
+      - echo "Log file{{":"}} tomcat.log";
+      - echo "PID file{{":"}} tomcat.pid"; echo      
       - echo "Visit http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage"; echo
     silent: true
 
