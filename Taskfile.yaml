@@ -51,6 +51,28 @@ tasks:
       - echo "✓ Clean complete"
     silent: true
 
+  expunge:
+    desc: Complete cleanup - removes all build artifacts, dependencies, and metadata
+    cmds:
+      - echo "WARNING{{":"}} This will delete{{":"}}"
+      - echo "  - Maven repository{{":"}} {{.M2_REPO}}"
+      - echo "  - Build directory{{":"}} target/"
+      - echo "  - Helper directory{{":"}} src-main/"
+      - echo "  - Metadata{{":"}} .metadata/"
+      - echo ""
+      - echo "Expunging all build artifacts and dependencies..."
+      - rm -rf {{.M2_REPO}}
+      - rm -rf target/
+      - rm -rf src-main/
+      - rm -rf .metadata/
+      - echo ""
+      - echo "✓ Expunge complete!"
+      - echo ""
+      - echo "To rebuild from scratch{{":"}}"
+      - echo "  task setup"
+      - echo "  task build"
+    silent: true
+
   compile:
     desc: Compile source code
     deps: [clean]
@@ -112,18 +134,45 @@ tasks:
     silent: true
 
   stop:
-    desc: Stop background Tomcat server
+    desc: Stop all background Tomcat servers
     cmds:
       - |
-        if [ -f tomcat.pid ]; then
-          PID=$(cat tomcat.pid)
-          echo "Stopping Tomcat (PID: $PID)..."
-          kill $PID 2>/dev/null || echo "Process not running"
-          rm tomcat.pid
-          echo "✓ Tomcat stopped"
-        else
-          echo "No tomcat.pid file found. Server may not be running."
+        echo "Stopping all Tomcat processes..."
+        # Kill all tomcat7:run Maven processes
+        pkill -f "tomcat7:run" 2>/dev/null && echo "✓ Tomcat processes killed" || echo "No Tomcat processes found"
+        # Also kill any process on the port as fallback
+        PORT_PID=$(lsof -ti:{{.TOMCAT_PORT}} 2>/dev/null)
+        if [ -n "$PORT_PID" ]; then
+          kill -9 $PORT_PID 2>/dev/null && echo "✓ Killed process on port {{.TOMCAT_PORT}}" || true
         fi
+        # Clean up PID file
+        rm -f tomcat.pid
+        echo "✓ All Tomcat servers stopped"
+        exit 0
+    silent: true
+
+  ps:
+    desc: Show all running Tomcat processes
+    cmds:
+      - |
+        echo "Checking for Tomcat processes..."
+        TOMCAT_PROCS=$(ps aux | grep -i tomcat7:run | grep -v grep || true)
+        if [ -n "$TOMCAT_PROCS" ]; then
+          echo "Running Tomcat processes{{":"}}"
+          echo "$TOMCAT_PROCS" | awk '{print "  PID: " $2 " | Started: " $9 " | Memory: " $4 "%"}'
+          echo ""
+          echo "Total: $(echo "$TOMCAT_PROCS" | wc -l | tr -d ' ') process(es)"
+        else
+          echo "✓ No Tomcat processes running"
+        fi
+        echo ""
+        PORT_PID=$(lsof -ti:{{.TOMCAT_PORT}} 2>/dev/null || true)
+        if [ -n "$PORT_PID" ]; then
+          echo "Process on port {{.TOMCAT_PORT}}: PID $PORT_PID"
+        else
+          echo "✓ Port {{.TOMCAT_PORT}} is free"
+        fi
+        exit 0
     silent: true
 
   deploy-tomcat:
@@ -227,8 +276,9 @@ tasks:
     silent: true
 
   usage:
+    desc: Show usage documentation URL
     cmds:
-      - echo "Please open http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage in your browser"
+      - echo;echo "Please open http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage in your browser"; echo
     silent: true
 
   logs:
