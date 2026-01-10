@@ -12,7 +12,7 @@ A modern web based implementation of orbit propagation using the open source Ore
 **Recent Updates (January 2026):**
 
 - ✅ Migrated to Maven build system
-- ✅ Updated to OreKit 11.3.3 and Hipparchus 2.3
+- ✅ Updated to OreKit 13.1.2 and Hipparchus 2.3
 - ✅ Added Task automation with Taskfile.yaml
 - ✅ Modernized code for current API compatibility
 - ✅ Added comprehensive documentation

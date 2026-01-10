@@ -29,19 +29,11 @@
         </dependency>
 
         <!-- OreKit - Space Flight Dynamics Library -->
-        <!-- Note: OreKit 5.0.3 is very old. You'll need to manually install it or use a newer version -->
-        <!-- For now, we'll use a more recent version available in Maven Central -->
+        <!-- OreKit 13.1.2 automatically includes Hipparchus 4.0.2 as a dependency -->
         <dependency>
             <groupId>org.orekit</groupId>
             <artifactId>orekit</artifactId>
-            <version>11.3.3</version>
-        </dependency>
-
-        <!-- Apache Commons Math (required by OreKit) -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math3</artifactId>
-            <version>3.6.1</version>
+            <version>13.1.2</version>
         </dependency>
 
         <!-- Spymemcached for memcached support -->
