@@ -163,27 +163,63 @@ public class RouteHandler {
                 aposteriori.put("vf", finalState.get("vf"));
             }
 
-            // Build timing info
+            // Build assumptions section
+            Map<String, String> assumptions = new HashMap<>();
+            assumptions.put("1", "The epochs, t0 and tf, are assumed to be in UTC.");
+            assumptions.put("2", "The radius and velocity vectors are in meters and meters/second, respectively.");
+            assumptions.put("3", "The frame is assumed to be the J2000 Earth-centered one.");
+
+            // Build timing info with propagation timestamps
             if (propagationStart > 0 && propagationEnd > 0) {
                 timingInfo.put("propagationTimeMs", propagationEnd - propagationStart);
+                timingInfo.put("propagationStart", df.format(new Date(propagationStart)));
+                timingInfo.put("propagationEnd", df.format(new Date(propagationEnd)));
             }
-            long totalTime = System.currentTimeMillis() - startTime;
+            long endTime = System.currentTimeMillis();
+            long totalTime = endTime - startTime;
             timingInfo.put("totalTimeMs", totalTime);
-            timingInfo.put("startTime", df.format(new Date(startTime)));
-            timingInfo.put("endTime", df.format(new Date()));
+            timingInfo.put("runStart", df.format(new Date(startTime)));
+            timingInfo.put("runStop", df.format(new Date(endTime)));
 
-            // Build session info
+            // Build session info with detailed properties
             Map<String, Object> sessionInfo = new HashMap<>();
-            sessionInfo.put("id", session.getId());
+            sessionInfo.put("jsessionid", session.getId());
+            sessionInfo.put("created", df.format(new Date(session.getCreationTime())));
             sessionInfo.put("creationTime", session.getCreationTime());
             sessionInfo.put("lastAccessedTime", session.getLastAccessedTime());
+            sessionInfo.put("lastAccessed", df.format(new Date(session.getLastAccessedTime())));
             sessionInfo.put("maxInactiveInterval", session.getMaxInactiveInterval());
+            sessionInfo.put("expiryIn", session.getMaxInactiveInterval() + " seconds");
+            long expiryTime = session.getLastAccessedTime() + (session.getMaxInactiveInterval() * 1000L);
+            sessionInfo.put("expiryDate", df.format(new Date(expiryTime)));
 
-            // Build request info
+            // Build request info with full details
             Map<String, Object> requestInfo = new HashMap<>();
             requestInfo.put("method", request.method().name());
             requestInfo.put("uri", request.uri());
+            requestInfo.put("protocol", request.protocolVersion().text());
             requestInfo.put("remoteAddress", remoteAddress);
+
+            // Parse query string
+            String uri = request.uri();
+            String queryString = null;
+            if (uri.contains("?")) {
+                queryString = uri.substring(uri.indexOf("?") + 1);
+            }
+            requestInfo.put("queryString", queryString);
+            requestInfo.put("queryDecoded", queryString);
+
+            // Add authentication info (currently null for this implementation)
+            requestInfo.put("authentication", null);
+            requestInfo.put("remoteUser", null);
+            requestInfo.put("pathInfo", null);
+
+            // Full request URL
+            String host = request.headers().get("host");
+            String scheme = "http"; // Could detect https if needed
+            String fullUrl = scheme + "://" + host + uri;
+            requestInfo.put("requestURL", fullUrl);
+            requestInfo.put("requestURI", uri);
 
             // Extract headers
             Map<String, String> headers = new HashMap<>();
@@ -192,17 +228,27 @@ public class RouteHandler {
             });
             requestInfo.put("headers", headers);
 
+            // Build system properties
+            Map<String, String> systemInfo = new HashMap<>();
+            systemInfo.put("username", System.getProperty("user.name"));
+            systemInfo.put("homeDirectory", System.getProperty("user.home"));
+            systemInfo.put("userCWD", System.getProperty("user.dir"));
+
             // Build OreKit info
             Map<String, String> orekitInfo = new HashMap<>();
             orekitInfo.put("version", "13.1.2");
             String orekitDataPath = System.getProperty("orekit.data.path", "./data");
             orekitInfo.put("dataPath", orekitDataPath);
+            orekitInfo.put("orekitDataPathProperty", "orekit.data.path");
 
             // Assemble diagnostics
+            diagnostics.put("assumptions", assumptions);
             diagnostics.put("timing", timingInfo);
+            diagnostics.put("propagation", timingInfo); // Alias for compatibility
             diagnostics.put("caching", cachingInfo);
             diagnostics.put("session", sessionInfo);
             diagnostics.put("request", requestInfo);
+            diagnostics.put("system", systemInfo);
             diagnostics.put("orekit", orekitInfo);
 
             return JsonResponseBuilder.buildPropagationResponse(apriori, aposteriori, diagnostics);
