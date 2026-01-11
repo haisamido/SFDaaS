@@ -2,7 +2,7 @@
 
 Overview
 --------
-A modern web based implementation of orbit propagation using the open source OreKit library [http://orekit.org], which is "A free low level space dynamics library". SFDaaS has the capability to add output in local or remote memcached servers for later retrieval.
+SFDaaS provides a RESTful web service for satellite orbit propagation. It performs numerical integration of satellite trajectories using OreKit[http://orekit.org]'s high-precision orbital mechanics models, with optional result caching via Memcached.
 
 [![Build System](https://img.shields.io/badge/build-Maven-C71A36?logo=apache-maven)](https://maven.apache.org/)
 [![Server](https://img.shields.io/badge/server-Netty-00ADD8?logo=netty)](https://netty.io/)
@@ -39,10 +39,6 @@ A modern web based implementation of orbit propagation using the open source Ore
 - [License](#license)
 
 ---
-
-## Overview
-
-SFDaaS provides a RESTful web service for satellite orbit propagation. It performs numerical integration of satellite trajectories using OreKit's high-precision orbital mechanics models, with optional result caching via Memcached.
 
 **Key Capabilities:**
 - Numerical orbit propagation in J2000 Earth-centered frame
