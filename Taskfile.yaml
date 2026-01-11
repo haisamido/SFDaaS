@@ -2,9 +2,11 @@ version: '3'
 
 vars:
   PROJECT_NAME: SFDaaS
-  TOMCAT_PORT: 8080
+  SERVER_PORT:
+    sh: echo "${SERVER_PORT:-8080}"
   M2_REPO: './.m2/sfdaas/repository'
   MVN_FLAGS: '-Dmaven.repo.local={{.M2_REPO}}'
+  JAR_FILE: 'target/{{.PROJECT_NAME}}-jar-with-dependencies.jar'
 
 tasks:
   default:
@@ -17,8 +19,8 @@ tasks:
     desc: Display project information
     cmds:
       - echo "Project{{":"}} {{.PROJECT_NAME}}"
-      - echo "WAR File{{":"}} target/{{.PROJECT_NAME}}.war"
-      - echo "App URL{{":"}} http{{":"}}//localhost{{":"}}{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}"
+      - echo "JAR File{{":"}} {{.JAR_FILE}}"
+      - echo "App URL{{":"}} http{{":"}}//localhost{{":"}}{{.SERVER_PORT}}/{{.PROJECT_NAME}}"
       - echo "Data Path{{":"}} {{.USER_WORKING_DIR}}/data"
       - echo "M2 Repository{{":"}} {{.M2_REPO}}"
       - echo ""
@@ -91,13 +93,13 @@ tasks:
     silent: true
 
   package:
-    desc: Package application as WAR file
+    desc: Package application as standalone JAR
     deps: [clean]
     cmds:
-      - echo "Building WAR package..."
+      - echo "Building standalone JAR package..."
       - mvn {{.MVN_FLAGS}} package
-      - echo "✓ WAR file created at target/{{.PROJECT_NAME}}.war"
-      - ls -lh target/{{.PROJECT_NAME}}.war
+      - echo "✓ Standalone JAR created at {{.JAR_FILE}}"
+      - ls -lh {{.JAR_FILE}}
     silent: true
 
   build:
@@ -116,99 +118,71 @@ tasks:
     silent: true
 
   run:
-    desc: Run application in background
+    desc: Run application in background (standalone Netty server)
     deps:
       - stop
       - clean
       - setup
       - build
     cmds:
-      - echo; echo "Starting embedded Tomcat in background on port {{.TOMCAT_PORT}}...";echo
-      - nohup mvn {{.MVN_FLAGS}} tomcat7:run -Dmaven.tomcat.port={{.TOMCAT_PORT}} > tomcat.log 2>&1 &
-      - echo $! > tomcat.pid
-      - sleep 5
-      - echo "✓ Tomcat started in background (PID{{":"}} $(cat tomcat.pid))"
-      - echo "Log file{{":"}} tomcat.log";
-      - echo "PID file{{":"}} tomcat.pid"; echo
-      - echo "Visit http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage"; echo
+      - echo; echo "Starting Netty server in background on port {{.SERVER_PORT}}...";echo
+      - nohup java -Dserver.port={{.SERVER_PORT}} -Dserver.contextPath=/{{.PROJECT_NAME}} -Dorekit.data.path=./data -jar {{.JAR_FILE}} > server.log 2>&1 &
+      - echo $! > server.pid
+      - sleep 3
+      - echo "✓ Netty server started in background (PID{{":"}} $(cat server.pid))"
+      - echo "Log file{{":"}} server.log";
+      - echo "PID file{{":"}} server.pid"; echo
+      - echo "Visit http://localhost:{{.SERVER_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage"; echo " or "
+      - echo "Visit http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000&tf=2010-05-29T12:00:00.000&r0=[3198022.67,2901879.73,5142928.95]&v0=[-6129.640631,4489.647187,1284.511245]"
     silent: true
 
   stop:
-    desc: Stop all background Tomcat servers
+    desc: Stop all background Netty servers
     cmds:
       - |
         set +e  # Don't exit on error
-        echo "Stopping all Tomcat processes..."
-        # Kill all tomcat7:run Maven processes
-        if pkill -f "tomcat7:run" 2>/dev/null; then
-          echo "✓ Tomcat processes killed"
+        echo "Stopping all SFDaaS server processes..."
+        # Kill all SFDaaS JAR processes
+        if pkill -f "{{.PROJECT_NAME}}-jar-with-dependencies.jar" 2>/dev/null; then
+          echo "✓ SFDaaS server processes killed"
         else
-          echo "No Tomcat processes found"
+          echo "No SFDaaS server processes found"
         fi
         # Also kill any process on the port as fallback
-        PORT_PID=$(lsof -ti:{{.TOMCAT_PORT}} 2>/dev/null)
+        PORT_PID=$(lsof -ti:{{.SERVER_PORT}} 2>/dev/null)
         if [ -n "$PORT_PID" ]; then
           if kill -9 $PORT_PID 2>/dev/null; then
-            echo "✓ Killed process on port {{.TOMCAT_PORT}}"
+            echo "✓ Killed process on port {{.SERVER_PORT}}"
           fi
         fi
-        # Clean up PID file
-        rm -f tomcat.pid
-        echo "✓ All Tomcat servers stopped"
+        # Clean up PID and log files
+        rm -f server.pid server.log tomcat.pid tomcat.log
+        echo "✓ All SFDaaS servers stopped"
         exit 0
     silent: true
 
   ps:
-    desc: Show all running Tomcat processes
+    desc: Show all running SFDaaS server processes
     cmds:
       - |
-        echo "Checking for Tomcat processes..."
-        TOMCAT_PROCS=$(ps aux | grep -i tomcat7:run | grep -v grep || true)
-        if [ -n "$TOMCAT_PROCS" ]; then
-          echo "Running Tomcat processes{{":"}}"
-          echo "$TOMCAT_PROCS" | awk '{print "  PID: " $2 " | Started: " $9 " | Memory: " $4 "%"}'
+        echo "Checking for SFDaaS server processes..."
+        SERVER_PROCS=$(ps aux | grep -i "{{.PROJECT_NAME}}-jar-with-dependencies.jar" | grep -v grep || true)
+        if [ -n "$SERVER_PROCS" ]; then
+          echo "Running SFDaaS server processes{{":"}}"
+          echo "$SERVER_PROCS" | awk '{print "  PID: " $2 " | Started: " $9 " | Memory: " $4 "%"}'
           echo ""
-          echo "Total: $(echo "$TOMCAT_PROCS" | wc -l | tr -d ' ') process(es)"
+          echo "Total: $(echo "$SERVER_PROCS" | wc -l | tr -d ' ') process(es)"
         else
-          echo "✓ No Tomcat processes running"
+          echo "✓ No SFDaaS server processes running"
         fi
         echo ""
-        PORT_PID=$(lsof -ti:{{.TOMCAT_PORT}} 2>/dev/null || true)
+        PORT_PID=$(lsof -ti:{{.SERVER_PORT}} 2>/dev/null || true)
         if [ -n "$PORT_PID" ]; then
-          echo "Process on port {{.TOMCAT_PORT}}: PID $PORT_PID"
+          echo "Process on port {{.SERVER_PORT}}: PID $PORT_PID"
         else
-          echo "✓ Port {{.TOMCAT_PORT}} is free"
+          echo "✓ Port {{.SERVER_PORT}} is free"
         fi
         exit 0
-    silent: true
-
-  deploy-tomcat:
-    desc: Deploy WAR to external Tomcat (requires CATALINA_HOME)
-    deps: [package]
-    cmds:
-      - |
-        if [ -z "$CATALINA_HOME" ]; then
-          echo "Error: CATALINA_HOME environment variable not set"
-          exit 1
-        fi
-        echo "Deploying to Tomcat at $CATALINA_HOME..."
-        cp target/{{.PROJECT_NAME}}.war $CATALINA_HOME/webapps/
-        echo "✓ Deployed to $CATALINA_HOME/webapps/{{.PROJECT_NAME}}.war"
-        echo "Restart Tomcat to load the application"
-    silent: true
-
-  undeploy-tomcat:
-    desc: Remove application from external Tomcat
-    cmds:
-      - |
-        if [ -z "$CATALINA_HOME" ]; then
-          echo "Error: CATALINA_HOME environment variable not set"
-          exit 1
-        fi
-        echo "Removing application from Tomcat..."
-        rm -f $CATALINA_HOME/webapps/{{.PROJECT_NAME}}.war
-        rm -rf $CATALINA_HOME/webapps/{{.PROJECT_NAME}}
-        echo "✓ Application removed"
     silent: true
 
   deps:
@@ -251,22 +225,21 @@ tasks:
     silent: true
 
   verify:
-    desc: Verify the built WAR file
+    desc: Verify the built JAR file
     cmds:
       - |
-        if [ ! -f target/{{.PROJECT_NAME}}.war ]; then
-          echo "Error: WAR file not found. Run 'task build' first."
+        if [ ! -f {{.JAR_FILE}} ]; then
+          echo "Error: JAR file not found. Run 'task build' first."
           exit 1
         fi
-        echo "WAR file information:"
-        ls -lh target/{{.PROJECT_NAME}}.war
+        echo "JAR file information:"
+        ls -lh {{.JAR_FILE}}
         echo ""
-        echo "WAR file contents:"
-        jar tf target/{{.PROJECT_NAME}}.war | head -20
+        echo "JAR file contents (first 20 entries):"
+        jar tf {{.JAR_FILE}} | head -20
         echo "..."
-        echo "(showing first 20 entries)"
         echo ""
-        echo "✓ WAR file is valid"
+        echo "✓ JAR file is valid"
     silent: true
 
   open:
@@ -274,26 +247,26 @@ tasks:
     cmds:
       - |
         if command -v open > /dev/null; then
-          open http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage
+          open http://localhost:{{.SERVER_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage
         elif command -v xdg-open > /dev/null; then
-          xdg-open http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage
+          xdg-open http://localhost:{{.SERVER_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage
         else
-          echo "Please open http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage in your browser"
+          echo "Please open http://localhost:{{.SERVER_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage in your browser"
         fi
     silent: true
 
   usage:
     desc: Show usage documentation URL
     cmds:
-      - echo;echo "Please open http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage in your browser"; echo
+      - echo;echo "Please open http://localhost:{{.SERVER_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage in your browser"; echo
     silent: true
 
   logs:
-    desc: Tail the Tomcat log file
+    desc: Tail the server log file
     cmds:
       - |
-        if [ -f tomcat.log ]; then
-          tail -f tomcat.log
+        if [ -f server.log ]; then
+          tail -f server.log
         else
           echo "No log file found. Is the server running?"
         fi
@@ -316,7 +289,7 @@ tasks:
       - echo ""
       - echo "Next steps{{":"}}"
       - echo "  1. Run 'task run' to setup, build and start the server"
-      - echo "  2. Visit http://localhost:{{.TOMCAT_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage"
+      - echo "  2. Visit http://localhost:{{.SERVER_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage"
     silent: true
 
   release:
@@ -333,7 +306,7 @@ tasks:
       - echo "✓ Release build complete!"
       - echo ""
       - echo "Artifacts{{":"}}"
-      - ls -lh target/{{.PROJECT_NAME}}.war
+      - ls -lh {{.JAR_FILE}}
     silent: true
 
   status:
@@ -343,8 +316,8 @@ tasks:
         echo "Application Status:"
         echo "===================="
         echo ""
-        if [ -f tomcat.pid ]; then
-          PID=$(cat tomcat.pid)
+        if [ -f server.pid ]; then
+          PID=$(cat server.pid)
           if ps -p $PID > /dev/null 2>&1; then
             echo "Status: RUNNING (PID: $PID)"
           else
@@ -354,17 +327,17 @@ tasks:
           echo "Status: STOPPED"
         fi
         echo ""
-        echo "Checking port {{.TOMCAT_PORT}}..."
-        if lsof -Pi :{{.TOMCAT_PORT}} -sTCP:LISTEN -t >/dev/null 2>&1 || netstat -an 2>/dev/null | grep {{.TOMCAT_PORT}} | grep LISTEN >/dev/null 2>&1; then
-          echo "Port {{.TOMCAT_PORT}}: IN USE"
+        echo "Checking port {{.SERVER_PORT}}..."
+        if lsof -Pi :{{.SERVER_PORT}} -sTCP:LISTEN -t >/dev/null 2>&1 || netstat -an 2>/dev/null | grep {{.SERVER_PORT}} | grep LISTEN >/dev/null 2>&1; then
+          echo "Port {{.SERVER_PORT}}: IN USE"
         else
-          echo "Port {{.TOMCAT_PORT}}: AVAILABLE"
+          echo "Port {{.SERVER_PORT}}: AVAILABLE"
         fi
         echo ""
-        if [ -f target/{{.PROJECT_NAME}}.war ]; then
-          echo "WAR file: EXISTS"
+        if [ -f {{.JAR_FILE}} ]; then
+          echo "JAR file: EXISTS"
         else
-          echo "WAR file: NOT FOUND"
+          echo "JAR file: NOT FOUND"
         fi
     silent: true
 

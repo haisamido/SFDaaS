@@ -24,8 +24,8 @@ bin/
 .DS_Store
 
 # Task runner
-tomcat.log
-tomcat.pid
+*.log
+*.pid
 nohup.out
 
 # Build helper

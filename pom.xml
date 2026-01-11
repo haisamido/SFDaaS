@@ -8,7 +8,7 @@
     <groupId>org.spaceflightdynamics</groupId>
     <artifactId>SFDaaS</artifactId>
     <version>1.0.0</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <name>Space Flight Dynamics as a Service</name>
     <description>A web based implementation of orbit propagation using OreKit</description>
@@ -20,12 +20,18 @@
     </properties>
 
     <dependencies>
-        <!-- Servlet API (provided by Tomcat) -->
+        <!-- Netty - Async HTTP server framework -->
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
-            <scope>provided</scope>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.104.Final</version>
+        </dependency>
+
+        <!-- Gson - JSON serialization/deserialization -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
         </dependency>
 
         <!-- OreKit - Space Flight Dynamics Library -->
@@ -95,25 +101,44 @@
                 </configuration>
             </plugin>
 
+            <!-- JAR Plugin - Set main class for executable JAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.3.2</version>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
                 <configuration>
-                    <warSourceDirectory>WebContent</warSourceDirectory>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.spaceflightdynamics.netty.NettyServer</mainClass>
+                        </manifest>
+                    </archive>
                 </configuration>
             </plugin>
 
-            <!-- Tomcat Maven Plugin for easy deployment and testing -->
+            <!-- Assembly Plugin - Build fat JAR with all dependencies -->
             <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-                <version>2.2</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.6.0</version>
                 <configuration>
-                    <path>/SFDaaS</path>
-                    <port>8080</port>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.spaceflightdynamics.netty.NettyServer</mainClass>
+                        </manifest>
+                    </archive>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
