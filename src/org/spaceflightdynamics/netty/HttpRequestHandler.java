@@ -11,7 +11,10 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.util.CharsetUtil;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +36,6 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) {
-        String responseJson;
-        HttpResponseStatus status = HttpResponseStatus.OK;
-
         try {
             // Get remote address
             String remoteAddress = ((InetSocketAddress) ctx.channel().remoteAddress()).getAddress().getHostAddress();
@@ -49,6 +49,23 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
             if (path.startsWith(contextPath)) {
                 path = path.substring(contextPath.length());
             }
+
+            // Check if this is a static file request
+            if (path.equals("/") || path.equals("") || path.equals("/index.html")) {
+                serveStaticFile(ctx, request, "WebContent/index.html", "text/html");
+                return;
+            } else if (path.startsWith("/static/") || path.endsWith(".html") || path.endsWith(".css") ||
+                       path.endsWith(".js") || path.endsWith(".ico")) {
+                // Serve other static files from WebContent
+                String filePath = "WebContent" + path;
+                String contentType = getContentType(path);
+                serveStaticFile(ctx, request, filePath, contentType);
+                return;
+            }
+
+            // API endpoints - JSON responses
+            String responseJson;
+            HttpResponseStatus status = HttpResponseStatus.OK;
 
             // Extract query parameters
             Map<String, String> params = new HashMap<>();
@@ -74,15 +91,20 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
                 status = HttpResponseStatus.NOT_FOUND;
             }
 
+            // Create JSON response
+            sendJsonResponse(ctx, request, responseJson, status);
+
         } catch (Exception e) {
             e.printStackTrace();
-            responseJson = JsonResponseBuilder.buildErrorResponse(
+            String errorJson = JsonResponseBuilder.buildErrorResponse(
                     "Internal server error: " + e.getMessage(),
                     500);
-            status = HttpResponseStatus.INTERNAL_SERVER_ERROR;
+            sendJsonResponse(ctx, request, errorJson, HttpResponseStatus.INTERNAL_SERVER_ERROR);
         }
+    }
 
-        // Create HTTP response
+    private void sendJsonResponse(ChannelHandlerContext ctx, FullHttpRequest request,
+                                   String responseJson, HttpResponseStatus status) {
         ByteBuf content = Unpooled.copiedBuffer(responseJson, CharsetUtil.UTF_8);
         FullHttpResponse response = new DefaultFullHttpResponse(
                 HttpVersion.HTTP_1_1,
@@ -105,6 +127,63 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
         } else {
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
         }
+    }
+
+    private void serveStaticFile(ChannelHandlerContext ctx, FullHttpRequest request,
+                                  String filePath, String contentType) {
+        File file = new File(filePath);
+
+        if (!file.exists() || !file.isFile()) {
+            String errorJson = JsonResponseBuilder.buildErrorResponse(
+                    "File not found: " + filePath,
+                    404);
+            sendJsonResponse(ctx, request, errorJson, HttpResponseStatus.NOT_FOUND);
+            return;
+        }
+
+        try {
+            byte[] fileContent = Files.readAllBytes(file.toPath());
+            ByteBuf content = Unpooled.wrappedBuffer(fileContent);
+
+            FullHttpResponse response = new DefaultFullHttpResponse(
+                    HttpVersion.HTTP_1_1,
+                    HttpResponseStatus.OK,
+                    content);
+
+            response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
+            response.headers().set(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());
+
+            boolean keepAlive = HttpUtil.isKeepAlive(request);
+            if (keepAlive) {
+                response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+            }
+
+            if (keepAlive) {
+                ctx.writeAndFlush(response);
+            } else {
+                ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            String errorJson = JsonResponseBuilder.buildErrorResponse(
+                    "Error reading file: " + e.getMessage(),
+                    500);
+            sendJsonResponse(ctx, request, errorJson, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private String getContentType(String path) {
+        if (path.endsWith(".html")) return "text/html; charset=UTF-8";
+        if (path.endsWith(".css")) return "text/css; charset=UTF-8";
+        if (path.endsWith(".js")) return "application/javascript; charset=UTF-8";
+        if (path.endsWith(".json")) return "application/json; charset=UTF-8";
+        if (path.endsWith(".png")) return "image/png";
+        if (path.endsWith(".jpg") || path.endsWith(".jpeg")) return "image/jpeg";
+        if (path.endsWith(".gif")) return "image/gif";
+        if (path.endsWith(".svg")) return "image/svg+xml";
+        if (path.endsWith(".ico")) return "image/x-icon";
+        return "text/plain; charset=UTF-8";
     }
 
     /**

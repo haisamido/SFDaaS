@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SFDaaS - Space Flight Dynamics as a Service</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1d35 100%);
+            color: #e0e0e0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            color: #4a9eff;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.1em;
+        }
+
+        .version {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 15px;
+            background: rgba(74, 158, 255, 0.2);
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #4a9eff;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            color: #4a9eff;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        input, select, textarea {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            color: #e0e0e0;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #4a9eff;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        input[type="datetime-local"] {
+            cursor: pointer;
+        }
+
+        .help-text {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .orbit-inputs {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .orbit-inputs.active {
+            display: grid;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .propagator-section {
+            margin: 25px 0;
+        }
+
+        .section-title {
+            color: #4a9eff;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(74, 158, 255, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #4a9eff 0%, #3b7dd6 100%);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(74, 158, 255, 0.4);
+        }
+
+        .btn-reset {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-example {
+            background: rgba(74, 158, 255, 0.2);
+            color: #4a9eff;
+        }
+
+        .btn-example:hover {
+            background: rgba(74, 158, 255, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results-container {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+
+        .results-container.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .result-section {
+            margin-bottom: 25px;
+        }
+
+        .result-title {
+            color: #4a9eff;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .result-data {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #4a9eff;
+        }
+
+        .spinner {
+            border: 4px solid rgba(74, 158, 255, 0.3);
+            border-top: 4px solid #4a9eff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: rgba(255, 82, 82, 0.1);
+            border: 1px solid rgba(255, 82, 82, 0.3);
+            color: #ff5252;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: rgba(74, 158, 255, 0.2);
+            border-bottom-color: transparent;
+            color: #4a9eff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .info-box {
+            background: rgba(74, 158, 255, 0.1);
+            border-left: 4px solid #4a9eff;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .info-box h3 {
+            color: #4a9eff;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛰️ SFDaaS</h1>
+            <div class="subtitle">Space Flight Dynamics as a Service</div>
+            <span class="version">v1.0.0 | OreKit 13.1.2 | Netty 4.1.104</span>
+        </header>
+
+        <div class="info-box">
+            <h3>About This Tool</h3>
+            <p>Perform high-precision satellite orbit propagation using the OreKit library. Configure your initial orbital state, select a propagator, and propagate to any future or past epoch.</p>
+            <ul>
+                <li><strong>Frame:</strong> J2000 Earth-centered inertial</li>
+                <li><strong>Units:</strong> Position in meters, Velocity in m/s</li>
+                <li><strong>Time:</strong> UTC timezone (ISO-8601 format)</li>
+            </ul>
+        </div>
+
+        <div class="form-container">
+            <form id="propagationForm">
+                <!-- Time Configuration -->
+                <div class="section-title">⏰ Time Configuration</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="t0">Initial Epoch (t₀)</label>
+                        <input type="datetime-local" id="t0" name="t0" required step="0.001">
+                        <span class="help-text">Start time for propagation (UTC)</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="tf">Final Epoch (tₓ)</label>
+                        <input type="datetime-local" id="tf" name="tf" required step="0.001">
+                        <span class="help-text">End time for propagation (UTC)</span>
+                    </div>
+                </div>
+
+                <!-- Numerical Propagator -->
+                <div class="propagator-section">
+                    <div class="section-title">🔧 Numerical Propagator</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="propagator">Propagator Type</label>
+                            <select id="propagator" name="propagator" required>
+                                <option value="rungekutta">Classical Runge-Kutta (4th order)</option>
+                                <option value="dormandprince853">Dormand-Prince 8(5,3)</option>
+                                <option value="adamsbashforth">Adams-Bashforth</option>
+                                <option value="adamsmoulton">Adams-Moulton</option>
+                            </select>
+                            <span class="help-text">Integration method for propagation</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="stepSize">Step Size (seconds)</label>
+                            <input type="number" id="stepSize" name="stepSize" value="60" min="0.001" step="0.001">
+                            <span class="help-text">Integration step size</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orbit Type Selection -->
+                <div class="section-title">🌍 Orbit Type & Initial State</div>
+                <div class="form-group">
+                    <label for="orbitType">Orbit Representation</label>
+                    <select id="orbitType" name="orbitType" required>
+                        <option value="cartesian">Cartesian (Position & Velocity)</option>
+                        <option value="keplerian">Keplerian Elements</option>
+                        <option value="circular">Circular Elements</option>
+                        <option value="equinoctial">Equinoctial Elements</option>
+                    </select>
+                    <span class="help-text">Choose how to specify the initial orbit</span>
+                </div>
+
+                <!-- Cartesian Input -->
+                <div id="cartesianInputs" class="orbit-inputs active">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="r0">Position Vector r₀ [x, y, z]</label>
+                            <input type="text" id="r0" name="r0" placeholder="[3198022.67, 2901879.73, 5142928.95]" pattern="\[.*\]">
+                            <span class="help-text">Position in meters (J2000 frame)</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="v0">Velocity Vector v₀ [vx, vy, vz]</label>
+                            <input type="text" id="v0" name="v0" placeholder="[-6129.640631, 4489.647187, 1284.511245]" pattern="\[.*\]">
+                            <span class="help-text">Velocity in m/s (J2000 frame)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Keplerian Input -->
+                <div id="keplerianInputs" class="orbit-inputs">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="kepA">Semi-major Axis (a)</label>
+                            <input type="number" id="kepA" name="kepA" placeholder="7000000" step="0.001">
+                            <span class="help-text">Meters</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="kepE">Eccentricity (e)</label>
+                            <input type="number" id="kepE" name="kepE" placeholder="0.001" min="0" max="0.999" step="0.000001">
+                            <span class="help-text">Dimensionless (0 ≤ e < 1)</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="kepI">Inclination (i)</label>
+                            <input type="number" id="kepI" name="kepI" placeholder="51.6" step="0.001">
+                            <span class="help-text">Degrees</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="kepOmega">RAAN (Ω)</label>
+                            <input type="number" id="kepOmega" name="kepOmega" placeholder="0" step="0.001">
+                            <span class="help-text">Right Ascension of Ascending Node (degrees)</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="kepW">Argument of Perigee (ω)</label>
+                            <input type="number" id="kepW" name="kepW" placeholder="0" step="0.001">
+                            <span class="help-text">Degrees</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="kepV">True Anomaly (ν)</label>
+                            <input type="number" id="kepV" name="kepV" placeholder="0" step="0.001">
+                            <span class="help-text">Degrees</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Circular Input -->
+                <div id="circularInputs" class="orbit-inputs">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="cirA">Semi-major Axis (a)</label>
+                            <input type="number" id="cirA" name="cirA" placeholder="7000000" step="0.001">
+                            <span class="help-text">Meters</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="cirEx">ex (e⋅cos(ω))</label>
+                            <input type="number" id="cirEx" name="cirEx" placeholder="0" step="0.000001">
+                            <span class="help-text">Dimensionless</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="cirEy">ey (e⋅sin(ω))</label>
+                            <input type="number" id="cirEy" name="cirEy" placeholder="0" step="0.000001">
+                            <span class="help-text">Dimensionless</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="cirI">Inclination (i)</label>
+                            <input type="number" id="cirI" name="cirI" placeholder="51.6" step="0.001">
+                            <span class="help-text">Degrees</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="cirRaan">RAAN (Ω)</label>
+                            <input type="number" id="cirRaan" name="cirRaan" placeholder="0" step="0.001">
+                            <span class="help-text">Degrees</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="cirAlpha">Latitude Argument (αₘ)</label>
+                            <input type="number" id="cirAlpha" name="cirAlpha" placeholder="0" step="0.001">
+                            <span class="help-text">Degrees</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Equinoctial Input -->
+                <div id="equinoctialInputs" class="orbit-inputs">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="equA">Semi-major Axis (a)</label>
+                            <input type="number" id="equA" name="equA" placeholder="7000000" step="0.001">
+                            <span class="help-text">Meters</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="equEx">ex</label>
+                            <input type="number" id="equEx" name="equEx" placeholder="0" step="0.000001">
+                            <span class="help-text">Dimensionless</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="equEy">ey</label>
+                            <input type="number" id="equEy" name="equEy" placeholder="0" step="0.000001">
+                            <span class="help-text">Dimensionless</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="equHx">hx</label>
+                            <input type="number" id="equHx" name="equHx" placeholder="0" step="0.000001">
+                            <span class="help-text">Dimensionless</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="equHy">hy</label>
+                            <input type="number" id="equHy" name="equHy" placeholder="0" step="0.000001">
+                            <span class="help-text">Dimensionless</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="equLambda">Mean Longitude (λₘ)</label>
+                            <input type="number" id="equLambda" name="equLambda" placeholder="0" step="0.001">
+                            <span class="help-text">Degrees</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Optional: Caching -->
+                <div class="propagator-section">
+                    <div class="section-title">💾 Caching Options (Optional)</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="enableCache">
+                                <input type="checkbox" id="enableCache" name="enableCache" style="width: auto; margin-right: 10px;">
+                                Enable Memcached Caching
+                            </label>
+                            <span class="help-text">Cache results for faster repeated queries</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="cacheServer">Cache Server Address</label>
+                            <input type="text" id="cacheServer" name="cacheServer" placeholder="127.0.0.1:11211" disabled>
+                            <span class="help-text">Memcached server address:port</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="button-group">
+                    <button type="button" class="btn-example" onclick="loadExample()">Load Example</button>
+                    <button type="reset" class="btn-reset">Reset Form</button>
+                    <button type="submit" class="btn-submit">🚀 Propagate Orbit</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="results-container">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('summary')">Summary</div>
+                <div class="tab" onclick="switchTab('diagnostics')">Diagnostics</div>
+                <div class="tab" onclick="switchTab('raw')">Raw JSON</div>
+            </div>
+
+            <div id="summaryTab" class="tab-content active">
+                <!-- Populated by JavaScript -->
+            </div>
+
+            <div id="diagnosticsTab" class="tab-content">
+                <!-- Populated by JavaScript -->
+            </div>
+
+            <div id="rawTab" class="tab-content">
+                <div class="result-data">
+                    <pre id="rawJson"></pre>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built with OreKit 13.1.2 • Netty 4.1.104 • Maven • ❤️</p>
+            <p>SFDaaS v1.0.0 | LGPL v3.0 License</p>
+        </footer>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE = window.location.origin + '/SFDaaS/orekit/propagate';
+
+        // Initialize datetime inputs with current time
+        function initializeDates() {
+            const now = new Date();
+            const oneHourLater = new Date(now.getTime() + 3600000);
+
+            document.getElementById('t0').value = formatDateTimeLocal(now);
+            document.getElementById('tf').value = formatDateTimeLocal(oneHourLater);
+        }
+
+        function formatDateTimeLocal(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            const ms = String(date.getMilliseconds()).padStart(3, '0');
+
+            return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${ms}`;
+        }
+
+        function convertToISOString(datetimeLocal) {
+            // Convert from datetime-local format to ISO-8601
+            const date = new Date(datetimeLocal);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            const ms = String(date.getMilliseconds()).padStart(3, '0');
+
+            return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${ms}`;
+        }
+
+        // Handle orbit type switching
+        document.getElementById('orbitType').addEventListener('change', function() {
+            const orbitType = this.value;
+
+            // Hide all orbit input sections
+            document.querySelectorAll('.orbit-inputs').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Show selected orbit input section
+            const inputMap = {
+                'cartesian': 'cartesianInputs',
+                'keplerian': 'keplerianInputs',
+                'circular': 'circularInputs',
+                'equinoctial': 'equinoctialInputs'
+            };
+
+            document.getElementById(inputMap[orbitType]).classList.add('active');
+        });
+
+        // Handle cache checkbox
+        document.getElementById('enableCache').addEventListener('change', function() {
+            document.getElementById('cacheServer').disabled = !this.checked;
+        });
+
+        // Load example data
+        function loadExample() {
+            // Set times
+            const t0 = new Date('2010-05-28T12:00:00.000Z');
+            const tf = new Date('2010-05-29T12:00:00.000Z');
+
+            document.getElementById('t0').value = formatDateTimeLocal(t0);
+            document.getElementById('tf').value = formatDateTimeLocal(tf);
+
+            // Set orbit type to Cartesian
+            document.getElementById('orbitType').value = 'cartesian';
+            document.getElementById('orbitType').dispatchEvent(new Event('change'));
+
+            // Set Cartesian values (ISS-like orbit)
+            document.getElementById('r0').value = '[3198022.67, 2901879.73, 5142928.95]';
+            document.getElementById('v0').value = '[-6129.640631, 4489.647187, 1284.511245]';
+
+            // Set propagator
+            document.getElementById('propagator').value = 'rungekutta';
+            document.getElementById('stepSize').value = '60';
+        }
+
+        // Global abort controller for cancelling requests
+        let currentAbortController = null;
+
+        // Form submission
+        document.getElementById('propagationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const resultsDiv = document.getElementById('results');
+
+            // Show loading state without destroying tab structure
+            document.getElementById('summaryTab').innerHTML = '<div class="loading"><div class="spinner"></div><p>Propagating orbit...</p><button id="cancelBtn" style="margin-top: 20px; padding: 10px 20px; background: #ff5252; border: none; border-radius: 5px; color: white; cursor: pointer; font-size: 14px;">Cancel</button></div>';
+            document.getElementById('diagnosticsTab').innerHTML = '';
+            document.getElementById('rawJson').textContent = '';
+
+            // Make sure summary tab is active
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab')[0].classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('summaryTab').classList.add('active');
+
+            resultsDiv.classList.add('active');
+
+            // Create new abort controller
+            currentAbortController = new AbortController();
+
+            // Add cancel button handler
+            document.getElementById('cancelBtn').addEventListener('click', function() {
+                if (currentAbortController) {
+                    currentAbortController.abort();
+                    displayError('Propagation cancelled by user');
+                }
+            });
+
+            try {
+                // Build query parameters
+                const formData = new FormData(this);
+                const orbitType = formData.get('orbitType');
+
+                // Convert datetime-local to ISO format
+                const t0 = convertToISOString(formData.get('t0'));
+                const tf = convertToISOString(formData.get('tf'));
+
+                let r0, v0;
+
+                // For now, only Cartesian is supported by backend
+                // (Would need backend changes to support other orbit types)
+                if (orbitType === 'cartesian') {
+                    r0 = formData.get('r0');
+                    v0 = formData.get('v0');
+                } else {
+                    throw new Error('Only Cartesian orbit type is currently supported by the backend. Keplerian, Circular, and Equinoctial will require backend implementation.');
+                }
+
+                // Build API URL
+                const params = new URLSearchParams({
+                    t0: t0,
+                    tf: tf,
+                    r0: r0,
+                    v0: v0
+                });
+
+                // Add caching if enabled
+                if (document.getElementById('enableCache').checked) {
+                    params.append('cf', '1');
+                    params.append('ca', formData.get('cacheServer'));
+                }
+
+                const url = `${API_BASE}?${params.toString()}`;
+                console.log('Requesting:', url);
+
+                // Make API request with timeout and abort signal
+                const response = await fetch(url, {
+                    signal: currentAbortController.signal,
+                    timeout: 30000 // 30 second timeout
+                });
+
+                console.log('Response status:', response.status);
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    displayResults(data);
+                } else {
+                    displayError(data.message || 'Propagation failed');
+                }
+
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    // Request was cancelled - error already displayed
+                    return;
+                }
+                displayError(error.message || 'Request failed');
+            } finally {
+                currentAbortController = null;
+            }
+        });
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+
+            // Summary Tab
+            const summaryHtml = `
+                <div class="success">✓ Propagation completed successfully!</div>
+
+                <div class="result-section">
+                    <div class="result-title">A Priori State (Initial)</div>
+                    <div class="result-data">
+                        <pre>Epoch:    ${data.data.apriori.t0}
+Position: ${data.data.apriori.r0} m
+Velocity: ${data.data.apriori.v0} m/s</pre>
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-title">A Posteriori State (Final)</div>
+                    <div class="result-data">
+                        <pre>Epoch:    ${data.data.aposteriori.tf}
+Position: ${data.data.aposteriori.rf} m
+Velocity: ${data.data.aposteriori.vf} m/s</pre>
+                    </div>
+                </div>
+
+                ${data.diagnostics.timing ? `
+                <div class="result-section">
+                    <div class="result-title">⏱️ Performance</div>
+                    <div class="result-data">
+                        <pre>Propagation Time: ${data.diagnostics.timing.propagationTimeMs || 'N/A'} ms
+Total Time:       ${data.diagnostics.timing.totalTimeMs} ms</pre>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+
+            // Diagnostics Tab
+            const diagnosticsHtml = `
+                ${data.diagnostics.assumptions ? `
+                <div class="result-section">
+                    <div class="result-title">Assumptions</div>
+                    <div class="result-data">
+                        <pre>${Object.values(data.diagnostics.assumptions).map((v, i) => `${i + 1}. ${v}`).join('\n')}</pre>
+                    </div>
+                </div>
+                ` : ''}
+
+                ${data.diagnostics.session ? `
+                <div class="result-section">
+                    <div class="result-title">Session Information</div>
+                    <div class="result-data">
+                        <pre>Session ID:  ${data.diagnostics.session.jsessionid || data.diagnostics.session.id}
+Created:     ${data.diagnostics.session.created || new Date(data.diagnostics.session.creationTime).toISOString()}
+Expires In:  ${data.diagnostics.session.expiryIn || data.diagnostics.session.maxInactiveInterval + ' seconds'}</pre>
+                    </div>
+                </div>
+                ` : ''}
+
+                ${data.diagnostics.caching ? `
+                <div class="result-section">
+                    <div class="result-title">Caching</div>
+                    <div class="result-data">
+                        <pre>Enabled: ${data.diagnostics.caching.enabled ? 'Yes' : 'No'}
+${data.diagnostics.caching.enabled ? `Hit:     ${data.diagnostics.caching.hit ? 'Yes (from cache)' : 'No (freshly computed)'}` : ''}</pre>
+                    </div>
+                </div>
+                ` : ''}
+
+                ${data.diagnostics.system ? `
+                <div class="result-section">
+                    <div class="result-title">System Information</div>
+                    <div class="result-data">
+                        <pre>Username: ${data.diagnostics.system.username}
+Home Dir: ${data.diagnostics.system.homeDirectory}
+Work Dir: ${data.diagnostics.system.userCWD}</pre>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+
+            // Raw JSON Tab
+            document.getElementById('rawJson').textContent = JSON.stringify(data, null, 2);
+
+            // Update tabs
+            document.getElementById('summaryTab').innerHTML = summaryHtml;
+            document.getElementById('diagnosticsTab').innerHTML = diagnosticsHtml;
+
+            resultsDiv.classList.add('active');
+        }
+
+        function displayError(message) {
+            const resultsDiv = document.getElementById('results');
+
+            // Clear tab contents but preserve structure
+            document.getElementById('summaryTab').innerHTML = `
+                <div class="error">
+                    <strong>Error:</strong> ${message}
+                </div>
+            `;
+            document.getElementById('diagnosticsTab').innerHTML = '';
+            document.getElementById('rawJson').textContent = '';
+
+            // Make sure summary tab is active
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab')[0].classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('summaryTab').classList.add('active');
+
+            resultsDiv.classList.add('active');
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', function() {
+            initializeDates();
+        });
+    </script>
+</body>
+</html>
