@@ -33,6 +33,7 @@ SFDaaS provides a RESTful web service for satellite orbit propagation. It perfor
 - [Configuration](#configuration)
 - [Development](#development)
 - [Testing](#testing)
+- [Documentation](#documentation)
 - [Troubleshooting](#troubleshooting)
 - [Project Structure](#project-structure)
 - [Dependencies](#dependencies)
@@ -649,6 +650,38 @@ For detailed testing information, see:
 
 ---
 
+## Documentation
+
+Comprehensive documentation is available in the `docs/` directory:
+
+### Architecture & Migration
+- **[docs/NETTY-MIGRATION.md](docs/NETTY-MIGRATION.md)** - Complete guide to the Tomcat → Netty migration
+  - Architectural changes and rationale
+  - API modernization (HTML → JSON)
+  - Performance improvements
+  - Breaking changes and compatibility
+  - Deployment updates
+
+### Testing Documentation
+- **[tests/README.md](tests/README.md)** - Testing suite overview with usage examples
+- **[tests/STRESS_TESTING.md](tests/STRESS_TESTING.md)** - Comprehensive stress testing guide
+  - 10+ different testing approaches
+  - Performance benchmarks and baselines
+  - Monitoring techniques
+  - Troubleshooting guide
+
+### API Documentation
+- **Runtime API Docs** - Available when server is running:
+  - Usage: `http://localhost:8080/SFDaaS/orekit/propagate/usage`
+  - Includes parameter descriptions, examples, and defaults
+  - Interactive documentation with sample requests
+
+### Quick Reference
+- **[docs/README.md](docs/README.md)** - Documentation index with quick links
+- **Main README** (this file) - Quick start, features, and deployment
+
+---
+
 ## Troubleshooting
 
 ### Build Issues
@@ -853,7 +886,7 @@ SFDaaS was migrated from a Tomcat servlet-based architecture to a standalone Net
 - Better performance with async I/O
 - Simpler deployment model
 
-For complete migration details, see **[NETTY-MIGRATION.md](NETTY-MIGRATION.md)**.
+For complete migration details, see **[docs/NETTY-MIGRATION.md](docs/NETTY-MIGRATION.md)**.
 
 ---
 
