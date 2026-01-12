@@ -1,18 +1,30 @@
 FROM maven:4.0.0-rc-5-amazoncorretto-25-debian-trixie
 
+ARG DEBIAN_FRONTEND=noninteractive
+
+ARG DEPLOYMENT_ENVIRO
+ARG HTTPS_PROXY
+ARG HTTP_PROXY
+ARG NO_PROXY
+
+ENV DEPLOYMENT_ENVIRO=${DEPLOYMENT_ENVIRO}
+ENV HTTPS_PROXY=${HTTPS_PROXY}
+ENV HTTP_PROXY=${HTTP_PROXY}
+ENV NO_PROXY=${NO_PROXY}
 
 RUN apt-get update && apt-get install -y \
-    sudo \
-    git \
-    curl \
-    wget \
-    unzip \
-    make \
-    build-essential \
-    tmux \
-    jq \
-    htop \
-    && rm -rf /var/lib/apt/lists/*
+      sudo \
+      git \
+      curl \
+      wget \
+      unzip \
+      make \
+      build-essential \
+      tmux \
+      jq \
+      htop && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install Task
 RUN curl -1sLf 'https://dl.cloudsmith.io/public/task/task/setup.deb.sh' | sudo -E bash
