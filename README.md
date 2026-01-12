@@ -776,7 +776,7 @@ ls -la data/
 task run DATA_PATH=$(pwd)/data
 
 # Or check system property
-java -Dorekit.data.path=./data -jar target/SFDaaS-jar-with-dependencies.jar
+java -Dorekit.data.path=./data/orekit-data/ -jar target/SFDaaS-jar-with-dependencies.jar
 
 ```
 

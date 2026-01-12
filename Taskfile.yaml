@@ -8,6 +8,9 @@ vars:
   MVN_FLAGS: '-Dmaven.repo.local={{.M2_REPO}}'
   JAR_FILE: 'target/{{.PROJECT_NAME}}-jar-with-dependencies.jar'
 
+  ENGINE: 'orekit'
+  OREKIT_DATA_PATH: './data/orekit-data/'
+
 tasks:
   default:
     desc: Show available tasks
@@ -126,7 +129,7 @@ tasks:
       - build
     cmds:
       - echo; echo "Starting Netty server in background on port {{.SERVER_PORT}}...";echo
-      - nohup java -Dserver.port={{.SERVER_PORT}} -Dserver.contextPath=/{{.PROJECT_NAME}} -Dorekit.data.path=./data -jar {{.JAR_FILE}} > server.log 2>&1 &
+      - nohup java -Dserver.port={{.SERVER_PORT}} -Dserver.contextPath=/{{.PROJECT_NAME}} -Dorekit.data.path={{.OREKIT_DATA_PATH}} -jar {{.JAR_FILE}} > server.log 2>&1 &
       - echo $! > server.pid
       - sleep 3
       - echo "✓ Netty server started in background (PID{{":"}} $(cat server.pid))"

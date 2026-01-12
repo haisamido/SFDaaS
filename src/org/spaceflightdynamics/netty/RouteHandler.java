@@ -1,17 +1,17 @@
 package org.spaceflightdynamics.netty;
 
-import io.netty.handler.codec.http.FullHttpRequest;
-import org.spaceflightdynamics.propagation.Propagator;
-
-import net.spy.memcached.AddrUtil;
-import net.spy.memcached.BinaryConnectionFactory;
-import net.spy.memcached.MemcachedClient;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
+
+import org.spaceflightdynamics.propagation.Propagator;
+
+import io.netty.handler.codec.http.FullHttpRequest;
+import net.spy.memcached.AddrUtil;
+import net.spy.memcached.BinaryConnectionFactory;
+import net.spy.memcached.MemcachedClient;
 
 /**
  * Handles routing and business logic for different HTTP endpoints.

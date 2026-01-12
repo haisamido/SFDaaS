@@ -93,7 +93,7 @@ public class Propagator {
      */
     private static String UTCTAI_PATH =
     		System.getProperty("orekit.data.path",
-    			System.getProperty("user.dir") + "/data");
+    			System.getProperty("user.dir") + "/data/");
     
     /**
      * Empty (default) constructor.
