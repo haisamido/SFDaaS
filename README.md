@@ -529,21 +529,26 @@ SFDaaS/
 ├── NETTY-MIGRATION.md               # Netty migration documentation
 ├── Usage.html                       # Original usage documentation
 │
-├── src/
-│   └── org/spaceflightdynamics/    # Application code
-│       ├── propagation/
-│       │   └── Propagator.java     # Core propagation logic
-│       ├── netty/                   # Netty server implementation
-│       │   ├── NettyServer.java    # Main server class
-│       │   ├── HttpRequestHandler.java
-│       │   ├── HttpSession.java
-│       │   ├── SessionManager.java
-│       │   ├── RouteHandler.java
-│       │   └── JsonResponseBuilder.java
-│       └── utils/                   # Utility classes
+├── sfdaas-core/                     # Backend Java code
+│   └── src/
+│       └── org/spaceflightdynamics/ # Application code
+│           ├── propagation/
+│           │   └── Propagator.java  # Core propagation logic
+│           ├── netty/               # Netty server implementation
+│           │   ├── NettyServer.java # Main server class
+│           │   ├── HttpRequestHandler.java
+│           │   ├── HttpSession.java
+│           │   ├── SessionManager.java
+│           │   ├── RouteHandler.java
+│           │   └── JsonResponseBuilder.java
+│           └── utils/               # Utility classes
+│
+├── sfdaas-web/                      # Frontend web application
+│   └── src/
+│       ├── index.html               # Main UI
+│       └── META-INF/                # Web app metadata
 │
 ├── data/                            # OreKit data files (UTC-TAI tables)
-├── WebContent/                      # Static resources (legacy)
 │
 └── target/                          # Maven build output
     ├── SFDaaS.jar                   # Standard JAR (4.6 MB)
@@ -555,7 +560,7 @@ SFDaaS/
 **Code Updates:**
 
 ```bash
-# Edit source files in src/org/spaceflightdynamics/
+# Edit source files in sfdaas-core/src/org/spaceflightdynamics/
 # Rebuild
 task build
 

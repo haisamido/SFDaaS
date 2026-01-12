@@ -52,12 +52,12 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
             // Check if this is a static file request
             if (path.equals("/") || path.equals("") || path.equals("/index.html")) {
-                serveStaticFile(ctx, request, "WebContent/index.html", "text/html");
+                serveStaticFile(ctx, request, "sfdaas-web/src/index.html", "text/html");
                 return;
             } else if (path.startsWith("/static/") || path.endsWith(".html") || path.endsWith(".css") ||
                        path.endsWith(".js") || path.endsWith(".ico")) {
-                // Serve other static files from WebContent
-                String filePath = "WebContent" + path;
+                // Serve other static files from sfdaas-web/src
+                String filePath = "sfdaas-web/src" + path;
                 String contentType = getContentType(path);
                 serveStaticFile(ctx, request, filePath, contentType);
                 return;

@@ -58,7 +58,7 @@
 
         <resources>
             <resource>
-                <directory>src</directory>
+                <directory>sfdaas-core/src</directory>
                 <excludes>
                     <exclude>**/*.java</exclude>
                 </excludes>
@@ -84,7 +84,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>src/org/spaceflightdynamics</source>
+                                <source>sfdaas-core/src/org/spaceflightdynamics</source>
                             </sources>
                         </configuration>
                     </execution>
