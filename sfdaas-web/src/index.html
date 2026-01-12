@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="Space Flight Dynamics as a Service - High-precision satellite orbit propagation using OreKit">
+    <meta name="theme-color" content="#0a0e27">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>SFDaaS - Space Flight Dynamics as a Service</title>
     <style>
         * {
@@ -470,6 +475,190 @@
         .info-box ul {
             margin-left: 20px;
             color: #ccc;
+        }
+
+        /* Mobile Responsive Styles */
+
+        /* Tablets and smaller (landscape tablets, large phones) */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            header {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .subtitle {
+                font-size: 1em;
+            }
+
+            .github-link {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 0.85em;
+            }
+
+            .github-link svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+
+            .section-title {
+                font-size: 1.1em;
+            }
+
+            .subsection-title {
+                font-size: 0.95em;
+            }
+
+            input, select, textarea {
+                font-size: 16px; /* Prevents iOS zoom on focus */
+            }
+
+            /* Make buttons full width on mobile */
+            button {
+                width: 100%;
+                padding: 15px;
+                font-size: 1.1em;
+            }
+
+            /* Stack tabs vertically on mobile */
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                width: 100%;
+                border-radius: 5px;
+                margin-bottom: 5px;
+            }
+
+            /* Improve multi-select on mobile */
+            select[multiple] {
+                min-height: 200px;
+                font-size: 16px;
+            }
+        }
+
+        /* Mobile phones (portrait) */
+        @media screen and (max-width: 480px) {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .subtitle {
+                font-size: 0.9em;
+            }
+
+            .version {
+                font-size: 0.8em;
+                padding: 4px 10px;
+            }
+
+            .form-container {
+                padding: 15px;
+            }
+
+            .section-title {
+                font-size: 1em;
+                padding-bottom: 8px;
+            }
+
+            label {
+                font-size: 0.9em;
+            }
+
+            .help-text {
+                font-size: 0.85em;
+            }
+
+            input, select, textarea {
+                padding: 10px;
+            }
+
+            button {
+                padding: 12px;
+            }
+
+            /* Hide github link text on very small screens, keep icon */
+            .github-link {
+                padding: 8px;
+                font-size: 0;
+            }
+
+            .github-link svg {
+                width: 20px;
+                height: 20px;
+                margin: 0;
+            }
+
+            /* Adjust result sections for mobile */
+            .result-section {
+                margin-bottom: 15px;
+            }
+
+            .result-title {
+                font-size: 1em;
+                padding: 10px;
+            }
+
+            .result-data pre {
+                font-size: 0.8em;
+                padding: 10px;
+            }
+        }
+
+        /* Touch device optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            /* Larger touch targets */
+            button, .tab, .section-title.collapsible {
+                min-height: 44px; /* Apple's recommended minimum touch target */
+            }
+
+            /* Better spacing for touch */
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            /* Easier to tap collapsible sections */
+            .section-title.collapsible {
+                padding: 15px 0;
+            }
+        }
+
+        /* Landscape orientation on phones */
+        @media screen and (max-width: 768px) and (orientation: landscape) {
+            body {
+                padding: 10px 20px;
+            }
+
+            header {
+                margin-bottom: 15px;
+            }
+
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
