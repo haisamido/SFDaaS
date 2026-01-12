@@ -98,6 +98,7 @@ public class JsonResponseBuilder {
         propagation.addProperty("propagator", "Propagator type: rungekutta (default), dormandprince, adamsbashforth, adamsmoulton");
         propagation.addProperty("stepSize", "Integrator step size in seconds. Default: 60");
         propagation.addProperty("frame", "Reference frame: eme2000 (default), gcrf, itrf, teme, mod, tod");
+        propagation.addProperty("forceModels", "Force models: Comma-separated list (gravity,thirdbody,drag,srp,relativity) or 'none' (default). Note: Not yet implemented - currently uses two-body dynamics only");
         parameters.add("propagation", propagation);
 
         response.add("parameters", parameters);

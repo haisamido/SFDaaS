@@ -59,6 +59,7 @@ public class RouteHandler {
         String propagatorType = params.getOrDefault("propagator", "rungekutta"); // Propagator type
         String stepSize = params.getOrDefault("stepSize", "60"); // Step size in seconds
         String frame = params.getOrDefault("frame", "eme2000"); // Reference frame
+        String forceModels = params.getOrDefault("forceModels", "none"); // Force models
 
         // Validate required parameters
         if (t0 == null || r0 == null || v0 == null || tf == null) {
@@ -84,6 +85,7 @@ public class RouteHandler {
         apriori.put("frame", org.spaceflightdynamics.propagation.FrameType.fromKey(frame).getDisplayName());
         apriori.put("propagator", propagatorType);
         apriori.put("stepSize", stepSize + " seconds");
+        apriori.put("forceModels", formatForceModels(forceModels));
 
         // Initialize diagnostics
         Map<String, Object> diagnostics = new HashMap<>();
@@ -276,5 +278,51 @@ public class RouteHandler {
         return JsonResponseBuilder.buildErrorResponse(
                 "Endpoint not found: " + uri,
                 404);
+    }
+
+    /**
+     * Formats force models string for display in JSON response.
+     * Converts comma-separated force model keys into human-readable format.
+     *
+     * @param forceModels Comma-separated string of force model keys (e.g., "gravity,thirdbody,drag")
+     * @return Formatted string with display names
+     */
+    private static String formatForceModels(String forceModels) {
+        if (forceModels == null || forceModels.isEmpty() || "none".equals(forceModels)) {
+            return "Two-Body Dynamics (Keplerian) - No perturbations";
+        }
+
+        String[] models = forceModels.split(",");
+        StringBuilder formatted = new StringBuilder();
+
+        for (int i = 0; i < models.length; i++) {
+            String model = models[i].trim();
+
+            switch (model) {
+                case "gravity":
+                    formatted.append("Non-Spherical Earth Gravity");
+                    break;
+                case "thirdbody":
+                    formatted.append("Third Body Attraction (Sun/Moon)");
+                    break;
+                case "drag":
+                    formatted.append("Atmospheric Drag");
+                    break;
+                case "srp":
+                    formatted.append("Solar Radiation Pressure");
+                    break;
+                case "relativity":
+                    formatted.append("Relativistic Effects");
+                    break;
+                default:
+                    formatted.append(model);
+            }
+
+            if (i < models.length - 1) {
+                formatted.append(", ");
+            }
+        }
+
+        return formatted.toString();
     }
 }

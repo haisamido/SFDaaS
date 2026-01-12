@@ -133,6 +133,42 @@
             border-bottom: 2px solid rgba(74, 158, 255, 0.3);
         }
 
+        .section-title.collapsible {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s;
+        }
+
+        .section-title.collapsible:hover {
+            color: #6ab7ff;
+        }
+
+        .section-title.collapsible::before {
+            content: '▼';
+            display: inline-block;
+            margin-right: 10px;
+            transition: transform 0.3s;
+            font-size: 0.8em;
+        }
+
+        .section-title.collapsible.collapsed::before {
+            transform: rotate(-90deg);
+        }
+
+        .collapsible-content {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 1;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+        }
+
         .subsection-title {
             color: #6ab7ff;
             font-size: 1em;
@@ -147,6 +183,76 @@
             background: rgba(74, 158, 255, 0.05);
             border-radius: 8px;
             border: 1px solid rgba(74, 158, 255, 0.1);
+        }
+
+        /* Multi-select dropdown styling */
+        select[multiple] {
+            padding: 8px;
+            min-height: 150px;
+            background: rgba(30, 30, 50, 0.6);
+            border: 2px solid rgba(74, 158, 255, 0.3);
+            border-radius: 5px;
+            color: #e0e0e0;
+            font-size: 0.95em;
+        }
+
+        select[multiple]:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        select[multiple] option {
+            padding: 8px 12px;
+            margin: 2px 0;
+            border-radius: 3px;
+            background: rgba(40, 40, 60, 0.8);
+            color: #e0e0e0;
+        }
+
+        select[multiple] option:hover {
+            background: rgba(74, 158, 255, 0.3);
+        }
+
+        select[multiple] option:checked {
+            background: linear-gradient(135deg, #4a9eff 0%, #3b7dd6 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        select[multiple] optgroup {
+            font-weight: bold;
+            color: #6ab7ff;
+            font-size: 0.9em;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(106, 183, 255, 0.2);
+        }
+
+        select[multiple] optgroup:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+
+        select[multiple] optgroup option {
+            font-weight: normal;
+            color: #c0c0c0;
+            padding-left: 20px;
+        }
+
+        .info-box {
+            background: rgba(74, 158, 255, 0.1);
+            border-left: 4px solid #4a9eff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            color: #e0e0e0;
+        }
+
+        .info-box strong {
+            color: #6ab7ff;
+            display: block;
+            margin-bottom: 5px;
         }
 
         .button-group {
@@ -421,6 +527,38 @@
                         <option value="tod">TOD - True of Date</option>
                     </select>
                     <span class="help-text">Reference frame for position and velocity vectors</span>
+                </div>
+
+                <!-- Force Models -->
+                <div class="section-title collapsible collapsed" id="forceModelsToggle">⚡ Force Models</div>
+                <div class="collapsible-content collapsed" id="forceModelsContent">
+                    <div class="form-group">
+                        <label for="forceModels">Perturbation Forces</label>
+                        <select id="forceModels" name="forceModels" multiple size="6" disabled>
+                            <optgroup label="Gravity Models">
+                                <option value="gravity">Non-Spherical Earth Gravity (Geopotential)</option>
+                                <option value="thirdbody">Third Body Attraction (Sun/Moon)</option>
+                            </optgroup>
+                            <optgroup label="Atmospheric Models">
+                                <option value="drag">Atmospheric Drag</option>
+                            </optgroup>
+                            <optgroup label="Radiation Pressure">
+                                <option value="srp">Solar Radiation Pressure (SRP)</option>
+                            </optgroup>
+                            <optgroup label="Other Forces">
+                                <option value="relativity">Relativistic Effects</option>
+                            </optgroup>
+                        </select>
+                        <span class="help-text">Hold Ctrl (Cmd on Mac) to select multiple force models. Currently not implemented - Two-Body dynamics only.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="info-box">
+                            <strong>ℹ️ Current Implementation:</strong> Two-Body Dynamics Only<br>
+                            The propagation currently uses simplified Keplerian (two-body) dynamics with only Earth's central gravity.
+                            No perturbation forces are applied. Force model selection will be implemented in a future release.
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Orbit Type Selection -->
@@ -751,6 +889,10 @@
                     throw new Error('Only Cartesian orbit type is currently supported by the backend.');
                 }
 
+                // Collect force model selections from multi-select dropdown
+                const forceModelsSelect = document.getElementById('forceModels');
+                const forceModels = Array.from(forceModelsSelect.selectedOptions).map(option => option.value);
+
                 // Build API URL
                 const params = new URLSearchParams({
                     t0: t0,
@@ -760,7 +902,8 @@
                     orbitType: orbitType,
                     propagator: formData.get('integrator'), // Using integrator field for numerical propagator
                     stepSize: formData.get('stepSize'),
-                    frame: formData.get('frame')
+                    frame: formData.get('frame'),
+                    forceModels: forceModels.length > 0 ? forceModels.join(',') : 'none'
                 });
 
                 // Add caching if enabled
@@ -819,7 +962,8 @@
                         <pre>Orbit Type:       ${data.data.apriori.orbitType}
 Reference Frame:  ${data.data.apriori.frame}
 Propagator:       ${data.data.apriori.propagator}
-Step Size:        ${data.data.apriori.stepSize}</pre>
+Step Size:        ${data.data.apriori.stepSize}
+Force Models:     ${data.data.apriori.forceModels || 'Two-Body Dynamics (Keplerian)'}</pre>
                     </div>
                 </div>
 
@@ -941,9 +1085,23 @@ Work Dir: ${data.diagnostics.system.userCWD}</pre>
             document.getElementById(tabName + 'Tab').classList.add('active');
         }
 
+        // Collapsible section toggle
+        function initCollapsibleSections() {
+            const forceModelsToggle = document.getElementById('forceModelsToggle');
+            const forceModelsContent = document.getElementById('forceModelsContent');
+
+            if (forceModelsToggle && forceModelsContent) {
+                forceModelsToggle.addEventListener('click', function() {
+                    forceModelsToggle.classList.toggle('collapsed');
+                    forceModelsContent.classList.toggle('collapsed');
+                });
+            }
+        }
+
         // Initialize on load
         window.addEventListener('DOMContentLoaded', function() {
             initializeDates();
+            initCollapsibleSections();
         });
     </script>
 </body>
