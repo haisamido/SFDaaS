@@ -32,6 +32,7 @@ SFDaaS provides a RESTful web service for satellite orbit propagation. It perfor
 - [API Usage](#api-usage)
 - [Configuration](#configuration)
 - [Development](#development)
+- [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
 - [Project Structure](#project-structure)
 - [Dependencies](#dependencies)
@@ -574,6 +575,77 @@ task deps-update
 task build
 
 ```
+
+---
+
+## Testing
+
+SFDaaS includes a comprehensive testing suite with stress testing scripts, health checks, and memory leak detection.
+
+### Quick Health Check
+
+Verify the server is running correctly:
+
+```bash
+cd tests
+./quick_health_check.sh
+```
+
+This performs a fast validation (~5-10 seconds) of:
+- Server connectivity
+- Basic propagation
+- All propagators (rungekutta, dormandprince, adamsbashforth, adamsmoulton)
+- All reference frames (eme2000, gcrf, teme, mod, tod)
+
+### Comprehensive Stress Test
+
+Run the full stress testing suite:
+
+```bash
+cd tests
+./comprehensive_stress_test.sh
+
+# Or run in quick mode (reduced iterations)
+./comprehensive_stress_test.sh --quick
+
+# With verbose output
+./comprehensive_stress_test.sh -v
+
+# Test remote server
+./comprehensive_stress_test.sh -u http://example.com
+```
+
+**Tests included:**
+1. Light Load (500 requests, 25 concurrent)
+2. Medium Load (1000 requests, 50 concurrent)
+3. Heavy Load (2000 requests, 100 concurrent)
+4. Sustained Load (60s duration)
+5. Propagator Performance Comparison
+6. Reference Frame Comparison
+7. Step Size Performance
+8. Long Duration Propagation
+9. Memory Stability Check
+10. Mixed Workload
+
+Results are saved to a timestamped directory with detailed reports and CSV/TSV data.
+
+### Memory Leak Detection
+
+Monitor memory usage over time:
+
+```bash
+cd tests
+./memory_leak_test.sh 1000  # Run 1000 iterations
+
+# Or with more iterations
+./memory_leak_test.sh 5000
+```
+
+### Testing Documentation
+
+For detailed testing information, see:
+- **[tests/README.md](tests/README.md)** - Complete script documentation
+- **[tests/STRESS_TESTING.md](tests/STRESS_TESTING.md)** - Comprehensive stress testing guide
 
 ---
 
