@@ -55,6 +55,9 @@ public class RouteHandler {
         String r0 = params.get("r0"); // Initial position
         String v0 = params.get("v0"); // Initial velocity
         String tf = params.get("tf"); // Final epoch
+        String propagatorType = params.getOrDefault("propagator", "rungekutta"); // Propagator type
+        String stepSize = params.getOrDefault("stepSize", "60"); // Step size in seconds
+        String frame = params.getOrDefault("frame", "eme2000"); // Reference frame
 
         // Validate required parameters
         if (t0 == null || r0 == null || v0 == null || tf == null) {
@@ -76,6 +79,9 @@ public class RouteHandler {
         apriori.put("t0", t0);
         apriori.put("r0", r0);
         apriori.put("v0", v0);
+        apriori.put("frame", org.spaceflightdynamics.propagation.FrameType.fromKey(frame).getDisplayName());
+        apriori.put("propagator", propagatorType);
+        apriori.put("stepSize", stepSize + " seconds");
 
         // Initialize diagnostics
         Map<String, Object> diagnostics = new HashMap<>();
@@ -135,7 +141,7 @@ public class RouteHandler {
                     cachingInfo.put("hit", false);
 
                     propagationStart = System.currentTimeMillis();
-                    Propagator propagator = new Propagator(r0, v0, t0, tf);
+                    Propagator propagator = new Propagator(r0, v0, t0, tf, propagatorType, stepSize, frame);
                     HashMap<String, String> finalState = propagator.propagate();
                     propagationEnd = System.currentTimeMillis();
 
@@ -154,7 +160,7 @@ public class RouteHandler {
                 cachingInfo.put("enabled", false);
 
                 propagationStart = System.currentTimeMillis();
-                Propagator propagator = new Propagator(r0, v0, t0, tf);
+                Propagator propagator = new Propagator(r0, v0, t0, tf, propagatorType, stepSize, frame);
                 HashMap<String, String> finalState = propagator.propagate();
                 propagationEnd = System.currentTimeMillis();
 

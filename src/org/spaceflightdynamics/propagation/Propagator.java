@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.hipparchus.geometry.euclidean.threed.Vector3D;
-import org.hipparchus.ode.nonstiff.ClassicalRungeKuttaIntegrator;
+import org.hipparchus.ode.AbstractIntegrator;
 
 import org.orekit.bodies.CelestialBodyFactory;
 import org.orekit.data.DataProvidersManager;
@@ -54,8 +54,9 @@ public class Propagator {
      * numericalPropagator - Orekit propagator.
      */
     private double stepSize = 60.;
-    private HashMap<String,String> parms;    
+    private HashMap<String,String> parms;
     private NumericalPropagator numericalPropagator;
+    private FrameType frameType = FrameType.EME2000;
     
     /*
      * Regular expression for matching the string vector format: 
@@ -131,17 +132,110 @@ public class Propagator {
          * Create a hash map from the String parameters.
          */
         HashMap<String,String> hm = new HashMap<String,String>();
-        
+
         hm.put("r0", r0);
         hm.put("v0", v0);
         hm.put("t0", t0);
         hm.put("tf", tf);
-        
+
         /*
          * Call the initializer with the HashMap.
          */
         initialize(hm);
-        
+
+    }
+
+    /**
+     * Construct an instance of the Propagator with a specified propagator type.
+     *
+     * @param r0 - Initial position vector in format "[x,y,z]"
+     * @param v0 - Initial velocity vector in format "[vx,vy,vz]"
+     * @param t0 - Initial epoch in UTC format "YYYY-MM-DDTHH:MM:SS.SSS"
+     * @param tf - Final epoch in UTC format "YYYY-MM-DDTHH:MM:SS.SSS"
+     * @param propagatorType - Propagator type (e.g., "rungekutta", "dormandprince")
+     */
+    public Propagator(String r0, String v0, String t0, String tf, String propagatorType) {
+
+        /*
+         * Create a hash map from the String parameters.
+         */
+        HashMap<String,String> hm = new HashMap<String,String>();
+
+        hm.put("r0", r0);
+        hm.put("v0", v0);
+        hm.put("t0", t0);
+        hm.put("tf", tf);
+        hm.put("propagator", propagatorType);
+
+        /*
+         * Call the initializer with the HashMap.
+         */
+        initialize(hm);
+
+    }
+
+    /**
+     * Construct an instance of the Propagator with propagator type and step size.
+     *
+     * @param r0 - Initial position vector in format "[x,y,z]"
+     * @param v0 - Initial velocity vector in format "[vx,vy,vz]"
+     * @param t0 - Initial epoch in UTC format "YYYY-MM-DDTHH:MM:SS.SSS"
+     * @param tf - Final epoch in UTC format "YYYY-MM-DDTHH:MM:SS.SSS"
+     * @param propagatorType - Propagator type (e.g., "rungekutta", "dormandprince")
+     * @param stepSize - Integrator step size in seconds
+     */
+    public Propagator(String r0, String v0, String t0, String tf, String propagatorType, String stepSize) {
+
+        /*
+         * Create a hash map from the String parameters.
+         */
+        HashMap<String,String> hm = new HashMap<String,String>();
+
+        hm.put("r0", r0);
+        hm.put("v0", v0);
+        hm.put("t0", t0);
+        hm.put("tf", tf);
+        hm.put("propagator", propagatorType);
+        hm.put("stepSize", stepSize);
+
+        /*
+         * Call the initializer with the HashMap.
+         */
+        initialize(hm);
+
+    }
+
+    /**
+     * Construct an instance of the Propagator with all parameters.
+     *
+     * @param r0 - Initial position vector in format "[x,y,z]"
+     * @param v0 - Initial velocity vector in format "[vx,vy,vz]"
+     * @param t0 - Initial epoch in UTC format "YYYY-MM-DDTHH:MM:SS.SSS"
+     * @param tf - Final epoch in UTC format "YYYY-MM-DDTHH:MM:SS.SSS"
+     * @param propagatorType - Propagator type (e.g., "rungekutta", "dormandprince")
+     * @param stepSize - Integrator step size in seconds
+     * @param frame - Reference frame (e.g., "eme2000", "gcrf", "itrf")
+     */
+    public Propagator(String r0, String v0, String t0, String tf, String propagatorType, String stepSize, String frame) {
+
+        /*
+         * Create a hash map from the String parameters.
+         */
+        HashMap<String,String> hm = new HashMap<String,String>();
+
+        hm.put("r0", r0);
+        hm.put("v0", v0);
+        hm.put("t0", t0);
+        hm.put("tf", tf);
+        hm.put("propagator", propagatorType);
+        hm.put("stepSize", stepSize);
+        hm.put("frame", frame);
+
+        /*
+         * Call the initializer with the HashMap.
+         */
+        initialize(hm);
+
     }
 
     /**
@@ -150,11 +244,30 @@ public class Propagator {
      * @param hm - HashMap of propagation parameters
      */
     public void initialize(HashMap<String,String> hm) {
-        
+
         parms = hm;
-        
+
         AbsoluteDate epoch = AbsoluteDate.J2000_EPOCH;
-        
+
+        /*
+         * Extract step size if provided, otherwise use default (60 seconds)
+         */
+        if (parms.containsKey("stepSize") && parms.get("stepSize") != null) {
+            try {
+                stepSize = Double.parseDouble(parms.get("stepSize"));
+            } catch (NumberFormatException e) {
+                // Keep default if parsing fails
+                stepSize = 60.0;
+            }
+        }
+
+        /*
+         * Extract frame type if provided, otherwise use default (EME2000)
+         */
+        if (parms.containsKey("frame") && parms.get("frame") != null) {
+            frameType = FrameType.fromKey(parms.get("frame"));
+        }
+
         /*
          * This is how you tell Orekit where the UTC-TAI data is.  You need to
          * change this path to the regular-data directory on your machine, and
@@ -222,36 +335,37 @@ public class Propagator {
         System.out.println(v3v);
 
         /*
-         * We're finally ready to start the Orekit stuff.  First create an 
-         * Orekit NumericalPropagator using the apache-commons Runge-Kutta
-         * integrator.
+         * We're finally ready to start the Orekit stuff.  First create an
+         * Orekit NumericalPropagator using the selected integrator type.
+         * Default to Runge-Kutta if no propagator type is specified.
          */
-        numericalPropagator = new NumericalPropagator(
-                                new ClassicalRungeKuttaIntegrator(stepSize));
+        PropagatorType propagatorType = PropagatorType.fromKey(parms.get("propagator"));
+        AbstractIntegrator integrator = IntegratorFactory.createIntegrator(propagatorType, stepSize);
+        numericalPropagator = new NumericalPropagator(integrator);
           
         /*
-         * Now create an Orbit from the initialState.  Again, the exceptions
-         * should be thrown back to the web app.
+         * Now create an Orbit from the initialState using the selected reference frame.
+         * The exceptions should be thrown back to the web app.
          */
 
         Orbit orbit = null;
-        
+
         try {
-            
+
             orbit = new CartesianOrbit(
-                            new PVCoordinates(v3r,v3v), 
-                            FramesFactory.getEME2000(), 
-                            epoch, 
+                            new PVCoordinates(v3r,v3v),
+                            FrameFactory.createFrame(frameType),
+                            epoch,
                             CelestialBodyFactory.getEarth().getGM());
-            
+
         } catch (IllegalArgumentException e) {
 
             e.printStackTrace();
-            
+
         } catch (OrekitException e) {
 
             e.printStackTrace();
-            
+
         }
         
         /*

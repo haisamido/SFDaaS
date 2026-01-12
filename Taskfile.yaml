@@ -132,7 +132,8 @@ tasks:
       - echo "✓ Netty server started in background (PID{{":"}} $(cat server.pid))"
       - echo "Log file{{":"}} server.log";
       - echo "PID file{{":"}} server.pid"; echo
-      - echo "Visit http://localhost:{{.SERVER_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage"; echo " or "
+      - echo "Visit http://localhost:{{.SERVER_PORT}}/{{.PROJECT_NAME}}/";
+      - echo "Visit http://localhost:{{.SERVER_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage";
       - echo "Visit http://localhost:{{.SERVER_PORT}}/{{.PROJECT_NAME}}/orekit/propagate?t0=2010-05-28T12:00:00.000&tf=2010-05-29T12:00:00.000&r0=[3198022.67,2901879.73,5142928.95]&v0=[-6129.640631,4489.647187,1284.511245]"
     silent: true
 
