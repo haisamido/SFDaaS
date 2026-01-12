@@ -814,6 +814,16 @@
                 <div class="success">✓ Propagation completed successfully!</div>
 
                 <div class="result-section">
+                    <div class="result-title">Configuration</div>
+                    <div class="result-data">
+                        <pre>Orbit Type:       ${data.data.apriori.orbitType}
+Reference Frame:  ${data.data.apriori.frame}
+Propagator:       ${data.data.apriori.propagator}
+Step Size:        ${data.data.apriori.stepSize}</pre>
+                    </div>
+                </div>
+
+                <div class="result-section">
                     <div class="result-title">A Priori State (Initial)</div>
                     <div class="result-data">
                         <pre>Epoch:    ${data.data.apriori.t0}
