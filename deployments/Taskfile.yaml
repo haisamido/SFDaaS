@@ -1,0 +1,59 @@
+version: '3'
+
+# dotenv:
+#   - ./targets/docker/.env
+
+vars:
+  SERVICES_DIR: ./services
+  SCRIPTS_DIR: ./scripts
+  SERVICE_NAME: sfdaas
+
+  CONTAINER_BIN: docker
+  CONTAINER_COMPOSE_BIN: ' {{.CONTAINER_BIN}} compose '
+
+  CONTAINER_DIR: './services/{{.SERVICE_NAME}}'
+  COMPOSE_FILE: './compose.yaml'
+  CONTAINERFILE: './Containerfile'
+
+  DEPLOYMENT_ENVIRO: '{{.DEPLOYMENT_ENVIRO | default ""}}'
+  HTTP_PROXY: '{{.HTTP_PROXY | default ""}}'
+  HTTPS_PROXY: '{{.HTTPS_PROXY | default ""}}'
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list-all
+    silent: true
+
+  sfdaas-build:
+    desc: Build Docker containers
+    cmds:
+      - echo "Building Docker containers..."
+      - |
+        cd {{.SERVICES_DIR}}/{{.SERVICE_NAME}} && \
+          {{.CONTAINER_BIN}} build . -f {{.CONTAINERFILE}} -t {{.SERVICE_NAME}}:latest
+      - echo "✓ Docker containers built successfully"
+    silent: true
+
+  sfdaas-up:
+    desc: Start Docker containers
+    deps:
+      - sfdaas-build
+    cmds:
+      - echo "Starting Docker containers..."
+      - |
+        cd {{.SERVICES_DIR}}/{{.SERVICE_NAME}} && \
+          {{.CONTAINER_COMPOSE_BIN}} -f {{.COMPOSE_FILE}} up -d
+      - echo "✓ Docker containers started successfully"
+    silent: true
+  
+  sfdaas-down:
+    desc: Stop Docker containers
+    cmds:
+      - echo "Stopping Docker containers..."
+      - |
+        cd {{.SERVICES_DIR}}/{{.SERVICE_NAME}} && \
+          {{.CONTAINER_COMPOSE_BIN}} -f {{.COMPOSE_FILE}} down
+      - echo "✓ Docker containers stopped successfully"
+    silent: true 

@@ -1,0 +1,7 @@
+services:
+  sfdaas:
+    image: sfdaas:latest
+    container_name: sfdaas
+    hostname: sfdaas
+    ports:
+    - "127.0.0.1:10000:8080"

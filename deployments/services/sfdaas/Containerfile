@@ -1,0 +1,33 @@
+FROM maven:4.0.0-rc-5-amazoncorretto-25-debian-trixie
+
+
+RUN apt-get update && apt-get install -y \
+    sudo \
+    git \
+    curl \
+    wget \
+    unzip \
+    make \
+    build-essential \
+    tmux \
+    jq \
+    htop \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Task
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/task/task/setup.deb.sh' | sudo -E bash
+RUN apt-get update && apt-get install -y \
+    task \
+    && rm -rf /var/lib/apt/lists/*
+
+# 
+WORKDIR /opt/sfdaas
+
+RUN git clone https://github.com/haisamido/SFDaaS.git .
+
+RUN task stop setup build
+
+COPY entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
