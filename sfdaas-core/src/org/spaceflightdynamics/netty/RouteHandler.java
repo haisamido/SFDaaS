@@ -59,6 +59,7 @@ public class RouteHandler {
         String propagatorType = params.getOrDefault("propagator", "rungekutta"); // Propagator type
         String stepSize = params.getOrDefault("stepSize", "60"); // Step size in seconds
         String frame = params.getOrDefault("frame", "eme2000"); // Reference frame
+        String centralBody = params.getOrDefault("centralBody", "earth"); // Central body for mu
         String forceModels = params.getOrDefault("forceModels", "none"); // Force models
 
         // Validate required parameters
@@ -83,6 +84,7 @@ public class RouteHandler {
         apriori.put("v0", v0);
         apriori.put("orbitType", org.spaceflightdynamics.propagation.OrbitType.fromKey(orbitType).getDisplayName());
         apriori.put("frame", org.spaceflightdynamics.propagation.FrameType.fromKey(frame).getDisplayName());
+        apriori.put("centralBody", formatCentralBody(centralBody));
         apriori.put("propagator", propagatorType);
         apriori.put("stepSize", stepSize + " seconds");
         apriori.put("forceModels", formatForceModels(forceModels));
@@ -145,7 +147,7 @@ public class RouteHandler {
                     cachingInfo.put("hit", false);
 
                     propagationStart = System.currentTimeMillis();
-                    Propagator propagator = new Propagator(r0, v0, t0, tf, propagatorType, stepSize, frame);
+                    Propagator propagator = new Propagator(r0, v0, t0, tf, propagatorType, stepSize, frame, centralBody);
                     HashMap<String, String> finalState = propagator.propagate();
                     propagationEnd = System.currentTimeMillis();
 
@@ -164,7 +166,7 @@ public class RouteHandler {
                 cachingInfo.put("enabled", false);
 
                 propagationStart = System.currentTimeMillis();
-                Propagator propagator = new Propagator(r0, v0, t0, tf, propagatorType, stepSize, frame);
+                Propagator propagator = new Propagator(r0, v0, t0, tf, propagatorType, stepSize, frame, centralBody);
                 HashMap<String, String> finalState = propagator.propagate();
                 propagationEnd = System.currentTimeMillis();
 
@@ -324,5 +326,43 @@ public class RouteHandler {
         }
 
         return formatted.toString();
+    }
+
+    /**
+     * Formats central body key for display in JSON response.
+     * Converts body key to display name with mu value.
+     *
+     * @param centralBody Central body key (e.g., "earth", "sun", "moon")
+     * @return Formatted string with body name and mu value
+     */
+    private static String formatCentralBody(String centralBody) {
+        if (centralBody == null || centralBody.isEmpty()) {
+            return "Earth (μ = 3.986004418e14 m³/s²)";
+        }
+
+        // Check if custom mu value format: "mu:value"
+        if (centralBody.startsWith("mu:")) {
+            String muValue = centralBody.substring(3);
+            return "Custom (μ = " + muValue + " m³/s²)";
+        }
+
+        switch (centralBody.toLowerCase()) {
+            case "earth":
+                return "Earth (μ = 3.986004418e14 m³/s²)";
+            case "sun":
+                return "Sun (μ = 1.32712440018e20 m³/s²)";
+            case "moon":
+                return "Moon (μ = 4.9028e12 m³/s²)";
+            case "mars":
+                return "Mars (μ = 4.282837e13 m³/s²)";
+            case "jupiter":
+                return "Jupiter (μ = 1.26686534e17 m³/s²)";
+            case "venus":
+                return "Venus (μ = 3.24859e14 m³/s²)";
+            case "saturn":
+                return "Saturn (μ = 3.7931187e16 m³/s²)";
+            default:
+                return centralBody + " (μ unknown)";
+        }
     }
 }

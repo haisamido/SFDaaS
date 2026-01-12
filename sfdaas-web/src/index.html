@@ -567,6 +567,30 @@
                     <span class="help-text">Reference frame for position and velocity vectors</span>
                 </div>
 
+                <!-- Central Body (mu) -->
+                <div class="section-title">⭐ Central Attraction Coefficient (μ)</div>
+                <div class="form-group">
+                    <label for="centralBody">Central Body</label>
+                    <select id="centralBody" name="centralBody" required>
+                        <option value="earth">Earth (3.986004418e14 m³/s²)</option>
+                        <option value="sun">Sun (1.32712440018e20 m³/s²)</option>
+                        <option value="moon">Moon (4.9028e12 m³/s²)</option>
+                        <option value="mars">Mars (4.282837e13 m³/s²)</option>
+                        <option value="jupiter">Jupiter (1.26686534e17 m³/s²)</option>
+                        <option value="venus">Venus (3.24859e14 m³/s²)</option>
+                        <option value="saturn">Saturn (3.7931187e16 m³/s²)</option>
+                        <option value="custom">Custom μ value...</option>
+                    </select>
+                    <span class="help-text">Gravitational parameter (GM) of the central attracting body</span>
+                </div>
+
+                <!-- Custom mu input (hidden by default) -->
+                <div class="form-group" id="customMuGroup" style="display: none;">
+                    <label for="customMu">Custom μ Value (m³/s²)</label>
+                    <input type="text" id="customMu" name="customMu" placeholder="e.g., 3.986004418e14">
+                    <span class="help-text">Enter gravitational parameter in scientific notation (e.g., 3.986004418e14 for Earth)</span>
+                </div>
+
                 <!-- Force Models -->
                 <div class="section-title collapsible collapsed" id="forceModelsToggle">⚡ Force Models</div>
                 <div class="collapsible-content collapsed" id="forceModelsContent">
@@ -931,6 +955,15 @@
                 const forceModelsSelect = document.getElementById('forceModels');
                 const forceModels = Array.from(forceModelsSelect.selectedOptions).map(option => option.value);
 
+                // Get central body value (use custom mu if selected)
+                let centralBodyValue = formData.get('centralBody');
+                if (centralBodyValue === 'custom') {
+                    const customMu = formData.get('customMu');
+                    if (customMu && customMu.trim() !== '') {
+                        centralBodyValue = 'mu:' + customMu.trim();
+                    }
+                }
+
                 // Build API URL
                 const params = new URLSearchParams({
                     t0: t0,
@@ -941,6 +974,7 @@
                     propagator: formData.get('integrator'), // Using integrator field for numerical propagator
                     stepSize: formData.get('stepSize'),
                     frame: formData.get('frame'),
+                    centralBody: centralBodyValue,
                     forceModels: forceModels.length > 0 ? forceModels.join(',') : 'none'
                 });
 
@@ -999,6 +1033,7 @@
                     <div class="result-data">
                         <pre>Orbit Type:       ${data.data.apriori.orbitType}
 Reference Frame:  ${data.data.apriori.frame}
+Central Body:     ${data.data.apriori.centralBody}
 Propagator:       ${data.data.apriori.propagator}
 Step Size:        ${data.data.apriori.stepSize}
 Force Models:     ${data.data.apriori.forceModels || 'Two-Body Dynamics (Keplerian)'}</pre>
@@ -1136,10 +1171,31 @@ Work Dir: ${data.diagnostics.system.userCWD}</pre>
             }
         }
 
+        // Custom mu toggle
+        function initCustomMuToggle() {
+            const centralBodySelect = document.getElementById('centralBody');
+            const customMuGroup = document.getElementById('customMuGroup');
+            const customMuInput = document.getElementById('customMu');
+
+            if (centralBodySelect && customMuGroup) {
+                centralBodySelect.addEventListener('change', function() {
+                    if (this.value === 'custom') {
+                        customMuGroup.style.display = 'flex';
+                        customMuInput.required = true;
+                    } else {
+                        customMuGroup.style.display = 'none';
+                        customMuInput.required = false;
+                        customMuInput.value = '';
+                    }
+                });
+            }
+        }
+
         // Initialize on load
         window.addEventListener('DOMContentLoaded', function() {
             initializeDates();
             initCollapsibleSections();
+            initCustomMuToggle();
         });
     </script>
 </body>

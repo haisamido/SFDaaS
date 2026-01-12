@@ -239,6 +239,41 @@ public class Propagator {
     }
 
     /**
+     * Construct an instance of the Propagator with all parameters including central body.
+     *
+     * @param r0 - initial position "[x, y, z]"
+     * @param v0 - initial velocity "[vx,vy,vz]"
+     * @param t0 - initial epoch "YYYY-MM-DDTHH:MM:SS.SSS"
+     * @param tf - final epoch "YYYY-MM-DDTHH:MM:SS.SSS"
+     * @param propagatorType - propagator type (e.g., "rungekutta")
+     * @param stepSize - step size in seconds
+     * @param frame - reference frame (e.g., "eme2000")
+     * @param centralBody - central body for mu (e.g., "earth", "sun", "moon")
+     */
+    public Propagator(String r0, String v0, String t0, String tf, String propagatorType, String stepSize, String frame, String centralBody) {
+
+        /*
+         * Create a hash map from the String parameters.
+         */
+        HashMap<String,String> hm = new HashMap<String,String>();
+
+        hm.put("r0", r0);
+        hm.put("v0", v0);
+        hm.put("t0", t0);
+        hm.put("tf", tf);
+        hm.put("propagator", propagatorType);
+        hm.put("stepSize", stepSize);
+        hm.put("frame", frame);
+        hm.put("centralBody", centralBody);
+
+        /*
+         * Call the initializer with the HashMap.
+         */
+        initialize(hm);
+
+    }
+
+    /**
      * Initialize the Orekit components by creating the numerical integrator,
      * creating initial orbit state and assigning it to the propagator.
      * @param hm - HashMap of propagation parameters
@@ -352,11 +387,15 @@ public class Propagator {
 
         try {
 
+            // Get mu value for the specified central body (defaults to Earth if not specified)
+            String centralBody = parms.get("centralBody");
+            double mu = getMuForCentralBody(centralBody);
+
             orbit = new CartesianOrbit(
                             new PVCoordinates(v3r,v3v),
                             FrameFactory.createFrame(frameType),
                             epoch,
-                            CelestialBodyFactory.getEarth().getGM());
+                            mu);
 
         } catch (IllegalArgumentException e) {
 
@@ -424,9 +463,53 @@ public class Propagator {
         return(final_hash);
         
     }
-    
+
     /**
-     * Here is a test case for this class.  Don't call main when using the 
+     * Get the gravitational parameter (mu) for the specified central body.
+     *
+     * @param centralBody The central body key (e.g., "earth", "sun", "moon") or custom value (e.g., "mu:3.986e14")
+     * @return The gravitational parameter in m³/s²
+     */
+    private double getMuForCentralBody(String centralBody) throws OrekitException {
+        if (centralBody == null || centralBody.isEmpty()) {
+            return CelestialBodyFactory.getEarth().getGM();
+        }
+
+        // Check if custom mu value format: "mu:value"
+        if (centralBody.startsWith("mu:")) {
+            try {
+                String muValueStr = centralBody.substring(3);
+                return Double.parseDouble(muValueStr);
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid custom mu value: " + centralBody);
+                // Default to Earth if invalid
+                return CelestialBodyFactory.getEarth().getGM();
+            }
+        }
+
+        switch (centralBody.toLowerCase()) {
+            case "earth":
+                return CelestialBodyFactory.getEarth().getGM();
+            case "sun":
+                return CelestialBodyFactory.getSun().getGM();
+            case "moon":
+                return CelestialBodyFactory.getMoon().getGM();
+            case "mars":
+                return CelestialBodyFactory.getMars().getGM();
+            case "jupiter":
+                return CelestialBodyFactory.getJupiter().getGM();
+            case "venus":
+                return CelestialBodyFactory.getVenus().getGM();
+            case "saturn":
+                return CelestialBodyFactory.getSaturn().getGM();
+            default:
+                // Default to Earth if unknown body
+                return CelestialBodyFactory.getEarth().getGM();
+        }
+    }
+
+    /**
+     * Here is a test case for this class.  Don't call main when using the
      * class.
      */
     public static void main(String[] args) {
