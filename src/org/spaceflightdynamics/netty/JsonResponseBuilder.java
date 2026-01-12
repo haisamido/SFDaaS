@@ -94,6 +94,7 @@ public class JsonResponseBuilder {
         propagation.addProperty("tf", "Final epoch (ISO 8601: YYYY-MM-DDTHH:MM:SS.SSS+00:00, UTC)");
         propagation.addProperty("r0", "Initial position vector [x,y,z] in meters");
         propagation.addProperty("v0", "Initial velocity vector [vx,vy,vz] in m/s");
+        propagation.addProperty("orbitType", "Orbit representation: cartesian (default), keplerian, circular, equinoctial. Note: Only cartesian is currently implemented");
         propagation.addProperty("propagator", "Propagator type: rungekutta (default), dormandprince, adamsbashforth, adamsmoulton");
         propagation.addProperty("stepSize", "Integrator step size in seconds. Default: 60");
         propagation.addProperty("frame", "Reference frame: eme2000 (default), gcrf, itrf, teme, mod, tod");

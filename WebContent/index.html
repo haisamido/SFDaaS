@@ -133,6 +133,22 @@
             border-bottom: 2px solid rgba(74, 158, 255, 0.3);
         }
 
+        .subsection-title {
+            color: #6ab7ff;
+            font-size: 1em;
+            margin: 20px 0 10px 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(106, 183, 255, 0.2);
+        }
+
+        .propagator-options {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(74, 158, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(74, 158, 255, 0.1);
+        }
+
         .button-group {
             display: flex;
             gap: 15px;
@@ -354,38 +370,57 @@
                     </div>
                 </div>
 
-                <!-- Numerical Propagator -->
+                <!-- Propagator Selection -->
                 <div class="propagator-section">
-                    <div class="section-title">🔧 Numerical Propagator</div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="propagator">Propagator Type</label>
-                            <select id="propagator" name="propagator" required>
-                                <option value="rungekutta">Classical Runge-Kutta (4th order)</option>
-                                <option value="dormandprince">Dormand-Prince 8(5,3)</option>
-                                <option value="adamsbashforth">Adams-Bashforth</option>
-                                <option value="adamsmoulton">Adams-Moulton</option>
-                            </select>
-                            <span class="help-text">Integration method for propagation</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="stepSize">Step Size (seconds)</label>
-                            <input type="number" id="stepSize" name="stepSize" value="60" min="0.001" step="0.001">
-                            <span class="help-text">Integration step size</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="frame">Reference Frame</label>
-                            <select id="frame" name="frame" required>
-                                <option value="eme2000">EME2000 (J2000) - Inertial</option>
-                                <option value="gcrf">GCRF - Inertial</option>
-                                <option value="itrf">ITRF - Earth-fixed</option>
-                                <option value="teme">TEME - Inertial (TLE/SGP4)</option>
-                                <option value="mod">MOD - Mean of Date</option>
-                                <option value="tod">TOD - True of Date</option>
-                            </select>
-                            <span class="help-text">Coordinate reference frame</span>
+                    <div class="section-title">🚀 Propagator Configuration</div>
+                    <div class="form-group">
+                        <label for="propagatorClass">Propagator Type</label>
+                        <select id="propagatorClass" name="propagatorClass" required>
+                            <option value="numerical">Numerical Propagator (Force Model Integration)</option>
+                            <option value="keplerian" disabled>Keplerian Propagator (Two-Body) - Not Yet Implemented</option>
+                            <option value="eckstein" disabled>Eckstein-Hechler (J2-J6) - Not Yet Implemented</option>
+                            <option value="analytical" disabled>Analytical Propagator - Not Yet Implemented</option>
+                            <option value="tle" disabled>TLE/SGP4 Propagator - Not Yet Implemented</option>
+                        </select>
+                        <span class="help-text">Choose the propagation method (only Numerical is currently implemented)</span>
+                    </div>
+
+                    <!-- Numerical Propagator Options (shown when Numerical is selected) -->
+                    <div id="numericalOptions" class="propagator-options">
+                        <div class="subsection-title">Numerical Propagator Settings</div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="integrator">Integrator Type</label>
+                                <select id="integrator" name="integrator" required>
+                                    <option value="rungekutta">Classical Runge-Kutta (4th order)</option>
+                                    <option value="dormandprince">Dormand-Prince 8(5,3)</option>
+                                    <option value="adamsbashforth">Adams-Bashforth</option>
+                                    <option value="adamsmoulton">Adams-Moulton</option>
+                                </select>
+                                <span class="help-text">Numerical integration method</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="stepSize">Step Size (seconds)</label>
+                                <input type="number" id="stepSize" name="stepSize" value="60" min="0.001" step="0.001">
+                                <span class="help-text">Integration step size</span>
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Reference Frame -->
+                <div class="section-title">🌐 Reference Frame</div>
+                <div class="form-group">
+                    <label for="frame">Coordinate System</label>
+                    <select id="frame" name="frame" required>
+                        <option value="eme2000">EME2000 (J2000) - Inertial</option>
+                        <option value="gcrf">GCRF - Inertial</option>
+                        <option value="itrf">ITRF - Earth-fixed</option>
+                        <option value="teme">TEME - Inertial (TLE/SGP4)</option>
+                        <option value="mod">MOD - Mean of Date</option>
+                        <option value="tod">TOD - True of Date</option>
+                    </select>
+                    <span class="help-text">Reference frame for position and velocity vectors</span>
                 </div>
 
                 <!-- Orbit Type Selection -->
@@ -393,12 +428,12 @@
                 <div class="form-group">
                     <label for="orbitType">Orbit Representation</label>
                     <select id="orbitType" name="orbitType" required>
-                        <option value="cartesian">Cartesian (Position & Velocity)</option>
-                        <option value="keplerian">Keplerian Elements</option>
-                        <option value="circular">Circular Elements</option>
-                        <option value="equinoctial">Equinoctial Elements</option>
+                        <option value="cartesian">Cartesian Orbit (Position & Velocity)</option>
+                        <option value="keplerian" disabled>Keplerian Orbit (a, e, i, Ω, ω, ν) - Not Yet Implemented</option>
+                        <option value="circular" disabled>Circular Orbit (a, ex, ey, i, Ω, αₘ) - Not Yet Implemented</option>
+                        <option value="equinoctial" disabled>Equinoctial Orbit (a, ex, ey, hx, hy, λ) - Not Yet Implemented</option>
                     </select>
-                    <span class="help-text">Choose how to specify the initial orbit</span>
+                    <span class="help-text">Choose orbit representation (only Cartesian is currently implemented)</span>
                 </div>
 
                 <!-- Cartesian Input -->
@@ -657,8 +692,9 @@
             document.getElementById('r0').value = '[3198022.67,2901879.73,5142928.95]';
             document.getElementById('v0').value = '[-6129.640631,4489.647187,1284.511245]';
 
-            // Set propagator
-            document.getElementById('propagator').value = 'rungekutta';
+            // Set propagator configuration
+            document.getElementById('propagatorClass').value = 'numerical';
+            document.getElementById('integrator').value = 'rungekutta';
             document.getElementById('stepSize').value = '60';
         }
 
@@ -706,13 +742,13 @@
 
                 let r0, v0;
 
-                // For now, only Cartesian is supported by backend
-                // (Would need backend changes to support other orbit types)
+                // Only Cartesian is currently implemented
+                // Other orbit types are disabled in the UI
                 if (orbitType === 'cartesian') {
                     r0 = formData.get('r0');
                     v0 = formData.get('v0');
                 } else {
-                    throw new Error('Only Cartesian orbit type is currently supported by the backend. Keplerian, Circular, and Equinoctial will require backend implementation.');
+                    throw new Error('Only Cartesian orbit type is currently supported by the backend.');
                 }
 
                 // Build API URL
@@ -721,7 +757,8 @@
                     tf: tf,
                     r0: r0,
                     v0: v0,
-                    propagator: formData.get('propagator'),
+                    orbitType: orbitType,
+                    propagator: formData.get('integrator'), // Using integrator field for numerical propagator
                     stepSize: formData.get('stepSize'),
                     frame: formData.get('frame')
                 });

@@ -55,6 +55,7 @@ public class RouteHandler {
         String r0 = params.get("r0"); // Initial position
         String v0 = params.get("v0"); // Initial velocity
         String tf = params.get("tf"); // Final epoch
+        String orbitType = params.getOrDefault("orbitType", "cartesian"); // Orbit representation type
         String propagatorType = params.getOrDefault("propagator", "rungekutta"); // Propagator type
         String stepSize = params.getOrDefault("stepSize", "60"); // Step size in seconds
         String frame = params.getOrDefault("frame", "eme2000"); // Reference frame
@@ -79,6 +80,7 @@ public class RouteHandler {
         apriori.put("t0", t0);
         apriori.put("r0", r0);
         apriori.put("v0", v0);
+        apriori.put("orbitType", org.spaceflightdynamics.propagation.OrbitType.fromKey(orbitType).getDisplayName());
         apriori.put("frame", org.spaceflightdynamics.propagation.FrameType.fromKey(frame).getDisplayName());
         apriori.put("propagator", propagatorType);
         apriori.put("stepSize", stepSize + " seconds");
