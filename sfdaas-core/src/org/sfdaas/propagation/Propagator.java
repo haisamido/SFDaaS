@@ -1,6 +1,8 @@
 package org.sfdaas.propagation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -274,22 +276,67 @@ public class Propagator {
     }
     
     /**
-     * Propagate the state using Orekit.  The propagation proceeds from the 
+     * Propagate the state using Orekit.  The propagation proceeds from the
      * parameters it was initialized with and propagates to the time tf.
+     * If outputInterval is specified, intermediate states are also collected.
+     *
      * @return HashMap<String,String> containing the keys "rf", "vf", "tf"
+     *         and optionally "intervalStates" if outputInterval parameter is set
      */
     public HashMap<String,String> propagate() {
-        
+
         SpacecraftState final_state = null;
-        
+        List<String> intervalStatesList = new ArrayList<>();
+
         try {
 
             // Get the time scale (defaults to UTC if not specified)
             String timeScaleKey = parms.get("timeScale");
             org.orekit.time.TimeScale orekitTimeScale = getTimeScale(timeScaleKey);
 
-            final_state = numericalPropagator.propagate(
-                            new AbsoluteDate(parms.get("tf"), orekitTimeScale));
+            // Get initial and final dates
+            AbsoluteDate t0Date = new AbsoluteDate(parms.get("t0"), orekitTimeScale);
+            AbsoluteDate tfDate = new AbsoluteDate(parms.get("tf"), orekitTimeScale);
+
+            // Check if output interval is specified
+            String outputIntervalStr = parms.get("outputInterval");
+            if (outputIntervalStr != null && !outputIntervalStr.trim().isEmpty()) {
+                try {
+                    double intervalSeconds = Double.parseDouble(outputIntervalStr.trim());
+
+                    if (intervalSeconds > 0) {
+                        // Calculate number of interval points
+                        double totalDuration = tfDate.durationFrom(t0Date);
+                        int numIntervals = (int) Math.floor(totalDuration / intervalSeconds);
+
+                        // Propagate and collect intermediate states
+                        for (int i = 1; i <= numIntervals; i++) {
+                            double offsetSeconds = i * intervalSeconds;
+                            if (offsetSeconds >= totalDuration) break;
+
+                            AbsoluteDate intermediateDate = t0Date.shiftedBy(offsetSeconds);
+                            SpacecraftState intermediateState = numericalPropagator.propagate(intermediateDate);
+
+                            // Format as JSON object
+                            String stateJson = String.format("{\"t\":\"%s\",\"r\":[%f,%f,%f],\"v\":[%f,%f,%f]}",
+                                intermediateDate.toString(orekitTimeScale),
+                                intermediateState.getPVCoordinates().getPosition().getX(),
+                                intermediateState.getPVCoordinates().getPosition().getY(),
+                                intermediateState.getPVCoordinates().getPosition().getZ(),
+                                intermediateState.getPVCoordinates().getVelocity().getX(),
+                                intermediateState.getPVCoordinates().getVelocity().getY(),
+                                intermediateState.getPVCoordinates().getVelocity().getZ());
+
+                            intervalStatesList.add(stateJson);
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid outputInterval value: " + outputIntervalStr);
+                }
+            }
+
+            // Propagate to final time
+            final_state = numericalPropagator.propagate(tfDate);
 
         } catch (IllegalArgumentException e) {
 
@@ -302,25 +349,30 @@ public class Propagator {
         }
 
         /*
-         * Stuff the propagation results into a HashMap and return it to the 
+         * Stuff the propagation results into a HashMap and return it to the
          * caller.
          */
         HashMap<String,String> final_hash = new HashMap<String,String>();
-        
-        final_hash.put("rf", String.format("[%f,%f,%s]", 
+
+        final_hash.put("rf", String.format("[%f,%f,%s]",
                 final_state.getPVCoordinates().getPosition().getX(),
                 final_state.getPVCoordinates().getPosition().getY(),
                 final_state.getPVCoordinates().getPosition().getZ()));
-        
-        final_hash.put("vf", String.format("[%f,%f,%s]", 
+
+        final_hash.put("vf", String.format("[%f,%f,%s]",
                 final_state.getPVCoordinates().getVelocity().getX(),
                 final_state.getPVCoordinates().getVelocity().getY(),
                 final_state.getPVCoordinates().getVelocity().getZ()));
-        
+
         final_hash.put("tf", parms.get("tf"));
-        
+
+        // Add interval states if any were collected
+        if (!intervalStatesList.isEmpty()) {
+            final_hash.put("intervalStates", "[" + String.join(",", intervalStatesList) + "]");
+        }
+
         return(final_hash);
-        
+
     }
 
     /**

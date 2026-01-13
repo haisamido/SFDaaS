@@ -748,6 +748,11 @@
                                 <input type="number" id="stepSize" name="stepSize" value="60" min="0.001" step="0.001">
                                 <span class="help-text">Integration step size</span>
                             </div>
+                            <div class="form-group">
+                                <label for="outputInterval">Output Interval (seconds)</label>
+                                <input type="number" id="outputInterval" name="outputInterval" placeholder="Optional" min="1" step="1">
+                                <span class="help-text">Time interval for intermediate state outputs (leave empty for final state only)</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1096,6 +1101,7 @@
             document.getElementById('propagatorClass').value = 'numerical';
             document.getElementById('integrator').value = 'rungekutta';
             document.getElementById('stepSize').value = '60';
+            document.getElementById('outputInterval').value = '';
         }
 
         // Global abort controller for cancelling requests
@@ -1179,6 +1185,12 @@
                     forceModels: forceModels.length > 0 ? forceModels.join(',') : 'none'
                 });
 
+                // Add output interval if specified
+                const outputInterval = formData.get('outputInterval');
+                if (outputInterval && outputInterval.trim() !== '') {
+                    params.append('outputInterval', outputInterval);
+                }
+
                 // Add caching if enabled
                 if (document.getElementById('enableCache').checked) {
                     params.append('cf', '1');
@@ -1259,6 +1271,19 @@ Position: ${data.data.aposteriori.rf} m
 Velocity: ${data.data.aposteriori.vf} m/s</pre>
                     </div>
                 </div>
+
+                ${data.data.aposteriori.intervalStates ? `
+                <div class="result-section">
+                    <div class="result-title">Interval States (${data.data.aposteriori.intervalStates.length} points)</div>
+                    <div class="result-data">
+                        <pre>${data.data.aposteriori.intervalStates.map(state =>
+                            `Epoch: ${state.t}
+Position: [${state.r[0].toFixed(2)}, ${state.r[1].toFixed(2)}, ${state.r[2].toFixed(2)}] m
+Velocity: [${state.v[0].toFixed(6)}, ${state.v[1].toFixed(6)}, ${state.v[2].toFixed(6)}] m/s`
+                        ).join('\n\n')}</pre>
+                    </div>
+                </div>
+                ` : ''}
 
                 ${data.diagnostics.timing ? `
                 <div class="result-section">

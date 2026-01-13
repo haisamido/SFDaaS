@@ -44,6 +44,13 @@ public class JsonResponseBuilder {
         aposterioriObj.addProperty("tf", aposteriori.get("tf"));
         aposterioriObj.addProperty("rf", aposteriori.get("rf"));
         aposterioriObj.addProperty("vf", aposteriori.get("vf"));
+
+        // Add interval states if present (already JSON formatted)
+        if (aposteriori.containsKey("intervalStates")) {
+            String intervalStatesJson = aposteriori.get("intervalStates");
+            aposterioriObj.add("intervalStates", gson.fromJson(intervalStatesJson, JsonArray.class));
+        }
+
         data.add("aposteriori", aposterioriObj);
 
         response.add("data", data);
@@ -100,6 +107,7 @@ public class JsonResponseBuilder {
         propagation.addProperty("frame", "Reference frame: eme2000 (default), gcrf, itrf, teme, mod, tod");
         propagation.addProperty("centralBody", "Central body for gravitational parameter (μ): earth (default), sun, moon, mars, jupiter, venus, saturn. Determines the central attraction coefficient used in propagation");
         propagation.addProperty("timeScale", "Time scale for epoch specification: utc (default - Coordinated Universal Time with leap seconds), tai (International Atomic Time - continuous atomic time)");
+        propagation.addProperty("outputInterval", "Output interval in seconds (optional). If specified, intermediate states will be included in the response at the specified time intervals between t0 and tf");
         propagation.addProperty("forceModels", "Force models: Comma-separated list (gravity,thirdbody,drag,srp,relativity) or 'none' (default). Note: Not yet implemented - currently uses two-body dynamics only");
         parameters.add("propagation", propagation);
 

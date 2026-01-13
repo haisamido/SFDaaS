@@ -61,6 +61,7 @@ public class RouteHandler {
         String frame = params.getOrDefault("frame", "eme2000"); // Reference frame
         String centralBody = params.getOrDefault("centralBody", "earth"); // Central body for mu
         String timeScale = params.getOrDefault("timeScale", "utc"); // Time scale for epochs
+        String outputInterval = params.get("outputInterval"); // Output interval in seconds (optional)
         String forceModels = params.getOrDefault("forceModels", "none"); // Force models
 
         // Validate required parameters
@@ -159,6 +160,9 @@ public class RouteHandler {
                     propagatorParams.put("frame", frame);
                     propagatorParams.put("centralBody", centralBody);
                     propagatorParams.put("timeScale", timeScale);
+                    if (outputInterval != null) {
+                        propagatorParams.put("outputInterval", outputInterval);
+                    }
                     Propagator propagator = new Propagator(propagatorParams);
                     HashMap<String, String> finalState = propagator.propagate();
                     propagationEnd = System.currentTimeMillis();
@@ -166,6 +170,11 @@ public class RouteHandler {
                     aposteriori.put("tf", finalState.get("tf"));
                     aposteriori.put("rf", finalState.get("rf"));
                     aposteriori.put("vf", finalState.get("vf"));
+
+                    // Add interval states if present
+                    if (finalState.containsKey("intervalStates")) {
+                        aposteriori.put("intervalStates", finalState.get("intervalStates"));
+                    }
 
                     // Store in cache
                     cache.set(cacheKey, Integer.parseInt(ct), finalState);
@@ -188,6 +197,9 @@ public class RouteHandler {
                 propagatorParams.put("frame", frame);
                 propagatorParams.put("centralBody", centralBody);
                 propagatorParams.put("timeScale", timeScale);
+                if (outputInterval != null) {
+                    propagatorParams.put("outputInterval", outputInterval);
+                }
                 Propagator propagator = new Propagator(propagatorParams);
                 HashMap<String, String> finalState = propagator.propagate();
                 propagationEnd = System.currentTimeMillis();
@@ -195,6 +207,11 @@ public class RouteHandler {
                 aposteriori.put("tf", finalState.get("tf"));
                 aposteriori.put("rf", finalState.get("rf"));
                 aposteriori.put("vf", finalState.get("vf"));
+
+                // Add interval states if present
+                if (finalState.containsKey("intervalStates")) {
+                    aposteriori.put("intervalStates", finalState.get("intervalStates"));
+                }
             }
 
             // Build assumptions section
