@@ -997,6 +997,11 @@
                             <input type="text" id="redisPort" name="redisPort" placeholder="6379" disabled>
                             <span class="help-text">Redis server port (default: 6379)</span>
                         </div>
+                        <div class="form-group">
+                            <label for="redisPrefix">Redis Key Prefix</label>
+                            <input type="text" id="redisPrefix" name="redisPrefix" placeholder="sfdaas:states" disabled>
+                            <span class="help-text">Prefix for Redis keys (default: sfdaas:states)</span>
+                        </div>
                     </div>
                     <div class="form-grid" style="margin-top: 20px;">
                         <div class="form-group">
@@ -1112,12 +1117,15 @@
         document.getElementById('enableRedis').addEventListener('change', function() {
             const redisHostInput = document.getElementById('redisHost');
             const redisPortInput = document.getElementById('redisPort');
+            const redisPrefixInput = document.getElementById('redisPrefix');
             redisHostInput.disabled = !this.checked;
             redisPortInput.disabled = !this.checked;
+            redisPrefixInput.disabled = !this.checked;
             // Set default values when enabled
             if (this.checked) {
                 if (!redisHostInput.value) redisHostInput.value = 'localhost';
                 if (!redisPortInput.value) redisPortInput.value = '6379';
+                if (!redisPrefixInput.value) redisPrefixInput.value = 'sfdaas:states';
             }
         });
 
@@ -1239,8 +1247,10 @@
                 if (document.getElementById('enableRedis').checked) {
                     const redisHost = formData.get('redisHost') || 'localhost';
                     const redisPort = formData.get('redisPort') || '6379';
+                    const redisPrefix = formData.get('redisPrefix') || 'sfdaas:states';
                     params.append('redisHost', redisHost.trim() || 'localhost');
                     params.append('redisPort', redisPort.trim() || '6379');
+                    params.append('redisPrefix', redisPrefix.trim() || 'sfdaas:states');
                 }
 
                 // Add caching if enabled

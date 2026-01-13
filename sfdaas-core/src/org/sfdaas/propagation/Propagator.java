@@ -329,9 +329,13 @@ public class Propagator {
                     double intervalSeconds = Double.parseDouble(outputIntervalStr.trim());
 
                     if (intervalSeconds > 0) {
-                        // Check if Redis publishing is enabled
+                        // Check if Redis storage is enabled
                         String redisHost = parms.get("redisHost");
                         String redisPortStr = parms.get("redisPort");
+                        String redisPrefix = parms.get("redisPrefix");
+                        if (redisPrefix == null || redisPrefix.trim().isEmpty()) {
+                            redisPrefix = "sfdaas:states";
+                        }
                         Jedis jedis = null;
                         boolean redisEnabled = false;
 
@@ -363,7 +367,7 @@ public class Propagator {
                         // Store initial state in Redis if enabled
                         if (redisEnabled && jedis != null) {
                             try {
-                                String key = "sfdaas:states:" + t0Date.toString(orekitTimeScale).replace(":", "-");
+                                String key = redisPrefix + ":" + t0Date.toString(orekitTimeScale).replace(":", "-");
                                 jedis.set(key, initialRow);
                             } catch (JedisException e) {
                                 System.err.println("Failed to store initial state in Redis: " + e.getMessage());
@@ -397,7 +401,7 @@ public class Propagator {
                             // Store intermediate state in Redis if enabled
                             if (redisEnabled && jedis != null) {
                                 try {
-                                    String key = "sfdaas:states:" + intermediateDate.toString(orekitTimeScale).replace(":", "-");
+                                    String key = redisPrefix + ":" + intermediateDate.toString(orekitTimeScale).replace(":", "-");
                                     jedis.set(key, stateRow);
                                 } catch (JedisException e) {
                                     System.err.println("Failed to store intermediate state in Redis: " + e.getMessage());
@@ -422,7 +426,7 @@ public class Propagator {
                         // Store final state in Redis if enabled
                         if (redisEnabled && jedis != null) {
                             try {
-                                String key = "sfdaas:states:" + tfDate.toString(orekitTimeScale).replace(":", "-");
+                                String key = redisPrefix + ":" + tfDate.toString(orekitTimeScale).replace(":", "-");
                                 jedis.set(key, finalRow);
                             } catch (JedisException e) {
                                 System.err.println("Failed to store final state in Redis: " + e.getMessage());
