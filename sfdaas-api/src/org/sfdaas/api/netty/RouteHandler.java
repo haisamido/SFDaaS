@@ -64,6 +64,8 @@ public class RouteHandler {
         String outputInterval = params.get("outputInterval"); // Output interval in seconds (optional)
         String forceModels = params.getOrDefault("forceModels", "none"); // Force models
         String engine = params.getOrDefault("engine", "orekit"); // Space flight dynamics engine
+        String redisHost = params.get("redisHost"); // Redis host for state publishing (optional)
+        String redisPort = params.get("redisPort"); // Redis port (optional, default 6379)
 
         // Validate required parameters
         if (t0 == null || r0 == null || v0 == null || tf == null) {
@@ -169,6 +171,12 @@ public class RouteHandler {
                     if (outputInterval != null) {
                         propagatorParams.put("outputInterval", outputInterval);
                     }
+                    if (redisHost != null) {
+                        propagatorParams.put("redisHost", redisHost);
+                    }
+                    if (redisPort != null) {
+                        propagatorParams.put("redisPort", redisPort);
+                    }
                     Propagator propagator = new Propagator(propagatorParams);
                     HashMap<String, String> finalState = propagator.propagate();
                     propagationEnd = System.currentTimeMillis();
@@ -206,6 +214,12 @@ public class RouteHandler {
                 propagatorParams.put("engine", engine);
                 if (outputInterval != null) {
                     propagatorParams.put("outputInterval", outputInterval);
+                }
+                if (redisHost != null) {
+                    propagatorParams.put("redisHost", redisHost);
+                }
+                if (redisPort != null) {
+                    propagatorParams.put("redisPort", redisPort);
                 }
                 Propagator propagator = new Propagator(propagatorParams);
                 HashMap<String, String> finalState = propagator.propagate();

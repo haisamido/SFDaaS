@@ -981,6 +981,25 @@
                     <div class="section-title">💾 Caching Options (Optional)</div>
                     <div class="form-grid">
                         <div class="form-group">
+                            <label for="enableRedis">
+                                <input type="checkbox" id="enableRedis" name="enableRedis" style="width: auto; margin-right: 10px;">
+                                Enable Redis Storage
+                            </label>
+                            <span class="help-text">Store interval states as Redis keys (sfdaas:states:timestamp)</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="redisHost">Redis Host</label>
+                            <input type="text" id="redisHost" name="redisHost" placeholder="localhost" disabled>
+                            <span class="help-text">Redis server hostname or IP address</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="redisPort">Redis Port</label>
+                            <input type="text" id="redisPort" name="redisPort" placeholder="6379" disabled>
+                            <span class="help-text">Redis server port (default: 6379)</span>
+                        </div>
+                    </div>
+                    <div class="form-grid" style="margin-top: 20px;">
+                        <div class="form-group">
                             <label for="enableCache">
                                 <input type="checkbox" id="enableCache" name="enableCache" style="width: auto; margin-right: 10px;">
                                 Enable Memcached Caching
@@ -1087,6 +1106,19 @@
             };
 
             document.getElementById(inputMap[orbitType]).classList.add('active');
+        });
+
+        // Handle Redis checkbox
+        document.getElementById('enableRedis').addEventListener('change', function() {
+            const redisHostInput = document.getElementById('redisHost');
+            const redisPortInput = document.getElementById('redisPort');
+            redisHostInput.disabled = !this.checked;
+            redisPortInput.disabled = !this.checked;
+            // Set default values when enabled
+            if (this.checked) {
+                if (!redisHostInput.value) redisHostInput.value = 'localhost';
+                if (!redisPortInput.value) redisPortInput.value = '6379';
+            }
         });
 
         // Handle cache checkbox
@@ -1201,6 +1233,14 @@
                 const outputInterval = formData.get('outputInterval');
                 if (outputInterval && outputInterval.trim() !== '') {
                     params.append('outputInterval', outputInterval);
+                }
+
+                // Add Redis storage if enabled
+                if (document.getElementById('enableRedis').checked) {
+                    const redisHost = formData.get('redisHost') || 'localhost';
+                    const redisPort = formData.get('redisPort') || '6379';
+                    params.append('redisHost', redisHost.trim() || 'localhost');
+                    params.append('redisPort', redisPort.trim() || '6379');
                 }
 
                 // Add caching if enabled
