@@ -223,7 +223,15 @@ public class Propagator {
          * Default to Runge-Kutta if no propagator type is specified.
          */
         PropagatorType propagatorType = PropagatorType.fromKey(parms.get("propagator"));
-        AbstractIntegrator integrator = IntegratorFactory.createIntegrator(propagatorType, stepSize);
+
+        // Default tolerances for adaptive integrators
+        double minStep = 0.001;           // 1 millisecond
+        double maxStep = 1000.0;          // 1000 seconds
+        double positionTolerance = 10.0;  // 10 meters
+        double velocityTolerance = 0.01;  // 0.01 m/s
+
+        AbstractIntegrator integrator = IntegratorFactory.createIntegrator(
+            propagatorType, stepSize, minStep, maxStep, positionTolerance, velocityTolerance);
         numericalPropagator = new NumericalPropagator(integrator);
           
         /*
