@@ -688,18 +688,29 @@
 
         <div class="form-container">
             <form id="propagationForm">
+                <!-- Time Scale -->
+                <div class="section-title">⏰ Time Scale</div>
+                <div class="form-group">
+                    <label for="timeScale">Epoch Time Scale</label>
+                    <select id="timeScale" name="timeScale" required>
+                        <option value="utc" selected>UTC (Coordinated Universal Time)</option>
+                        <option value="tai">TAI (International Atomic Time)</option>
+                    </select>
+                    <span class="help-text">Time scale for t0 and tf epoch specification. UTC includes leap seconds; TAI is continuous atomic time</span>
+                </div>
+
                 <!-- Time Configuration -->
-                <div class="section-title">⏰ Time Configuration</div>
+                <div class="section-title">📅 Epoch Configuration</div>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="t0">Initial Epoch (t₀) - UTC</label>
+                        <label for="t0">Initial Epoch (t<sub>0</sub>)</label>
                         <input type="text" id="t0" name="t0" required placeholder="YYYY-MM-DDTHH:MM:SS.SSS+00:00" pattern="\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}\+00:00">
-                        <span class="help-text">ISO 8601 format with UTC timezone (e.g., 2010-05-28T12:00:00.000+00:00)</span>
+                        <span class="help-text">ISO 8601 format (e.g., 2010-05-28T12:00:00.000+00:00)</span>
                     </div>
                     <div class="form-group">
-                        <label for="tf">Final Epoch (tₓ) - UTC</label>
+                        <label for="tf">Final Epoch (t<sub>f</sub>)</label>
                         <input type="text" id="tf" name="tf" required placeholder="YYYY-MM-DDTHH:MM:SS.SSS+00:00" pattern="\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}\+00:00">
-                        <span class="help-text">ISO 8601 format with UTC timezone (e.g., 2010-05-29T12:00:00.000+00:00)</span>
+                        <span class="help-text">ISO 8601 format (e.g., 2010-05-29T12:00:00.000+00:00)</span>
                     </div>
                 </div>
 
@@ -1164,6 +1175,7 @@
                     stepSize: formData.get('stepSize'),
                     frame: formData.get('frame'),
                     centralBody: centralBodyValue,
+                    timeScale: formData.get('timeScale'),
                     forceModels: forceModels.length > 0 ? forceModels.join(',') : 'none'
                 });
 
@@ -1223,6 +1235,7 @@
                         <pre>Orbit Type:       ${data.data.apriori.orbitType}
 Reference Frame:  ${data.data.apriori.frame}
 Central Body:     ${data.data.apriori.centralBody}
+Time Scale:       ${data.data.apriori.timeScale}
 Propagator:       ${data.data.apriori.propagator}
 Step Size:        ${data.data.apriori.stepSize}
 Force Models:     ${data.data.apriori.forceModels || 'Two-Body Dynamics (Keplerian)'}</pre>

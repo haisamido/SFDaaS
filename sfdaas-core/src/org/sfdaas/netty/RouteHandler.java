@@ -60,6 +60,7 @@ public class RouteHandler {
         String stepSize = params.getOrDefault("stepSize", "60"); // Step size in seconds
         String frame = params.getOrDefault("frame", "eme2000"); // Reference frame
         String centralBody = params.getOrDefault("centralBody", "earth"); // Central body for mu
+        String timeScale = params.getOrDefault("timeScale", "utc"); // Time scale for epochs
         String forceModels = params.getOrDefault("forceModels", "none"); // Force models
 
         // Validate required parameters
@@ -85,6 +86,7 @@ public class RouteHandler {
         apriori.put("orbitType", org.sfdaas.propagation.OrbitType.fromKey(orbitType).getDisplayName());
         apriori.put("frame", org.sfdaas.propagation.FrameType.fromKey(frame).getDisplayName());
         apriori.put("centralBody", formatCentralBody(centralBody));
+        apriori.put("timeScale", org.sfdaas.propagation.TimeScale.fromKey(timeScale).getDisplayName());
         apriori.put("propagator", propagatorType);
         apriori.put("stepSize", stepSize + " seconds");
         apriori.put("forceModels", formatForceModels(forceModels));
@@ -147,7 +149,7 @@ public class RouteHandler {
                     cachingInfo.put("hit", false);
 
                     propagationStart = System.currentTimeMillis();
-                    Propagator propagator = new Propagator(r0, v0, t0, tf, propagatorType, stepSize, frame, centralBody);
+                    Propagator propagator = new Propagator(r0, v0, t0, tf, propagatorType, stepSize, frame, centralBody, timeScale);
                     HashMap<String, String> finalState = propagator.propagate();
                     propagationEnd = System.currentTimeMillis();
 
@@ -166,7 +168,7 @@ public class RouteHandler {
                 cachingInfo.put("enabled", false);
 
                 propagationStart = System.currentTimeMillis();
-                Propagator propagator = new Propagator(r0, v0, t0, tf, propagatorType, stepSize, frame, centralBody);
+                Propagator propagator = new Propagator(r0, v0, t0, tf, propagatorType, stepSize, frame, centralBody, timeScale);
                 HashMap<String, String> finalState = propagator.propagate();
                 propagationEnd = System.currentTimeMillis();
 

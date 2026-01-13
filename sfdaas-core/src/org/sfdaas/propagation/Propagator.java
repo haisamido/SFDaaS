@@ -249,8 +249,9 @@ public class Propagator {
      * @param stepSize - step size in seconds
      * @param frame - reference frame (e.g., "eme2000")
      * @param centralBody - central body for mu (e.g., "earth", "sun", "moon")
+     * @param timeScale - time scale for epochs (e.g., "utc", "tai")
      */
-    public Propagator(String r0, String v0, String t0, String tf, String propagatorType, String stepSize, String frame, String centralBody) {
+    public Propagator(String r0, String v0, String t0, String tf, String propagatorType, String stepSize, String frame, String centralBody, String timeScale) {
 
         /*
          * Create a hash map from the String parameters.
@@ -265,6 +266,7 @@ public class Propagator {
         hm.put("stepSize", stepSize);
         hm.put("frame", frame);
         hm.put("centralBody", centralBody);
+        hm.put("timeScale", timeScale);
 
         /*
          * Call the initializer with the HashMap.
@@ -311,24 +313,27 @@ public class Propagator {
         System.setProperty(DataProvidersManager.OREKIT_DATA_PATH, UTCTAI_PATH); 
 
         /*
-         * Extract the epoch parameter ("t0") and convert it to an Orekit 
+         * Extract the epoch parameter ("t0") and convert it to an Orekit
          * AbsoluteDate.  These exceptions should really be thrown up the chain
          * to the calling application, so the web user gets feedback.  Handling
          * the exceptions here only prints them to stdout.
          */
         try {
-            
-            epoch = new AbsoluteDate(parms.get("t0"), 
-                            TimeScalesFactory.getUTC());
-            
+
+            // Get the time scale (defaults to UTC if not specified)
+            String timeScaleKey = parms.get("timeScale");
+            org.orekit.time.TimeScale orekitTimeScale = getTimeScale(timeScaleKey);
+
+            epoch = new AbsoluteDate(parms.get("t0"), orekitTimeScale);
+
         } catch (IllegalArgumentException e) {
-            
-            e.printStackTrace();            
+
+            e.printStackTrace();
             return;
-            
+
         } catch (OrekitException e) {
 
-            e.printStackTrace();            
+            e.printStackTrace();
             return;
         }
         
@@ -428,9 +433,12 @@ public class Propagator {
         
         try {
 
+            // Get the time scale (defaults to UTC if not specified)
+            String timeScaleKey = parms.get("timeScale");
+            org.orekit.time.TimeScale orekitTimeScale = getTimeScale(timeScaleKey);
+
             final_state = numericalPropagator.propagate(
-                            new AbsoluteDate(parms.get("tf"),
-                            TimeScalesFactory.getUTC()));
+                            new AbsoluteDate(parms.get("tf"), orekitTimeScale));
 
         } catch (IllegalArgumentException e) {
 
@@ -505,6 +513,25 @@ public class Propagator {
             default:
                 // Default to Earth if unknown body
                 return CelestialBodyFactory.getEarth().getGM();
+        }
+    }
+
+    /**
+     * Get the OreKit TimeScale object for the specified time scale type.
+     *
+     * @param timeScaleKey The time scale key (e.g., "utc", "tai")
+     * @return The OreKit TimeScale object
+     * @throws OrekitException if there's an error accessing the time scale
+     */
+    private org.orekit.time.TimeScale getTimeScale(String timeScaleKey) throws OrekitException {
+        TimeScale timeScale = TimeScale.fromKey(timeScaleKey);
+
+        switch (timeScale) {
+            case TAI:
+                return TimeScalesFactory.getTAI();
+            case UTC:
+            default:
+                return TimeScalesFactory.getUTC();
         }
     }
 
