@@ -151,6 +151,15 @@ done
 TIME_ROW+="|"
 log_output "$TIME_ROW"
 
+# Build data row with API links
+LINK_ROW="| API "
+for prop in "${PROPAGATORS[@]}"; do
+    URL="${API_BASE}?t0=2010-05-28T12:00:00.000&tf=2010-05-29T12:00:00.000&r0=[3198022.67,2901879.73,5142928.95]&v0=[-6129.640631,4489.647187,1284.511245]&propagator=${prop}"
+    LINK_ROW+="| [link](${URL}) "
+done
+LINK_ROW+="|"
+log_output "$LINK_ROW"
+
 log_output ""
 
 # Test reference frames and build markdown table
@@ -189,6 +198,15 @@ done
 FRAME_ROW+="|"
 log_output "$FRAME_ROW"
 
+# Build data row with API links
+FRAME_LINK_ROW="| API "
+for frame in "${FRAMES[@]}"; do
+    URL="${API_BASE}?t0=2010-05-28T12:00:00.000&tf=2010-05-29T12:00:00.000&r0=[3198022.67,2901879.73,5142928.95]&v0=[-6129.640631,4489.647187,1284.511245]&frame=${frame}"
+    FRAME_LINK_ROW+="| [link](${URL}) "
+done
+FRAME_LINK_ROW+="|"
+log_output "$FRAME_LINK_ROW"
+
 log_output ""
 
 # Test time scales
@@ -226,6 +244,15 @@ for ts in "${TIMESCALES[@]}"; do
 done
 TS_ROW+="|"
 log_output "$TS_ROW"
+
+# Build data row with API links
+TS_LINK_ROW="| API "
+for ts in "${TIMESCALES[@]}"; do
+    URL="${API_BASE}?t0=2010-05-28T12:00:00.000&tf=2010-05-29T12:00:00.000&r0=[3198022.67,2901879.73,5142928.95]&v0=[-6129.640631,4489.647187,1284.511245]&timeScale=${ts}"
+    TS_LINK_ROW+="| [link](${URL}) "
+done
+TS_LINK_ROW+="|"
+log_output "$TS_LINK_ROW"
 
 log_output ""
 log_output "---"
