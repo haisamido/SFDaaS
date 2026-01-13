@@ -63,6 +63,7 @@ public class RouteHandler {
         String timeScale = params.getOrDefault("timeScale", "utc"); // Time scale for epochs
         String outputInterval = params.get("outputInterval"); // Output interval in seconds (optional)
         String forceModels = params.getOrDefault("forceModels", "none"); // Force models
+        String engine = params.getOrDefault("engine", "orekit"); // Space flight dynamics engine
 
         // Validate required parameters
         if (t0 == null || r0 == null || v0 == null || tf == null) {
@@ -88,6 +89,7 @@ public class RouteHandler {
         apriori.put("frame", org.sfdaas.propagation.FrameType.fromKey(frame).getDisplayName());
         apriori.put("centralBody", formatCentralBody(centralBody));
         apriori.put("timeScale", org.sfdaas.propagation.TimeScale.fromKey(timeScale).getDisplayName());
+        apriori.put("engine", org.sfdaas.propagation.EngineType.fromKey(engine).getDisplayName());
         apriori.put("propagator", propagatorType);
         apriori.put("stepSize", stepSize + " seconds");
         apriori.put("forceModels", formatForceModels(forceModels));
@@ -160,6 +162,7 @@ public class RouteHandler {
                     propagatorParams.put("frame", frame);
                     propagatorParams.put("centralBody", centralBody);
                     propagatorParams.put("timeScale", timeScale);
+                    propagatorParams.put("engine", engine);
                     if (outputInterval != null) {
                         propagatorParams.put("outputInterval", outputInterval);
                     }
@@ -197,6 +200,7 @@ public class RouteHandler {
                 propagatorParams.put("frame", frame);
                 propagatorParams.put("centralBody", centralBody);
                 propagatorParams.put("timeScale", timeScale);
+                propagatorParams.put("engine", engine);
                 if (outputInterval != null) {
                     propagatorParams.put("outputInterval", outputInterval);
                 }

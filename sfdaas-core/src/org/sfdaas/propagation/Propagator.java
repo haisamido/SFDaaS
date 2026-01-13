@@ -59,6 +59,7 @@ public class Propagator {
     private HashMap<String,String> parms;
     private NumericalPropagator numericalPropagator;
     private FrameType frameType = FrameType.EME2000;
+    private EngineType engineType = EngineType.OREKIT;
     
     /*
      * Regular expression for matching the string vector format: 
@@ -148,6 +149,26 @@ public class Propagator {
          */
         if (parms.containsKey("frame") && parms.get("frame") != null) {
             frameType = FrameType.fromKey(parms.get("frame"));
+        }
+
+        /*
+         * Extract engine type if provided, otherwise use default (OREKIT)
+         */
+        if (parms.containsKey("engine") && parms.get("engine") != null) {
+            engineType = EngineType.fromKey(parms.get("engine"));
+        }
+
+        /*
+         * Validate that the selected engine is implemented
+         */
+        if (!engineType.isImplemented()) {
+            throw new IllegalArgumentException(
+                "Engine '" + engineType.getDisplayName() + "' is not yet implemented. " +
+                "Currently implemented engines: " +
+                java.util.Arrays.stream(EngineType.getImplemented())
+                    .map(EngineType::getKey)
+                    .collect(java.util.stream.Collectors.joining(", "))
+            );
         }
 
         /*

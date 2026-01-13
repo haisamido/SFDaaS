@@ -29,6 +29,7 @@ erDiagram
     %% CORE DOMAIN LAYER - Orbit Propagation
     %% ============================================================================
 
+    Propagator ||--|| EngineType : "references"
     Propagator ||--|| PropagatorType : "references"
     Propagator ||--|| FrameType : "references"
     Propagator ||--|| OrbitType : "references"
@@ -109,12 +110,24 @@ erDiagram
         double stepSize
         HashMap parms
         NumericalPropagator numericalPropagator
+        EngineType engineType
         FrameType frameType
         TimeScale timeScale
         void initialize()
         HashMap propagate()
         double getMuForCentralBody()
         TimeScale getTimeScale()
+    }
+
+    EngineType {
+        string OREKIT
+        string GMAT
+        string key
+        string displayName
+        string description
+        boolean implemented
+        EngineType fromKey()
+        EngineType getImplemented()
     }
 
     PropagatorType {
@@ -266,6 +279,7 @@ graph TB
 
     subgraph "Propagation Domain Layer"
         Propagator[Propagator<br/>initialize<br/>propagate]
+        EngineType[EngineType Enum<br/>OreKit (implemented)<br/>GMAT (placeholder)]
         PropagatorType[PropagatorType Enum<br/>RungeKutta<br/>DormandPrince<br/>AdamsBashforth<br/>AdamsMoulton]
         FrameType[FrameType Enum<br/>EME2000<br/>GCRF<br/>ITRF<br/>TEME<br/>MOD<br/>TOD]
         OrbitType[OrbitType Enum<br/>Cartesian<br/>Keplerian<br/>Circular<br/>Equinoctial]
@@ -303,6 +317,7 @@ graph TB
 
     JsonResponseBuilder --> Gson
 
+    Propagator --> EngineType
     Propagator --> PropagatorType
     Propagator --> FrameType
     Propagator --> OrbitType
@@ -332,6 +347,7 @@ flowchart LR
         v0["Initial Velocity v0<br/>[vx, vy, vz] m/s"]
         t0["Initial Epoch t0<br/>ISO 8601 format"]
         tf["Final Epoch tf<br/>ISO 8601 format"]
+        engine["Space Flight Dynamics Engine<br/>orekit (default), gmat"]
         timeScale["Time Scale<br/>utc (default), tai"]
         propagatorType["Propagator Type<br/>rungekutta, dormandprince, etc."]
         stepSize["Step Size<br/>seconds (default: 60)"]
@@ -354,7 +370,7 @@ flowchart LR
     end
 
     subgraph Output["Output Data"]
-        apriori["Apriori State<br/>t0, r0, v0<br/>frame, centralBody, timeScale<br/>propagator, stepSize"]
+        apriori["Apriori State<br/>t0, r0, v0<br/>engine, frame, centralBody, timeScale<br/>propagator, stepSize"]
         aposteriori["Aposteriori State<br/>tf, rf, vf"]
         diagTiming["Timing Diagnostics<br/>Propagation duration<br/>Total runtime"]
         diagCaching["Caching Diagnostics<br/>Hit/miss, servers, TTL"]
@@ -368,6 +384,7 @@ flowchart LR
     v0 --> validation
     t0 --> validation
     tf --> validation
+    engine --> validation
     timeScale --> validation
     propagatorType --> validation
     stepSize --> validation
@@ -415,6 +432,7 @@ flowchart LR
 | RouteHandler | reads/updates | HttpSession | N:N |
 | RouteHandler | uses | JsonResponseBuilder | N:1 |
 | RouteHandler | optionally uses | MemcachedClient | N:N |
+| Propagator | references | EngineType | N:1 |
 | Propagator | references | PropagatorType | N:1 |
 | Propagator | references | FrameType | N:1 |
 | Propagator | references | OrbitType | N:1 |
@@ -436,7 +454,12 @@ flowchart LR
 - `stepSize: double` - Integration step size in seconds (default: 60)
 - `parms: HashMap<String,String>` - Initial state parameters
 - `numericalPropagator: NumericalPropagator` - OreKit propagator instance
+- `engineType: EngineType` - Space flight dynamics engine (default: OREKIT)
 - `frameType: FrameType` - Reference frame enumeration
+
+**EngineType Enum Values**
+- `OREKIT` - ORbit Extrapolation KIT - Java space dynamics library (implemented, default)
+- `GMAT` - General Mission Analysis Tool - NASA mission analysis (placeholder, not yet implemented)
 
 **PropagatorType Enum Values**
 - `RUNGE_KUTTA` - Classical 4th order fixed-step
@@ -493,6 +516,7 @@ flowchart LR
 
 **Optional Propagation Parameters**
 
+- `engine` - Space flight dynamics engine (default: orekit, options: orekit, gmat)
 - `propagator` - Integration method (default: dormandprince)
 - `stepSize` - Integration step size in seconds (default: 60)
 - `frame` - Reference frame (default: eme2000)
@@ -537,6 +561,7 @@ flowchart LR
 | RouteHandler | `sfdaas-api/src/org/sfdaas/api/netty/RouteHandler.java` |
 | JsonResponseBuilder | `sfdaas-api/src/org/sfdaas/api/netty/JsonResponseBuilder.java` |
 | Propagator | `sfdaas-core/src/org/sfdaas/propagation/Propagator.java` |
+| EngineType | `sfdaas-core/src/org/sfdaas/propagation/EngineType.java` |
 | PropagatorType | `sfdaas-core/src/org/sfdaas/propagation/PropagatorType.java` |
 | FrameType | `sfdaas-core/src/org/sfdaas/propagation/FrameType.java` |
 | OrbitType | `sfdaas-core/src/org/sfdaas/propagation/OrbitType.java` |

@@ -688,6 +688,17 @@
 
         <div class="form-container">
             <form id="propagationForm">
+                <!-- Engine Selection -->
+                <div class="section-title">⚙️ Space Flight Dynamics Engine</div>
+                <div class="form-group">
+                    <label for="engine">Engine Selection</label>
+                    <select id="engine" name="engine" required>
+                        <option value="orekit">OreKit - ORbit Extrapolation KIT (Java)</option>
+                        <option value="gmat" disabled>GMAT - General Mission Analysis Tool (Coming Soon)</option>
+                    </select>
+                    <span class="help-text">Choose the space flight dynamics engine (only OreKit is currently available)</span>
+                </div>
+
                 <!-- Time Scale -->
                 <div class="section-title">⏰ Time Scale</div>
                 <div class="form-group">
@@ -1177,6 +1188,7 @@
                     r0: r0,
                     v0: v0,
                     orbitType: orbitType,
+                    engine: formData.get('engine'),
                     propagator: formData.get('integrator'), // Using integrator field for numerical propagator
                     stepSize: formData.get('stepSize'),
                     frame: formData.get('frame'),
@@ -1244,7 +1256,8 @@
                 <div class="result-section">
                     <div class="result-title">Configuration</div>
                     <div class="result-data">
-                        <pre>Orbit Type:       ${data.data.apriori.orbitType}
+                        <pre>Engine:           ${data.data.apriori.engine || 'OreKit'}
+Orbit Type:       ${data.data.apriori.orbitType}
 Reference Frame:  ${data.data.apriori.frame}
 Central Body:     ${data.data.apriori.centralBody}
 Time Scale:       ${data.data.apriori.timeScale}
