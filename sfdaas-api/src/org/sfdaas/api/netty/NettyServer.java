@@ -1,4 +1,4 @@
-package org.sfdaas.netty;
+package org.sfdaas.api.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;

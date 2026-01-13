@@ -530,12 +530,12 @@ flowchart LR
 
 | Entity | File Path |
 |--------|----------|
-| NettyServer | `sfdaas-core/src/org/sfdaas/netty/NettyServer.java` |
-| HttpRequestHandler | `sfdaas-core/src/org/sfdaas/netty/HttpRequestHandler.java` |
-| SessionManager | `sfdaas-core/src/org/sfdaas/netty/SessionManager.java` |
-| HttpSession | `sfdaas-core/src/org/sfdaas/netty/HttpSession.java` |
-| RouteHandler | `sfdaas-core/src/org/sfdaas/netty/RouteHandler.java` |
-| JsonResponseBuilder | `sfdaas-core/src/org/sfdaas/netty/JsonResponseBuilder.java` |
+| NettyServer | `sfdaas-api/src/org/sfdaas/api/netty/NettyServer.java` |
+| HttpRequestHandler | `sfdaas-api/src/org/sfdaas/api/netty/HttpRequestHandler.java` |
+| SessionManager | `sfdaas-api/src/org/sfdaas/api/netty/SessionManager.java` |
+| HttpSession | `sfdaas-api/src/org/sfdaas/api/netty/HttpSession.java` |
+| RouteHandler | `sfdaas-api/src/org/sfdaas/api/netty/RouteHandler.java` |
+| JsonResponseBuilder | `sfdaas-api/src/org/sfdaas/api/netty/JsonResponseBuilder.java` |
 | Propagator | `sfdaas-core/src/org/sfdaas/propagation/Propagator.java` |
 | PropagatorType | `sfdaas-core/src/org/sfdaas/propagation/PropagatorType.java` |
 | FrameType | `sfdaas-core/src/org/sfdaas/propagation/FrameType.java` |

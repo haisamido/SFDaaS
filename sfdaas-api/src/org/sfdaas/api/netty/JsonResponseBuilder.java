@@ -1,4 +1,4 @@
-package org.sfdaas.netty;
+package org.sfdaas.api.netty;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

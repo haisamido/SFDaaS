@@ -1,4 +1,4 @@
-package org.sfdaas.netty;
+package org.sfdaas.api.netty;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

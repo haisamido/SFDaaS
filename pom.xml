@@ -85,6 +85,7 @@
                         <configuration>
                             <sources>
                                 <source>sfdaas-core/src/org/sfdaas</source>
+                                <source>sfdaas-api/src/org/sfdaas</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -109,7 +110,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.sfdaas.netty.NettyServer</mainClass>
+                            <mainClass>org.sfdaas.api.netty.NettyServer</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -126,7 +127,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>org.sfdaas.netty.NettyServer</mainClass>
+                            <mainClass>org.sfdaas.api.netty.NettyServer</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
