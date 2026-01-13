@@ -45,10 +45,10 @@ public class JsonResponseBuilder {
         aposterioriObj.addProperty("rf", aposteriori.get("rf"));
         aposterioriObj.addProperty("vf", aposteriori.get("vf"));
 
-        // Add interval states if present (already JSON formatted)
+        // Add interval states if present (CSV format with newline-separated rows)
         if (aposteriori.containsKey("intervalStates")) {
-            String intervalStatesJson = aposteriori.get("intervalStates");
-            aposterioriObj.add("intervalStates", gson.fromJson(intervalStatesJson, JsonArray.class));
+            String intervalStatesCsv = aposteriori.get("intervalStates");
+            aposterioriObj.addProperty("intervalStates", intervalStatesCsv);
         }
 
         data.add("aposteriori", aposterioriObj);

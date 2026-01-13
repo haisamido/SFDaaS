@@ -317,8 +317,8 @@ public class Propagator {
                             AbsoluteDate intermediateDate = t0Date.shiftedBy(offsetSeconds);
                             SpacecraftState intermediateState = numericalPropagator.propagate(intermediateDate);
 
-                            // Format as JSON object
-                            String stateJson = String.format("{\"t\":\"%s\",\"r\":[%f,%f,%f],\"v\":[%f,%f,%f]}",
+                            // Format as comma-separated row: t,rx,ry,rz,vx,vy,vz
+                            String stateRow = String.format("%s,%f,%f,%f,%f,%f,%f",
                                 intermediateDate.toString(orekitTimeScale),
                                 intermediateState.getPVCoordinates().getPosition().getX(),
                                 intermediateState.getPVCoordinates().getPosition().getY(),
@@ -327,7 +327,7 @@ public class Propagator {
                                 intermediateState.getPVCoordinates().getVelocity().getY(),
                                 intermediateState.getPVCoordinates().getVelocity().getZ());
 
-                            intervalStatesList.add(stateJson);
+                            intervalStatesList.add(stateRow);
                         }
                     }
                 } catch (NumberFormatException e) {
@@ -366,9 +366,9 @@ public class Propagator {
 
         final_hash.put("tf", parms.get("tf"));
 
-        // Add interval states if any were collected
+        // Add interval states if any were collected (CSV format with newline separator)
         if (!intervalStatesList.isEmpty()) {
-            final_hash.put("intervalStates", "[" + String.join(",", intervalStatesList) + "]");
+            final_hash.put("intervalStates", String.join("\n", intervalStatesList));
         }
 
         return(final_hash);

@@ -1274,13 +1274,10 @@ Velocity: ${data.data.aposteriori.vf} m/s</pre>
 
                 ${data.data.aposteriori.intervalStates ? `
                 <div class="result-section">
-                    <div class="result-title">Interval States (${data.data.aposteriori.intervalStates.length} points)</div>
+                    <div class="result-title">Interval States (CSV format)</div>
                     <div class="result-data">
-                        <pre>${data.data.aposteriori.intervalStates.map(state =>
-                            `Epoch: ${state.t}
-Position: [${state.r[0].toFixed(2)}, ${state.r[1].toFixed(2)}, ${state.r[2].toFixed(2)}] m
-Velocity: [${state.v[0].toFixed(6)}, ${state.v[1].toFixed(6)}, ${state.v[2].toFixed(6)}] m/s`
-                        ).join('\n\n')}</pre>
+                        <pre>t,rx,ry,rz,vx,vy,vz
+${data.data.aposteriori.intervalStates}</pre>
                     </div>
                 </div>
                 ` : ''}
