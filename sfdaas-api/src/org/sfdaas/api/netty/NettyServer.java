@@ -104,7 +104,7 @@ public class NettyServer {
     public static void main(String[] args) {
         // Read configuration from system properties
         int port = Integer.parseInt(System.getProperty("server.port", "8080"));
-        String contextPath = System.getProperty("server.contextPath", "/SFDaaS");
+        String contextPath = System.getProperty("server.contextPath", "/sfdaas");
 
         // Ensure context path starts with /
         if (!contextPath.startsWith("/")) {

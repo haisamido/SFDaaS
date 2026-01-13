@@ -77,8 +77,8 @@ public class JsonResponseBuilder {
 
         // Endpoints
         JsonObject endpoints = new JsonObject();
-        endpoints.addProperty("usage", "/SFDaaS/orekit/propagate/usage");
-        endpoints.addProperty("propagate", "/SFDaaS/orekit/propagate");
+        endpoints.addProperty("usage", "/sfdaas/propagate/usage");
+        endpoints.addProperty("propagate", "/sfdaas/propagate");
         response.add("endpoints", endpoints);
 
         // Parameters
@@ -118,7 +118,7 @@ public class JsonResponseBuilder {
 
         JsonObject ex1 = new JsonObject();
         ex1.addProperty("description", "Basic propagation");
-        ex1.addProperty("url", "http://localhost:8080/SFDaaS/orekit/propagate?" +
+        ex1.addProperty("url", "http://localhost:8080/sfdaas/propagate?" +
                 "t0=2010-05-28T12:00:00.000+00:00&" +
                 "tf=2010-05-29T12:00:00.000+00:00&" +
                 "r0=[3198022.67,2901879.73,5142928.95]&" +
@@ -127,7 +127,7 @@ public class JsonResponseBuilder {
 
         JsonObject ex2 = new JsonObject();
         ex2.addProperty("description", "Propagation with caching");
-        ex2.addProperty("url", "http://localhost:8080/SFDaaS/orekit/propagate?" +
+        ex2.addProperty("url", "http://localhost:8080/sfdaas/propagate?" +
                 "cf=1&ca=127.0.0.1:11211&" +
                 "t0=2010-05-28T12:00:00.000+00:00&" +
                 "tf=2010-05-29T12:00:00.000+00:00&" +
