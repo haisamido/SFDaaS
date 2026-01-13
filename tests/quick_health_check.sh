@@ -8,7 +8,7 @@
 #
 
 BASE_URL="${1:-http://localhost:8080}"
-API_BASE="${BASE_URL}/sfdaas/propagate"
+API_BASE="${BASE_URL}/sfdaas/api/propagate"
 
 # Create results directory if it doesn't exist
 RESULTS_DIR="$(dirname "$0")/results"

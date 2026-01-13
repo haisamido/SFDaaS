@@ -162,9 +162,9 @@ tasks:
     desc: Visit application URLs
     cmds:
       - echo "Visit http://localhost:{{.SERVER_PORT}}/sfdaas/";
-      - echo "Visit http://localhost:{{.SERVER_PORT}}/sfdaas/propagate/usage";
-      - echo "Visit http://localhost:{{.SERVER_PORT}}/sfdaas/propagate?t0=2010-05-28T12:00:00.000&tf=2010-05-29T12:00:00.000&r0=[3198022.67,2901879.73,5142928.95]&v0=[-6129.640631,4489.647187,1284.511245]"
-      - echo "Visit http://localhost:{{.SERVER_PORT}}/sfdaas/propagate?t0=2010-05-28T12%3A00%3A00.000%2B00%3A00&tf=2010-05-28T12%3A00%3A01.000%2B00%3A00&r0=%5B3198022.67%2C2901879.73%2C5142928.95%5D&v0=%5B-6129.640631%2C4489.647187%2C1284.511245%5D&orbitType=cartesian&engine=orekit&propagator=rungekutta&stepSize=60&frame=eme2000&centralBody=earth&timeScale=utc&forceModels=none&outputInterval=.17"
+      - echo "Visit http://localhost:{{.SERVER_PORT}}/sfdaas/api/propagate/usage";
+      - echo "Visit http://localhost:{{.SERVER_PORT}}/sfdaas/api/propagate?t0=2010-05-28T12:00:00.000&tf=2010-05-29T12:00:00.000&r0=[3198022.67,2901879.73,5142928.95]&v0=[-6129.640631,4489.647187,1284.511245]"
+      - echo "Visit http://localhost:{{.SERVER_PORT}}/sfdaas/api/propagate?t0=2010-05-28T12%3A00%3A00.000%2B00%3A00&tf=2010-05-28T12%3A00%3A01.000%2B00%3A00&r0=%5B3198022.67%2C2901879.73%2C5142928.95%5D&v0=%5B-6129.640631%2C4489.647187%2C1284.511245%5D&orbitType=cartesian&engine=orekit&propagator=rungekutta&stepSize=60&frame=eme2000&centralBody=earth&timeScale=utc&forceModels=none&outputInterval=.17"
     silent: true
 
   restart:

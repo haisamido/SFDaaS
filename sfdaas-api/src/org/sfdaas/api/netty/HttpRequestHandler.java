@@ -82,9 +82,9 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
             session.updateLastAccessedTime();
 
             // Route based on path
-            if (path.equals("/propagate/usage") || path.equals("/propagate/usage/")) {
+            if (path.equals("/api/propagate/usage") || path.equals("/api/propagate/usage/")) {
                 responseJson = RouteHandler.handleUsage(request, session, remoteAddress);
-            } else if (path.equals("/propagate") || path.equals("/propagate/")) {
+            } else if (path.equals("/api/propagate") || path.equals("/api/propagate/")) {
                 responseJson = RouteHandler.handlePropagate(request, session, params, remoteAddress);
             } else {
                 responseJson = RouteHandler.handle404(path);

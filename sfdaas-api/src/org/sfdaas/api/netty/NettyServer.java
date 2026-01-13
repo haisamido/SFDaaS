@@ -74,8 +74,8 @@ public class NettyServer {
             System.out.println("======================================================================");
             System.out.println();
             System.out.println("Available endpoints:");
-            System.out.println("  Usage        : http://localhost:" + port + contextPath + "/propagate/usage");
-            System.out.println("  Propagation  : http://localhost:" + port + contextPath + "/propagate");
+            System.out.println("  Usage        : http://localhost:" + port + contextPath + "/api/propagate/usage");
+            System.out.println("  Propagation  : http://localhost:" + port + contextPath + "/api/propagate");
             System.out.println();
             System.out.println("Press Ctrl+C to stop the server");
             System.out.println("======================================================================");
