@@ -81,13 +81,23 @@ make install-task
 
 #### Option A: Using Task (Recommended)
 
-```bash
-# Build and run standalone server
-task run
+**First time setup and build:**
 
+```bash
+# Complete build cycle: stop, clean, expunge, setup, build, and run
+task doitall
+```
+
+**Run server (assumes already built):**
+
+```bash
+# Stop any running server and start the standalone server
+task run
 ```
 
 Then open: http://localhost:8080/SFDaaS/orekit/propagate/usage
+
+**Note:** `task run` assumes you've already built the JAR file. Use `task doitall` for a complete clean build and run cycle, or run `task build` first if you need to rebuild.
 
 #### Option B: Using Maven Directly
 

@@ -124,9 +124,6 @@ tasks:
     desc: Run application in background (standalone Netty server)
     deps:
       - stop
-      - clean
-      - setup
-      - build
     cmds:
       - echo; echo "Starting Netty server in background on port {{.SERVER_PORT}}...";echo
       - nohup java -Dserver.port={{.SERVER_PORT}} -Dserver.contextPath=/{{.PROJECT_NAME}} -Dorekit.data.path={{.OREKIT_DATA_PATH}} -jar {{.JAR_FILE}} > server.log 2>&1 &
@@ -138,6 +135,17 @@ tasks:
       - echo "Visit http://localhost:{{.SERVER_PORT}}/{{.PROJECT_NAME}}/";
       - echo "Visit http://localhost:{{.SERVER_PORT}}/{{.PROJECT_NAME}}/orekit/propagate/usage";
       - echo "Visit http://localhost:{{.SERVER_PORT}}/{{.PROJECT_NAME}}/orekit/propagate?t0=2010-05-28T12:00:00.000&tf=2010-05-29T12:00:00.000&r0=[3198022.67,2901879.73,5142928.95]&v0=[-6129.640631,4489.647187,1284.511245]"
+    silent: true
+
+  doitall:
+    desc: stop, clean, expunge, setup, build, and then run application in background
+    deps:
+      - stop
+      - clean
+      - expunge
+      - setup
+      - build
+      - run
     silent: true
 
   stop:
