@@ -32,6 +32,7 @@ erDiagram
     Propagator ||--|| PropagatorType : "references"
     Propagator ||--|| FrameType : "references"
     Propagator ||--|| OrbitType : "references"
+    Propagator ||--|| TimeScale : "references"
     Propagator ||--|| IntegratorFactory : "uses"
     Propagator ||--|| FrameFactory : "uses"
     Propagator ||--|| OreKitLibrary : "integrates"
@@ -109,9 +110,11 @@ erDiagram
         HashMap parms
         NumericalPropagator numericalPropagator
         FrameType frameType
+        TimeScale timeScale
         void initialize()
         HashMap propagate()
         double getMuForCentralBody()
+        TimeScale getTimeScale()
     }
 
     PropagatorType {
@@ -138,6 +141,14 @@ erDiagram
         string CIRCULAR
         string EQUINOCTIAL
         OrbitType fromKey()
+    }
+
+    TimeScale {
+        string UTC
+        string TAI
+        TimeScale fromKey()
+        string getKey()
+        string getDisplayName()
     }
 
     IntegratorFactory {
@@ -215,17 +226,17 @@ sequenceDiagram
             alt Cache hit
                 Memcached->>RouteHandler: cached result
             else Cache miss
-                RouteHandler->>Propagator: new Propagator(r0, v0, t0, tf, ...)
-                Propagator->>OreKit: initialize(integrator, frame, orbit)
-                Propagator->>OreKit: propagate()
+                RouteHandler->>Propagator: new Propagator(r0, v0, t0, tf, ..., timeScale)
+                Propagator->>OreKit: initialize(integrator, frame, orbit, timeScale)
+                Propagator->>OreKit: propagate(timeScale)
                 OreKit->>Propagator: final state (rf, vf, tf)
                 Propagator->>RouteHandler: HashMap result
                 RouteHandler->>Memcached: set(cacheKey, result, ttl)
             end
         else No caching
-            RouteHandler->>Propagator: new Propagator(r0, v0, t0, tf, ...)
-            Propagator->>OreKit: initialize(integrator, frame, orbit)
-            Propagator->>OreKit: propagate()
+            RouteHandler->>Propagator: new Propagator(r0, v0, t0, tf, ..., timeScale)
+            Propagator->>OreKit: initialize(integrator, frame, orbit, timeScale)
+            Propagator->>OreKit: propagate(timeScale)
             OreKit->>Propagator: final state (rf, vf, tf)
             Propagator->>RouteHandler: HashMap result
         end
@@ -258,6 +269,7 @@ graph TB
         PropagatorType[PropagatorType Enum<br/>RungeKutta<br/>DormandPrince<br/>AdamsBashforth<br/>AdamsMoulton]
         FrameType[FrameType Enum<br/>EME2000<br/>GCRF<br/>ITRF<br/>TEME<br/>MOD<br/>TOD]
         OrbitType[OrbitType Enum<br/>Cartesian<br/>Keplerian<br/>Circular<br/>Equinoctial]
+        TimeScale[TimeScale Enum<br/>UTC<br/>TAI]
     end
 
     subgraph "Factory Layer"
@@ -294,6 +306,7 @@ graph TB
     Propagator --> PropagatorType
     Propagator --> FrameType
     Propagator --> OrbitType
+    Propagator --> TimeScale
     Propagator --> IntegratorFactory
     Propagator --> FrameFactory
     Propagator --> OreKit
@@ -317,8 +330,9 @@ flowchart LR
     subgraph Input["Input Parameters"]
         r0["Initial Position r0<br/>[x, y, z] meters"]
         v0["Initial Velocity v0<br/>[vx, vy, vz] m/s"]
-        t0["Initial Epoch t0<br/>ISO 8601 UTC"]
-        tf["Final Epoch tf<br/>ISO 8601 UTC"]
+        t0["Initial Epoch t0<br/>ISO 8601 format"]
+        tf["Final Epoch tf<br/>ISO 8601 format"]
+        timeScale["Time Scale<br/>utc (default), tai"]
         propagatorType["Propagator Type<br/>rungekutta, dormandprince, etc."]
         stepSize["Step Size<br/>seconds (default: 60)"]
         frameType["Reference Frame<br/>eme2000, gcrf, itrf, teme, etc."]
@@ -340,7 +354,7 @@ flowchart LR
     end
 
     subgraph Output["Output Data"]
-        apriori["Apriori State<br/>t0, r0, v0<br/>frame, centralBody<br/>propagator, stepSize"]
+        apriori["Apriori State<br/>t0, r0, v0<br/>frame, centralBody, timeScale<br/>propagator, stepSize"]
         aposteriori["Aposteriori State<br/>tf, rf, vf"]
         diagTiming["Timing Diagnostics<br/>Propagation duration<br/>Total runtime"]
         diagCaching["Caching Diagnostics<br/>Hit/miss, servers, TTL"]
@@ -354,6 +368,7 @@ flowchart LR
     v0 --> validation
     t0 --> validation
     tf --> validation
+    timeScale --> validation
     propagatorType --> validation
     stepSize --> validation
     frameType --> validation
@@ -403,6 +418,7 @@ flowchart LR
 | Propagator | references | PropagatorType | N:1 |
 | Propagator | references | FrameType | N:1 |
 | Propagator | references | OrbitType | N:1 |
+| Propagator | references | TimeScale | N:1 |
 | Propagator | uses | IntegratorFactory | N:1 |
 | Propagator | uses | FrameFactory | N:1 |
 | Propagator | integrates with | OreKitLibrary | N:1 |
@@ -442,6 +458,10 @@ flowchart LR
 - `CIRCULAR` - Modified elements for near-circular orbits
 - `EQUINOCTIAL` - Non-singular elements
 
+**TimeScale Enum Values**
+- `UTC` - Coordinated Universal Time with leap seconds (default)
+- `TAI` - International Atomic Time - continuous atomic time without leap seconds
+
 ### Web/API Layer Entities
 
 **NettyServer**
@@ -465,26 +485,31 @@ flowchart LR
 ### API Parameters
 
 **Required Propagation Parameters**
-- `t0` - Initial epoch (ISO 8601 format, UTC)
+
+- `t0` - Initial epoch (ISO 8601 format)
 - `r0` - Initial position vector [x,y,z] in meters
 - `v0` - Initial velocity vector [vx,vy,vz] in m/s
-- `tf` - Final epoch (ISO 8601 format, UTC)
+- `tf` - Final epoch (ISO 8601 format)
 
 **Optional Propagation Parameters**
+
 - `propagator` - Integration method (default: dormandprince)
 - `stepSize` - Integration step size in seconds (default: 60)
 - `frame` - Reference frame (default: eme2000)
 - `centralBody` - Central body or custom mu value (default: earth)
+- `timeScale` - Time scale for epochs (default: utc)
 - `orbitType` - Orbit representation (default: cartesian)
 - `forceModels` - Perturbation models (future feature)
 
 **Caching Parameters**
+
 - `cf` - Cache flag (0=disabled, 1=enabled)
 - `ca` - Cache server addresses (comma-separated)
 - `ct` - Cache TTL in seconds (default: 60)
 - `ck` - Custom cache key prefix
 
 **Session Parameters**
+
 - `sf` - Session flag (0=disable, 1=enable)
 - `st` - Session timeout in seconds
 
@@ -515,6 +540,7 @@ flowchart LR
 | PropagatorType | `sfdaas-core/src/org/sfdaas/propagation/PropagatorType.java` |
 | FrameType | `sfdaas-core/src/org/sfdaas/propagation/FrameType.java` |
 | OrbitType | `sfdaas-core/src/org/sfdaas/propagation/OrbitType.java` |
+| TimeScale | `sfdaas-core/src/org/sfdaas/propagation/TimeScale.java` |
 | IntegratorFactory | `sfdaas-core/src/org/sfdaas/propagation/IntegratorFactory.java` |
 | FrameFactory | `sfdaas-core/src/org/sfdaas/propagation/FrameFactory.java` |
 | UI | `sfdaas-web/src/index.html` |
