@@ -38,6 +38,18 @@ public class JsonResponseBuilder {
 
         // Convert apriori map to JSON object (includes all fields)
         JsonObject aprioriObj = (JsonObject) gson.toJsonTree(apriori);
+
+        // Convert outputInterval from string to number if present
+        if (aprioriObj.has("outputInterval")) {
+            try {
+                double intervalValue = Double.parseDouble(aprioriObj.get("outputInterval").getAsString());
+                aprioriObj.remove("outputInterval");
+                aprioriObj.addProperty("outputInterval", intervalValue);
+            } catch (NumberFormatException e) {
+                // Keep as string if it's not a valid number
+            }
+        }
+
         data.add("apriori", aprioriObj);
 
         JsonObject aposterioriObj = new JsonObject();

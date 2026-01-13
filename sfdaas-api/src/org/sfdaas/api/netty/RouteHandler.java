@@ -93,6 +93,9 @@ public class RouteHandler {
         apriori.put("propagator", propagatorType);
         apriori.put("stepSize", stepSize + " seconds");
         apriori.put("forceModels", formatForceModels(forceModels));
+        if (outputInterval != null && !outputInterval.trim().isEmpty()) {
+            apriori.put("outputInterval", outputInterval);
+        }
 
         // Initialize diagnostics
         Map<String, Object> diagnostics = new HashMap<>();
