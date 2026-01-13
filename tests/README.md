@@ -238,15 +238,15 @@ You can modify the scripts or create custom tests:
 ```bash
 # Heavy load with specific propagator
 ab -n 5000 -c 200 \
-  "http://localhost:8080/SFDaaS/orekit/propagate?t0=...&propagator=dormandprince"
+  "http://localhost:8080/SFDaaS/propagate?t0=...&propagator=dormandprince"
 
 # Long duration with small steps
 ab -n 100 -c 10 \
-  "http://localhost:8080/SFDaaS/orekit/propagate?t0=...&stepSize=1"
+  "http://localhost:8080/SFDaaS/propagate?t0=...&stepSize=1"
 
 # Parallel different configurations
 seq 1 100 | parallel -j 20 \
-  'curl -s "http://localhost:8080/SFDaaS/orekit/propagate?t0=...&propagator=$(shuf -n1 -e rungekutta dormandprince adamsbashforth adamsmoulton)"'
+  'curl -s "http://localhost:8080/SFDaaS/propagate?t0=...&propagator=$(shuf -n1 -e rungekutta dormandprince adamsbashforth adamsmoulton)"'
 ```
 
 ### Analyzing Results
@@ -392,7 +392,7 @@ To add new test scripts:
 - [GNU Parallel](https://www.gnu.org/software/parallel/)
 - [OreKit Documentation](https://www.orekit.org/)
 - SFDaaS Stress Testing Guide: `STRESS_TESTING.md`
-- SFDaaS API Documentation: `http://localhost:8080/SFDaaS/orekit/propagate/usage`
+- SFDaaS API Documentation: `http://localhost:8080/SFDaaS/propagate/usage`
 
 ---
 

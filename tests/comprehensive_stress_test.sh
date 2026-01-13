@@ -39,7 +39,7 @@ OUTPUT_DIR=""
 START_TIME=$(date +%s)
 
 # API endpoints
-API_BASE="${BASE_URL}/SFDaaS/orekit/propagate"
+API_BASE="${BASE_URL}/SFDaaS/propagate"
 API_USAGE="${API_BASE}/usage"
 
 # Test parameters
@@ -833,7 +833,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         -u|--url)
             BASE_URL="$2"
-            API_BASE="${BASE_URL}/SFDaaS/orekit/propagate"
+            API_BASE="${BASE_URL}/SFDaaS/propagate"
             API_USAGE="${API_BASE}/usage"
             shift 2
             ;;

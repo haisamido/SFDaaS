@@ -42,14 +42,14 @@ jq --version
 
 ```bash
 # Basic propagation timing
-time curl -s "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D" | jq '.diagnostics.timing'
+time curl -s "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D" | jq '.diagnostics.timing'
 ```
 
 ### Quick Load Test
 
 ```bash
 # 100 requests, 10 concurrent
-ab -n 100 -c 10 "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
+ab -n 100 -c 10 "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
 ```
 
 ---
@@ -62,28 +62,28 @@ ab -n 100 -c 10 "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:
 ```bash
 # 500 requests with 25 concurrent connections
 ab -n 500 -c 25 -g results_light.tsv \
-  "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
+  "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
 ```
 
 #### Medium Load Test
 ```bash
 # 1000 requests with 50 concurrent connections
 ab -n 1000 -c 50 -g results_medium.tsv \
-  "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
+  "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
 ```
 
 #### Heavy Load Test
 ```bash
 # 5000 requests with 100 concurrent connections
 ab -n 5000 -c 100 -g results_heavy.tsv \
-  "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
+  "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
 ```
 
 #### Sustained Load Test
 ```bash
 # 60 second duration with 50 connections
 ab -t 60 -c 50 \
-  "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
+  "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
 ```
 
 ### wrk (Modern HTTP Benchmarking)
@@ -92,14 +92,14 @@ ab -t 60 -c 50 \
 ```bash
 # 4 threads, 50 connections, 30 seconds
 wrk -t4 -c50 -d30s \
-  "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
+  "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
 ```
 
 #### High Concurrency Test
 ```bash
 # 10 threads, 200 connections, 60 seconds
 wrk -t10 -c200 -d60s --latency \
-  "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
+  "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
 ```
 
 #### Ramp-Up Test with wrk Script
@@ -117,7 +117,7 @@ end
 Run:
 ```bash
 wrk -t4 -c50 -d60s -s ramp_up.lua \
-  "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
+  "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
 ```
 
 ---
@@ -139,7 +139,7 @@ for i in $(seq 1 $NUM_REQUESTS); do
     (
         START=$(date +%s%N)
         RESPONSE=$(curl -s -w "\n%{http_code}" \
-          "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D")
+          "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D")
         END=$(date +%s%N)
 
         HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
@@ -168,7 +168,7 @@ sudo apt-get install parallel  # Linux
 
 # Run 50 parallel requests
 seq 1 50 | parallel -j 10 \
-  'curl -s "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D" | jq -r ".status"'
+  'curl -s "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D" | jq -r ".status"'
 ```
 
 ---
@@ -181,16 +181,16 @@ Test computational intensity with extended time ranges:
 
 ```bash
 # 7 days
-curl -s "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-06-04T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D" | jq '.diagnostics.timing'
+curl -s "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-06-04T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D" | jq '.diagnostics.timing'
 
 # 30 days
-curl -s "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-06-27T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D" | jq '.diagnostics.timing'
+curl -s "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-06-27T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D" | jq '.diagnostics.timing'
 
 # 90 days
-curl -s "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-08-26T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D" | jq '.diagnostics.timing'
+curl -s "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-08-26T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D" | jq '.diagnostics.timing'
 
 # 365 days (1 year)
-curl -s "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2011-05-28T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D" | jq '.diagnostics.timing'
+curl -s "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2011-05-28T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D" | jq '.diagnostics.timing'
 ```
 
 ### Small Step Size Testing
@@ -199,16 +199,16 @@ Stress the integrator with fine-grained steps:
 
 ```bash
 # 10 second steps
-time curl -s "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D&stepSize=10"
+time curl -s "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D&stepSize=10"
 
 # 1 second steps
-time curl -s "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D&stepSize=1"
+time curl -s "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D&stepSize=1"
 
 # 0.1 second steps (use shorter duration)
-time curl -s "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-28T13:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D&stepSize=0.1"
+time curl -s "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-28T13:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D&stepSize=0.1"
 
 # 0.01 second steps (use very short duration)
-time curl -s "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-28T12:10:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D&stepSize=0.01"
+time curl -s "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-28T12:10:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D&stepSize=0.01"
 ```
 
 ### Propagator Comparison
@@ -231,7 +231,7 @@ for prop in "${PROPAGATORS[@]}"; do
     # Run 3 times and average
     TOTAL=0
     for i in {1..3}; do
-        RESULT=$(curl -s "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D&propagator=$prop" | jq -r '.diagnostics.timing.propagationTimeMs')
+        RESULT=$(curl -s "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D&propagator=$prop" | jq -r '.diagnostics.timing.propagationTimeMs')
         TOTAL=$(echo "$TOTAL + $RESULT" | bc)
     done
 
@@ -256,7 +256,7 @@ echo ""
 for frame in "${FRAMES[@]}"; do
     echo "Testing $frame..."
 
-    RESULT=$(curl -s "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D&frame=$frame" | jq -r '.diagnostics.timing.propagationTimeMs')
+    RESULT=$(curl -s "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D&frame=$frame" | jq -r '.diagnostics.timing.propagationTimeMs')
 
     echo "  Propagation Time: ${RESULT}ms"
     echo ""
@@ -282,7 +282,7 @@ echo "SFDaaS PID: $PID"
 echo ""
 
 for i in {1..1000}; do
-    curl -s "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D" > /dev/null
+    curl -s "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D" > /dev/null
 
     if [ $((i % 100)) -eq 0 ]; then
         MEM=$(ps -p $PID -o rss= | awk '{printf "%.2f MB", $1/1024}')
@@ -327,7 +327,7 @@ WATCH_PID=$!
 
 # Run heavy concurrent load
 ab -n 10000 -c 200 \
-  "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
+  "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
 
 # Stop monitoring
 kill $WATCH_PID
@@ -404,7 +404,7 @@ watch -n 1 uptime
 
 set -e
 
-BASE_URL="http://localhost:8080/SFDaaS/orekit/propagate"
+BASE_URL="http://localhost:8080/SFDaaS/propagate"
 BASE_PARAMS="t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D"
 
 RESULTS_DIR="stress_test_results_$(date +%Y%m%d_%H%M%S)"
@@ -500,7 +500,7 @@ echo "View summary: cat $RESULTS_DIR/SUMMARY.txt"
 #!/bin/bash
 # health_check.sh
 
-BASE_URL="http://localhost:8080/SFDaaS/orekit/propagate"
+BASE_URL="http://localhost:8080/SFDaaS/propagate"
 
 echo "SFDaaS Health Check"
 echo "==================="
@@ -643,22 +643,22 @@ Test behavior under resource constraints:
 ```bash
 # Limited memory (512MB)
 docker run -d --memory="512m" --name sfdaas-mem-test sfdaas
-ab -n 1000 -c 50 "http://localhost:8080/SFDaaS/orekit/propagate?..."
+ab -n 1000 -c 50 "http://localhost:8080/SFDaaS/propagate?..."
 
 # Limited CPU (1 core)
 docker run -d --cpus="1.0" --name sfdaas-cpu-test sfdaas
-ab -n 1000 -c 50 "http://localhost:8080/SFDaaS/orekit/propagate?..."
+ab -n 1000 -c 50 "http://localhost:8080/SFDaaS/propagate?..."
 
 # Both limits
 docker run -d --memory="512m" --cpus="1.0" --name sfdaas-limited sfdaas
-ab -n 1000 -c 50 "http://localhost:8080/SFDaaS/orekit/propagate?..."
+ab -n 1000 -c 50 "http://localhost:8080/SFDaaS/propagate?..."
 ```
 
 ### Chaos Testing
 
 ```bash
 # Kill and restart during load test
-ab -n 10000 -c 50 "http://localhost:8080/SFDaaS/orekit/propagate?..." &
+ab -n 10000 -c 50 "http://localhost:8080/SFDaaS/propagate?..." &
 sleep 10
 task stop
 sleep 5
@@ -679,7 +679,7 @@ echo "Starting 24-hour stability test..."
 END_TIME=$(($(date +%s) + DURATION))
 
 while [ $(date +%s) -lt $END_TIME ]; do
-    curl -s "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D" > /dev/null
+    curl -s "http://localhost:8080/SFDaaS/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D" > /dev/null
     sleep $RATE
 done
 
@@ -743,7 +743,7 @@ ls -la orekit-data/
 - [Apache Bench Documentation](https://httpd.apache.org/docs/2.4/programs/ab.html)
 - [wrk GitHub](https://github.com/wg/wrk)
 - [OreKit Documentation](https://www.orekit.org/)
-- SFDaaS API Documentation: `http://localhost:8080/SFDaaS/orekit/propagate/usage`
+- SFDaaS API Documentation: `http://localhost:8080/SFDaaS/propagate/usage`
 
 ---
 

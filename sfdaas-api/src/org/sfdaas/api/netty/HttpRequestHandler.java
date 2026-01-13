@@ -82,9 +82,9 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
             session.updateLastAccessedTime();
 
             // Route based on path
-            if (path.equals("/orekit/propagate/usage") || path.equals("/orekit/propagate/usage/")) {
+            if (path.equals("/propagate/usage") || path.equals("/propagate/usage/")) {
                 responseJson = RouteHandler.handleUsage(request, session, remoteAddress);
-            } else if (path.equals("/orekit/propagate") || path.equals("/orekit/propagate/")) {
+            } else if (path.equals("/propagate") || path.equals("/propagate/")) {
                 responseJson = RouteHandler.handlePropagate(request, session, params, remoteAddress);
             } else {
                 responseJson = RouteHandler.handle404(path);

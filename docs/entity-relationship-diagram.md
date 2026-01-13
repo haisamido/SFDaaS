@@ -231,7 +231,7 @@ sequenceDiagram
 
     alt Static file request
         HttpRequestHandler->>Client: Serve HTML/CSS/JS
-    else API request (/orekit/propagate)
+    else API request (/propagate)
         HttpRequestHandler->>RouteHandler: handlePropagate(request, session, params)
 
         alt Caching enabled (cf=1)
@@ -273,7 +273,7 @@ graph TB
     end
 
     subgraph "Business Logic Layer"
-        RouteHandler[RouteHandler<br/>/orekit/propagate<br/>/orekit/propagate/usage]
+        RouteHandler[RouteHandler<br/>/propagate<br/>/propagate/usage]
         JsonResponseBuilder[JsonResponseBuilder<br/>JSON Formatting<br/>API Documentation]
     end
 

@@ -8,7 +8,7 @@
 #
 
 BASE_URL="${1:-http://localhost:8080}"
-API_BASE="${BASE_URL}/SFDaaS/orekit/propagate"
+API_BASE="${BASE_URL}/SFDaaS/propagate"
 
 # Create results directory if it doesn't exist
 RESULTS_DIR="$(dirname "$0")/results"
