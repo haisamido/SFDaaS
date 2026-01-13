@@ -117,163 +117,6 @@ public class Propagator {
         initialize(hm);
 
     }
-    
-    /**
-     * Create a propagator using strings instead of a HashMap.
-     * 
-     * @param r0 - initial position "[x, y, z]"
-     * @param v0 - initial velocity "[vx,vy,vz]"
-     * @param t0 - initial epoch "YYYY-MM-DDTHH:MM:SS.SSS"
-     * @param tf - final epoch "YYYY-MM-DDTHH:MM:SS.SSS"
-     */
-    public Propagator(String r0, String v0, String t0, String tf) {
-
-        /*
-         * Create a hash map from the String parameters.
-         */
-        HashMap<String,String> hm = new HashMap<String,String>();
-
-        hm.put("r0", r0);
-        hm.put("v0", v0);
-        hm.put("t0", t0);
-        hm.put("tf", tf);
-
-        /*
-         * Call the initializer with the HashMap.
-         */
-        initialize(hm);
-
-    }
-
-    /**
-     * Construct an instance of the Propagator with a specified propagator type.
-     *
-     * @param r0 - Initial position vector in format "[x,y,z]"
-     * @param v0 - Initial velocity vector in format "[vx,vy,vz]"
-     * @param t0 - Initial epoch in UTC format "YYYY-MM-DDTHH:MM:SS.SSS"
-     * @param tf - Final epoch in UTC format "YYYY-MM-DDTHH:MM:SS.SSS"
-     * @param propagatorType - Propagator type (e.g., "rungekutta", "dormandprince")
-     */
-    public Propagator(String r0, String v0, String t0, String tf, String propagatorType) {
-
-        /*
-         * Create a hash map from the String parameters.
-         */
-        HashMap<String,String> hm = new HashMap<String,String>();
-
-        hm.put("r0", r0);
-        hm.put("v0", v0);
-        hm.put("t0", t0);
-        hm.put("tf", tf);
-        hm.put("propagator", propagatorType);
-
-        /*
-         * Call the initializer with the HashMap.
-         */
-        initialize(hm);
-
-    }
-
-    /**
-     * Construct an instance of the Propagator with propagator type and step size.
-     *
-     * @param r0 - Initial position vector in format "[x,y,z]"
-     * @param v0 - Initial velocity vector in format "[vx,vy,vz]"
-     * @param t0 - Initial epoch in UTC format "YYYY-MM-DDTHH:MM:SS.SSS"
-     * @param tf - Final epoch in UTC format "YYYY-MM-DDTHH:MM:SS.SSS"
-     * @param propagatorType - Propagator type (e.g., "rungekutta", "dormandprince")
-     * @param stepSize - Integrator step size in seconds
-     */
-    public Propagator(String r0, String v0, String t0, String tf, String propagatorType, String stepSize) {
-
-        /*
-         * Create a hash map from the String parameters.
-         */
-        HashMap<String,String> hm = new HashMap<String,String>();
-
-        hm.put("r0", r0);
-        hm.put("v0", v0);
-        hm.put("t0", t0);
-        hm.put("tf", tf);
-        hm.put("propagator", propagatorType);
-        hm.put("stepSize", stepSize);
-
-        /*
-         * Call the initializer with the HashMap.
-         */
-        initialize(hm);
-
-    }
-
-    /**
-     * Construct an instance of the Propagator with all parameters.
-     *
-     * @param r0 - Initial position vector in format "[x,y,z]"
-     * @param v0 - Initial velocity vector in format "[vx,vy,vz]"
-     * @param t0 - Initial epoch in UTC format "YYYY-MM-DDTHH:MM:SS.SSS"
-     * @param tf - Final epoch in UTC format "YYYY-MM-DDTHH:MM:SS.SSS"
-     * @param propagatorType - Propagator type (e.g., "rungekutta", "dormandprince")
-     * @param stepSize - Integrator step size in seconds
-     * @param frame - Reference frame (e.g., "eme2000", "gcrf", "itrf")
-     */
-    public Propagator(String r0, String v0, String t0, String tf, String propagatorType, String stepSize, String frame) {
-
-        /*
-         * Create a hash map from the String parameters.
-         */
-        HashMap<String,String> hm = new HashMap<String,String>();
-
-        hm.put("r0", r0);
-        hm.put("v0", v0);
-        hm.put("t0", t0);
-        hm.put("tf", tf);
-        hm.put("propagator", propagatorType);
-        hm.put("stepSize", stepSize);
-        hm.put("frame", frame);
-
-        /*
-         * Call the initializer with the HashMap.
-         */
-        initialize(hm);
-
-    }
-
-    /**
-     * Construct an instance of the Propagator with all parameters including central body.
-     *
-     * @param r0 - initial position "[x, y, z]"
-     * @param v0 - initial velocity "[vx,vy,vz]"
-     * @param t0 - initial epoch "YYYY-MM-DDTHH:MM:SS.SSS"
-     * @param tf - final epoch "YYYY-MM-DDTHH:MM:SS.SSS"
-     * @param propagatorType - propagator type (e.g., "rungekutta")
-     * @param stepSize - step size in seconds
-     * @param frame - reference frame (e.g., "eme2000")
-     * @param centralBody - central body for mu (e.g., "earth", "sun", "moon")
-     * @param timeScale - time scale for epochs (e.g., "utc", "tai")
-     */
-    public Propagator(String r0, String v0, String t0, String tf, String propagatorType, String stepSize, String frame, String centralBody, String timeScale) {
-
-        /*
-         * Create a hash map from the String parameters.
-         */
-        HashMap<String,String> hm = new HashMap<String,String>();
-
-        hm.put("r0", r0);
-        hm.put("v0", v0);
-        hm.put("t0", t0);
-        hm.put("tf", tf);
-        hm.put("propagator", propagatorType);
-        hm.put("stepSize", stepSize);
-        hm.put("frame", frame);
-        hm.put("centralBody", centralBody);
-        hm.put("timeScale", timeScale);
-
-        /*
-         * Call the initializer with the HashMap.
-         */
-        initialize(hm);
-
-    }
 
     /**
      * Initialize the Orekit components by creating the numerical integrator,
@@ -563,20 +406,22 @@ public class Propagator {
         
         /*
          * String example. These will normally come from parsing the user URL.
+         * Build a HashMap from the string parameters.
          */
-        String r0 = "[  3198022.67,  2901879.73,  5142928.95]";
-        String v0 = "[-6129.640631, 4489.647187, 1284.511245]";
-        String t0 = "2010-05-28T12:00:00.000";
-        String tf = "2010-05-29T12:00:00.000";
-        
+        HashMap<String,String> parms2 = new HashMap<String,String>();
+        parms2.put("r0", "[  3198022.67,  2901879.73,  5142928.95]");
+        parms2.put("v0", "[-6129.640631, 4489.647187, 1284.511245]");
+        parms2.put("t0", "2010-05-28T12:00:00.000");
+        parms2.put("tf", "2010-05-29T12:00:00.000");
+
         /*
-         * Normal use of this class starts here.  Construct the propapgator 
-         * using the strings.
+         * Normal use of this class starts here.  Construct the propagator
+         * using the HashMap.
          */
-        Propagator ps = new Propagator(r0, v0, t0, tf);
-        
+        Propagator ps = new Propagator(parms2);
+
         finalState = ps.propagate();
-        
+
         System.out.println(finalState);
 
     }

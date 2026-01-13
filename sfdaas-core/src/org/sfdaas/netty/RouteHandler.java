@@ -149,7 +149,17 @@ public class RouteHandler {
                     cachingInfo.put("hit", false);
 
                     propagationStart = System.currentTimeMillis();
-                    Propagator propagator = new Propagator(r0, v0, t0, tf, propagatorType, stepSize, frame, centralBody, timeScale);
+                    HashMap<String, String> propagatorParams = new HashMap<>();
+                    propagatorParams.put("r0", r0);
+                    propagatorParams.put("v0", v0);
+                    propagatorParams.put("t0", t0);
+                    propagatorParams.put("tf", tf);
+                    propagatorParams.put("propagator", propagatorType);
+                    propagatorParams.put("stepSize", stepSize);
+                    propagatorParams.put("frame", frame);
+                    propagatorParams.put("centralBody", centralBody);
+                    propagatorParams.put("timeScale", timeScale);
+                    Propagator propagator = new Propagator(propagatorParams);
                     HashMap<String, String> finalState = propagator.propagate();
                     propagationEnd = System.currentTimeMillis();
 
@@ -168,7 +178,17 @@ public class RouteHandler {
                 cachingInfo.put("enabled", false);
 
                 propagationStart = System.currentTimeMillis();
-                Propagator propagator = new Propagator(r0, v0, t0, tf, propagatorType, stepSize, frame, centralBody, timeScale);
+                HashMap<String, String> propagatorParams = new HashMap<>();
+                propagatorParams.put("r0", r0);
+                propagatorParams.put("v0", v0);
+                propagatorParams.put("t0", t0);
+                propagatorParams.put("tf", tf);
+                propagatorParams.put("propagator", propagatorType);
+                propagatorParams.put("stepSize", stepSize);
+                propagatorParams.put("frame", frame);
+                propagatorParams.put("centralBody", centralBody);
+                propagatorParams.put("timeScale", timeScale);
+                Propagator propagator = new Propagator(propagatorParams);
                 HashMap<String, String> finalState = propagator.propagate();
                 propagationEnd = System.currentTimeMillis();
 
