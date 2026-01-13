@@ -326,6 +326,18 @@ public class Propagator {
                     double intervalSeconds = Double.parseDouble(outputIntervalStr.trim());
 
                     if (intervalSeconds > 0) {
+                        // Add initial state as first row
+                        SpacecraftState initialState = numericalPropagator.getInitialState();
+                        String initialRow = String.format("%s,%f,%f,%f,%f,%f,%f",
+                            t0Date.toString(orekitTimeScale),
+                            initialState.getPVCoordinates().getPosition().getX(),
+                            initialState.getPVCoordinates().getPosition().getY(),
+                            initialState.getPVCoordinates().getPosition().getZ(),
+                            initialState.getPVCoordinates().getVelocity().getX(),
+                            initialState.getPVCoordinates().getVelocity().getY(),
+                            initialState.getPVCoordinates().getVelocity().getZ());
+                        intervalStatesList.add(initialRow);
+
                         // Calculate number of interval points
                         double totalDuration = tfDate.durationFrom(t0Date);
                         int numIntervals = (int) Math.floor(totalDuration / intervalSeconds);
@@ -389,6 +401,20 @@ public class Propagator {
 
         // Add interval states if any were collected (CSV format with newline separator)
         if (!intervalStatesList.isEmpty()) {
+            // Add final state as last row
+            String timeScaleKey = parms.get("timeScale");
+            org.orekit.time.TimeScale orekitTimeScale = getTimeScale(timeScaleKey);
+            AbsoluteDate tfDate = new AbsoluteDate(parms.get("tf"), orekitTimeScale);
+            String finalRow = String.format("%s,%f,%f,%f,%f,%f,%f",
+                tfDate.toString(orekitTimeScale),
+                final_state.getPVCoordinates().getPosition().getX(),
+                final_state.getPVCoordinates().getPosition().getY(),
+                final_state.getPVCoordinates().getPosition().getZ(),
+                final_state.getPVCoordinates().getVelocity().getX(),
+                final_state.getPVCoordinates().getVelocity().getY(),
+                final_state.getPVCoordinates().getVelocity().getZ());
+            intervalStatesList.add(finalRow);
+
             final_hash.put("intervalStates", String.join("\n", intervalStatesList));
         }
 
