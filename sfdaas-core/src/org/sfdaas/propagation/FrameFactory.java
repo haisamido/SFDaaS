@@ -1,4 +1,4 @@
-package org.spaceflightdynamics.propagation;
+package org.sfdaas.propagation;
 
 import org.orekit.frames.Frame;
 import org.orekit.frames.FramesFactory;

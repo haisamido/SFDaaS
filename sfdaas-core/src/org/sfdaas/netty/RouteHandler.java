@@ -1,4 +1,4 @@
-package org.spaceflightdynamics.netty;
+package org.sfdaas.netty;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.spaceflightdynamics.propagation.Propagator;
+import org.sfdaas.propagation.Propagator;
 
 import io.netty.handler.codec.http.FullHttpRequest;
 import net.spy.memcached.AddrUtil;
@@ -82,8 +82,8 @@ public class RouteHandler {
         apriori.put("t0", t0);
         apriori.put("r0", r0);
         apriori.put("v0", v0);
-        apriori.put("orbitType", org.spaceflightdynamics.propagation.OrbitType.fromKey(orbitType).getDisplayName());
-        apriori.put("frame", org.spaceflightdynamics.propagation.FrameType.fromKey(frame).getDisplayName());
+        apriori.put("orbitType", org.sfdaas.propagation.OrbitType.fromKey(orbitType).getDisplayName());
+        apriori.put("frame", org.sfdaas.propagation.FrameType.fromKey(frame).getDisplayName());
         apriori.put("centralBody", formatCentralBody(centralBody));
         apriori.put("propagator", propagatorType);
         apriori.put("stepSize", stepSize + " seconds");

@@ -1,4 +1,4 @@
-package org.spaceflightdynamics.netty;
+package org.sfdaas.netty;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

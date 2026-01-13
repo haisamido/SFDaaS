@@ -1,4 +1,4 @@
-package org.spaceflightdynamics.propagation;
+package org.sfdaas.propagation;
 
 /**
  * Enum representing available numerical propagator types.

@@ -1,4 +1,4 @@
-package org.spaceflightdynamics.propagation;
+package org.sfdaas.propagation;
 
 import java.util.HashMap;
 import java.util.regex.Matcher;

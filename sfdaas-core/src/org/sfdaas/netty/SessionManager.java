@@ -1,4 +1,4 @@
-package org.spaceflightdynamics.netty;
+package org.sfdaas.netty;
 
 import java.util.Map;
 import java.util.UUID;

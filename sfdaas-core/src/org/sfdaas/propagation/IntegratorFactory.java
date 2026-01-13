@@ -1,4 +1,4 @@
-package org.spaceflightdynamics.propagation;
+package org.sfdaas.propagation;
 
 import org.hipparchus.ode.AbstractIntegrator;
 import org.hipparchus.ode.nonstiff.ClassicalRungeKuttaIntegrator;

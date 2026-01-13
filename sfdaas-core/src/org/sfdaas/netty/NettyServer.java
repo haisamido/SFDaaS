@@ -1,4 +1,4 @@
-package org.spaceflightdynamics.netty;
+package org.sfdaas.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;

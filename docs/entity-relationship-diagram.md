@@ -505,18 +505,18 @@ flowchart LR
 
 | Entity | File Path |
 |--------|----------|
-| NettyServer | `sfdaas-core/src/org/spaceflightdynamics/netty/NettyServer.java` |
-| HttpRequestHandler | `sfdaas-core/src/org/spaceflightdynamics/netty/HttpRequestHandler.java` |
-| SessionManager | `sfdaas-core/src/org/spaceflightdynamics/netty/SessionManager.java` |
-| HttpSession | `sfdaas-core/src/org/spaceflightdynamics/netty/HttpSession.java` |
-| RouteHandler | `sfdaas-core/src/org/spaceflightdynamics/netty/RouteHandler.java` |
-| JsonResponseBuilder | `sfdaas-core/src/org/spaceflightdynamics/netty/JsonResponseBuilder.java` |
-| Propagator | `sfdaas-core/src/org/spaceflightdynamics/propagation/Propagator.java` |
-| PropagatorType | `sfdaas-core/src/org/spaceflightdynamics/propagation/PropagatorType.java` |
-| FrameType | `sfdaas-core/src/org/spaceflightdynamics/propagation/FrameType.java` |
-| OrbitType | `sfdaas-core/src/org/spaceflightdynamics/propagation/OrbitType.java` |
-| IntegratorFactory | `sfdaas-core/src/org/spaceflightdynamics/propagation/IntegratorFactory.java` |
-| FrameFactory | `sfdaas-core/src/org/spaceflightdynamics/propagation/FrameFactory.java` |
+| NettyServer | `sfdaas-core/src/org/sfdaas/netty/NettyServer.java` |
+| HttpRequestHandler | `sfdaas-core/src/org/sfdaas/netty/HttpRequestHandler.java` |
+| SessionManager | `sfdaas-core/src/org/sfdaas/netty/SessionManager.java` |
+| HttpSession | `sfdaas-core/src/org/sfdaas/netty/HttpSession.java` |
+| RouteHandler | `sfdaas-core/src/org/sfdaas/netty/RouteHandler.java` |
+| JsonResponseBuilder | `sfdaas-core/src/org/sfdaas/netty/JsonResponseBuilder.java` |
+| Propagator | `sfdaas-core/src/org/sfdaas/propagation/Propagator.java` |
+| PropagatorType | `sfdaas-core/src/org/sfdaas/propagation/PropagatorType.java` |
+| FrameType | `sfdaas-core/src/org/sfdaas/propagation/FrameType.java` |
+| OrbitType | `sfdaas-core/src/org/sfdaas/propagation/OrbitType.java` |
+| IntegratorFactory | `sfdaas-core/src/org/sfdaas/propagation/IntegratorFactory.java` |
+| FrameFactory | `sfdaas-core/src/org/sfdaas/propagation/FrameFactory.java` |
 | UI | `sfdaas-web/src/index.html` |
 
 ---

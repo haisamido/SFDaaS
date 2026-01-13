@@ -541,7 +541,7 @@ SFDaaS/
 │
 ├── sfdaas-core/                     # Backend Java code
 │   └── src/
-│       └── org/spaceflightdynamics/ # Application code
+│       └── org/sfdaas/              # Application code
 │           ├── propagation/
 │           │   └── Propagator.java  # Core propagation logic
 │           ├── netty/               # Netty server implementation
@@ -570,7 +570,7 @@ SFDaaS/
 **Code Updates:**
 
 ```bash
-# Edit source files in sfdaas-core/src/org/spaceflightdynamics/
+# Edit source files in sfdaas-core/src/org/sfdaas/
 # Rebuild
 task build
 

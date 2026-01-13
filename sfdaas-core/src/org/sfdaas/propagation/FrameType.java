@@ -1,4 +1,4 @@
-package org.spaceflightdynamics.propagation;
+package org.sfdaas.propagation;
 
 /**
  * Enum representing available reference frames for orbit propagation.
