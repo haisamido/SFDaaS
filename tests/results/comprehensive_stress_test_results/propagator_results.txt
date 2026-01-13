@@ -1,0 +1,6 @@
+Propagator | Avg Time (ms) | Min (ms) | Max (ms) | Status
+-----------|---------------|----------|----------|-------
+rungekutta | 1.00 | 1 | 1 | ✓
+dormandprince | 1.00 | 1 | 1 | ✓
+adamsbashforth | 0 | 0 | 0 | ✓
+adamsmoulton | 1.00 | 1 | 1 | ✓

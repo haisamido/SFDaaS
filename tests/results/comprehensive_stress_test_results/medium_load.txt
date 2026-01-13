@@ -1,0 +1,46 @@
+This is ApacheBench, Version 2.3 <$Revision: 1913912 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking localhost (be patient)
+Completed 100 requests
+Completed 200 requests
+Finished 200 requests
+
+
+Server Software:        
+Server Hostname:        localhost
+Server Port:            8080
+
+Document Path:          /SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D
+Document Length:        3608 bytes
+
+Concurrency Level:      20
+Time taken for tests:   0.676 seconds
+Complete requests:      200
+Failed requests:        199
+   (Connect: 0, Receive: 0, Length: 199, Exceptions: 0)
+Total transferred:      740020 bytes
+HTML transferred:       722420 bytes
+Requests per second:    295.66 [#/sec] (mean)
+Time per request:       67.645 [ms] (mean)
+Time per request:       3.382 [ms] (mean, across all concurrent requests)
+Transfer rate:          1068.33 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.2      0       3
+Processing:     3   66  25.5     67     132
+Waiting:        2   66  25.5     67     132
+Total:          3   66  25.6     67     133
+
+Percentage of the requests served within a certain time (ms)
+  50%     67
+  66%     75
+  75%     84
+  80%     89
+  90%    103
+  95%    113
+  98%    120
+  99%    125
+ 100%    133 (longest request)
