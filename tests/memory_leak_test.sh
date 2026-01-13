@@ -40,9 +40,15 @@ fi
 echo -e "${GREEN}Found SFDaaS process: PID $PID${NC}"
 echo ""
 
-# Create output file in results directory
-mkdir -p results
-OUTPUT_FILE="results/memory_test_$(date +%Y%m%d_%H%M%S).csv"
+# Create results directory if it doesn't exist
+RESULTS_DIR="$(dirname "$0")/results"
+mkdir -p "$RESULTS_DIR"
+
+# Result file (matches script name prefix)
+SCRIPT_NAME=$(basename "$0" .sh)
+OUTPUT_FILE="${RESULTS_DIR}/${SCRIPT_NAME}.csv"
+REPORT_FILE="${RESULTS_DIR}/${SCRIPT_NAME}.md"
+
 echo "Iteration,RSS_KB,RSS_MB,Timestamp" > "$OUTPUT_FILE"
 
 echo "Running $ITERATIONS requests..."
@@ -126,3 +132,86 @@ fi
 echo ""
 echo "Visualize results:"
 echo "  gnuplot -e \"set terminal dumb; set datafile separator ','; plot '$OUTPUT_FILE' using 1:3 with lines title 'Memory'\""
+
+# Generate markdown report
+cat > "$REPORT_FILE" << EOF
+# SFDaaS Memory Leak Test Report
+
+**Server:** $BASE_URL
+**Iterations:** $ITERATIONS
+**Duration:** ${DURATION}s
+**PID:** $PID
+
+---
+
+## Test Results
+
+EOF
+
+if [ -n "$FIRST_MEM" ] && [ -n "$LAST_MEM" ]; then
+    GROWTH=$(echo "scale=2; $LAST_MEM - $FIRST_MEM" | bc)
+
+    cat >> "$REPORT_FILE" << EOF
+| Metric | Value |
+| --- | --- |
+| Initial Memory | ${FIRST_MEM} MB |
+| Final Memory | ${LAST_MEM} MB |
+| Memory Growth | ${GROWTH} MB |
+| Requests | $ITERATIONS |
+| Duration | ${DURATION}s |
+
+## Analysis
+
+EOF
+
+    # Check for significant growth
+    if (( $(echo "$GROWTH > 100" | bc -l) )); then
+        cat >> "$REPORT_FILE" << EOF
+**Status:** ✗ FAIL - Significant memory growth detected
+
+⚠ Significant memory growth detected (>100MB). This may indicate a memory leak.
+
+**Recommendations:**
+1. Profile with JProfiler or YourKit
+2. Analyze heap dumps
+3. Review object retention
+
+EOF
+    elif (( $(echo "$GROWTH > 50" | bc -l) )); then
+        cat >> "$REPORT_FILE" << EOF
+**Status:** ⚠ WARNING - Moderate memory growth detected
+
+⚠ Moderate memory growth detected (>50MB). Monitor over longer periods to confirm.
+
+EOF
+    else
+        cat >> "$REPORT_FILE" << EOF
+**Status:** ✓ PASS - Memory usage appears stable
+
+✓ Memory usage appears stable. No significant memory growth detected.
+
+EOF
+    fi
+fi
+
+cat >> "$REPORT_FILE" << EOF
+---
+
+## Data Files
+
+- CSV Data: [\`${SCRIPT_NAME}.csv\`](${SCRIPT_NAME}.csv)
+- Report: [\`${SCRIPT_NAME}.md\`](${SCRIPT_NAME}.md)
+
+## Visualization
+
+To visualize the memory usage over time:
+
+\`\`\`bash
+gnuplot -e "set terminal dumb; set datafile separator ','; plot '${OUTPUT_FILE}' using 1:3 with lines title 'Memory'"
+\`\`\`
+
+**Memory leak test complete!**
+EOF
+
+echo ""
+echo "Report saved to: $REPORT_FILE"

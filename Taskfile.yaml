@@ -103,6 +103,23 @@ tasks:
       - echo "✓ Health check complete"
     silent: true
 
+  tests:stress:
+    desc: Run comprehensive stress test (may take several minutes)
+    cmds:
+      - echo "Running comprehensive stress test..."
+      - echo "This may take several minutes depending on system load"
+      - cd tests && ./comprehensive_stress_test.sh
+      - echo "✓ Stress test complete"
+    silent: true
+
+  tests:memory:
+    desc: Run memory leak detection test (default 1000 iterations)
+    cmds:
+      - echo "Running memory leak test..."
+      - cd tests && ./memory_leak_test.sh
+      - echo "✓ Memory leak test complete"
+    silent: true
+
   package:
     desc: Package application as standalone JAR
     deps: [clean]

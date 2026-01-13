@@ -177,8 +177,14 @@ check_server() {
 }
 
 create_output_dir() {
+    # Create results directory if it doesn't exist
+    RESULTS_DIR="$(dirname "$0")/results"
+    mkdir -p "$RESULTS_DIR"
+
     if [ -z "$OUTPUT_DIR" ]; then
-        OUTPUT_DIR="results/stress_test_results_$(date +%Y%m%d_%H%M%S)"
+        # Result file matches script name prefix
+        SCRIPT_NAME=$(basename "$0" .sh)
+        OUTPUT_DIR="${RESULTS_DIR}/${SCRIPT_NAME}_results"
     fi
 
     mkdir -p "$OUTPUT_DIR"
@@ -562,7 +568,8 @@ test_memory_stability() {
 
     if [ ${#mem_samples[@]} -gt 0 ]; then
         local first=${mem_samples[0]}
-        local last=${mem_samples[-1]}
+        local last_idx=$((${#mem_samples[@]} - 1))
+        local last=${mem_samples[$last_idx]}
         local growth=$(echo "scale=2; ($last - $first) / 1024" | bc)
 
         print_info "Memory growth: ${growth}MB (from $(echo "scale=2; $first/1024" | bc)MB to $(echo "scale=2; $last/1024" | bc)MB)"
@@ -640,7 +647,10 @@ generate_summary() {
     local duration=$((end_time - START_TIME))
     local duration_min=$(echo "scale=2; $duration / 60" | bc)
 
-    cat > "$OUTPUT_DIR/SUMMARY.md" << EOF
+    # Generate summary file with script name prefix in results directory
+    SUMMARY_FILE="${RESULTS_DIR}/${SCRIPT_NAME}.md"
+
+    cat > "$SUMMARY_FILE" << EOF
 # SFDaaS Stress Test Summary
 
 **Test Date:** $(date)
@@ -738,24 +748,24 @@ EOF
 
     # Add recommendations based on results
     if [ $FAILED_TESTS -eq 0 ]; then
-        echo "✓ All tests passed successfully!" >> "$OUTPUT_DIR/SUMMARY.md"
-        echo "✓ The system is performing well under stress." >> "$OUTPUT_DIR/SUMMARY.md"
+        echo "✓ All tests passed successfully!" >> "$SUMMARY_FILE"
+        echo "✓ The system is performing well under stress." >> "$SUMMARY_FILE"
     else
-        echo "⚠ Some tests failed. Review the detailed logs above." >> "$OUTPUT_DIR/SUMMARY.md"
+        echo "⚠ Some tests failed. Review the detailed logs above." >> "$SUMMARY_FILE"
     fi
 
     # Check for performance issues in heavy load
     if [ -f "$OUTPUT_DIR/heavy_load.txt" ]; then
         local failed_requests=$(grep "Failed requests" "$OUTPUT_DIR/heavy_load.txt" | awk '{print $3}')
         if [ "$failed_requests" -gt 0 ]; then
-            echo "⚠ Failed requests detected under heavy load. Consider:" >> "$OUTPUT_DIR/SUMMARY.md"
-            echo "  - Increasing JVM heap size" >> "$OUTPUT_DIR/SUMMARY.md"
-            echo "  - Tuning Netty thread pool" >> "$OUTPUT_DIR/SUMMARY.md"
-            echo "  - Adding connection limits" >> "$OUTPUT_DIR/SUMMARY.md"
+            echo "⚠ Failed requests detected under heavy load. Consider:" >> "$SUMMARY_FILE"
+            echo "  - Increasing JVM heap size" >> "$SUMMARY_FILE"
+            echo "  - Tuning Netty thread pool" >> "$SUMMARY_FILE"
+            echo "  - Adding connection limits" >> "$SUMMARY_FILE"
         fi
     fi
 
-    cat >> "$OUTPUT_DIR/SUMMARY.md" << EOF
+    cat >> "$SUMMARY_FILE" << EOF
 
 ---
 
@@ -771,7 +781,7 @@ For more details, see individual test result files in: \`$OUTPUT_DIR/\`
 
 EOF
 
-    print_success "Summary report generated: $OUTPUT_DIR/SUMMARY.md"
+    print_success "Summary report generated: $SUMMARY_FILE"
     echo ""
 }
 
@@ -800,7 +810,7 @@ display_final_summary() {
     echo ""
 
     echo -e "${CYAN}Next Steps:${NC}"
-    echo "  1. Review summary: cat $OUTPUT_DIR/SUMMARY.md"
+    echo "  1. Review summary: cat $SUMMARY_FILE"
     echo "  2. Analyze detailed logs in $OUTPUT_DIR/"
     echo "  3. Compare propagator performance"
     echo "  4. Check for any failed tests"
