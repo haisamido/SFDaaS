@@ -334,7 +334,7 @@ public class Propagator {
                         // Add initial state as first row
                         SpacecraftState initialState = numericalPropagator.getInitialState();
                         String t0Str = t0Date.toString(orekitTimeScale);
-                        String initialRow = String.format("%s,%f,%f,%f,%f,%f,%f",
+                        String initialRow = String.format("%s,%.17g,%.17g,%.17g,%.17g,%.17g,%.17g",
                             t0Str,
                             initialState.getPVCoordinates().getPosition().getX(),
                             initialState.getPVCoordinates().getPosition().getY(),
@@ -359,7 +359,7 @@ public class Propagator {
 
                             // Format as comma-separated row: t,rx,ry,rz,vx,vy,vz
                             String intermediateStr = intermediateDate.toString(orekitTimeScale);
-                            String stateRow = String.format("%s,%f,%f,%f,%f,%f,%f",
+                            String stateRow = String.format("%s,%.17g,%.17g,%.17g,%.17g,%.17g,%.17g",
                                 intermediateStr,
                                 intermediateState.getPVCoordinates().getPosition().getX(),
                                 intermediateState.getPVCoordinates().getPosition().getY(),
@@ -377,7 +377,7 @@ public class Propagator {
 
                         // Add final state to the list and store in Redis
                         String tfStr = tfDate.toString(orekitTimeScale);
-                        String finalRow = String.format("%s,%f,%f,%f,%f,%f,%f",
+                        String finalRow = String.format("%s,%.17g,%.17g,%.17g,%.17g,%.17g,%.17g",
                             tfStr,
                             final_state.getPVCoordinates().getPosition().getX(),
                             final_state.getPVCoordinates().getPosition().getY(),

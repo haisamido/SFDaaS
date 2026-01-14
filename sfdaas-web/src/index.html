@@ -719,7 +719,7 @@
                         <span class="help-text">ISO 8601 format (e.g., 2010-05-28T12:00:00.000+00:00)</span>
                     </div>
                     <div class="form-group">
-                        <label for="tf">Final Epoch (t<sub>f</sub>)</label>
+                        <label for="tf">Final Epoch (t<sub>f</sub>) <button type="button" class="btn-example" onclick="loadExample()" style="flex: 0; padding: 5px 12px; font-size: 0.8em; margin-left: 10px; vertical-align: middle;">Load Example</button></label>
                         <input type="text" id="tf" name="tf" required placeholder="YYYY-MM-DDTHH:MM:SS.SSS+00:00" pattern="\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}\+00:00">
                         <span class="help-text">ISO 8601 format (e.g., 2010-05-29T12:00:00.000+00:00)</span>
                     </div>
@@ -997,7 +997,6 @@
 
                 <!-- Buttons -->
                 <div class="button-group">
-                    <button type="button" class="btn-example" onclick="loadExample()">Load Example</button>
                     <button type="reset" class="btn-reset">Reset Form</button>
                     <button type="submit" class="btn-submit">🚀 Propagate Orbit</button>
                 </div>
