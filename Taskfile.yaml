@@ -120,6 +120,43 @@ tasks:
       - echo "✓ Memory leak test complete"
     silent: true
 
+  tests:feature:
+    desc: Run comprehensive feature test (~30-60s)
+    cmds:
+      - echo "Running comprehensive feature test..."
+      - cd tests && ./feature_test.sh
+      - echo "✓ Feature test complete"
+    silent: true
+
+  tests:all:
+    desc: Run all tests (healthcheck, feature, stress, memory)
+    cmds:
+      - echo "=============================================="
+      - echo "Running all SFDaaS tests"
+      - echo "=============================================="
+      - echo ""
+      - echo "[1/4] Quick Health Check"
+      - echo "----------------------------------------------"
+      - cd tests && ./quick_health_check.sh
+      - echo ""
+      - echo "[2/4] Feature Test"
+      - echo "----------------------------------------------"
+      - cd tests && ./feature_test.sh
+      - echo ""
+      - echo "[3/4] Comprehensive Stress Test"
+      - echo "----------------------------------------------"
+      - cd tests && ./comprehensive_stress_test.sh --quick
+      - echo ""
+      - echo "[4/4] Memory Leak Test"
+      - echo "----------------------------------------------"
+      - cd tests && ./memory_leak_test.sh 500
+      - echo ""
+      - echo "=============================================="
+      - echo "✓ All tests complete!"
+      - echo "Results saved to tests/results/"
+      - echo "=============================================="
+    silent: true
+
   package:
     desc: Package application as standalone JAR
     deps: [clean]
