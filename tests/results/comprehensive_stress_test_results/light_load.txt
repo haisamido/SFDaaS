@@ -19,31 +19,31 @@ Document Path:          /sfdaas/api/propagate?t0=2010-05-28T12:00:00.000%2B00:00
 Document Length:        3578 bytes
 
 Concurrency Level:      25
-Time taken for tests:   1.730 seconds
+Time taken for tests:   1.160 seconds
 Complete requests:      500
-Failed requests:        492
-   (Connect: 0, Receive: 0, Length: 492, Exceptions: 0)
-Total transferred:      1835148 bytes
-HTML transferred:       1791148 bytes
-Requests per second:    288.97 [#/sec] (mean)
-Time per request:       86.515 [ms] (mean)
-Time per request:       3.461 [ms] (mean, across all concurrent requests)
-Transfer rate:          1035.74 [Kbytes/sec] received
+Failed requests:        437
+   (Connect: 0, Receive: 0, Length: 437, Exceptions: 0)
+Total transferred:      1834792 bytes
+HTML transferred:       1790792 bytes
+Requests per second:    430.91 [#/sec] (mean)
+Time per request:       58.017 [ms] (mean)
+Time per request:       2.321 [ms] (mean, across all concurrent requests)
+Transfer rate:          1544.21 [Kbytes/sec] received
 
 Connection Times (ms)
               min  mean[+/-sd] median   max
-Connect:        0    0   1.0      0      11
-Processing:     4   85  43.0     75     254
-Waiting:        2   85  43.0     75     254
-Total:          4   86  43.1     75     254
+Connect:        0    0   0.9      0      14
+Processing:     4   57  34.0     51     159
+Waiting:        4   57  33.9     51     159
+Total:          4   57  34.1     51     160
 
 Percentage of the requests served within a certain time (ms)
-  50%     75
-  66%     95
-  75%    112
-  80%    127
-  90%    153
-  95%    164
-  98%    178
-  99%    190
- 100%    254 (longest request)
+  50%     51
+  66%     69
+  75%     83
+  80%     89
+  90%    104
+  95%    120
+  98%    136
+  99%    148
+ 100%    160 (longest request)

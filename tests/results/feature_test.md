@@ -74,7 +74,7 @@
 
 ## 10. API Usage Endpoint
 
-| Usage endpoint | FAIL |
+| Usage endpoint | PASS |
 
 ## 11. Error Handling
 
@@ -91,9 +91,9 @@
 | Metric | Value |
 | --- | --- |
 | Total Tests | 44 |
-| Passed | 40 |
-| Failed | 4 |
-| Success Rate | 90.90% |
+| Passed | 41 |
+| Failed | 3 |
+| Success Rate | 93.18% |
 
 ---
 

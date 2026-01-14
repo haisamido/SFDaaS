@@ -2,8 +2,7 @@
 
 **Server:** http://localhost:8080
 **Iterations:** 1000
-**Duration:** 69s
-**PID:** 5274
+**Duration:** 68s
 
 ---
 
@@ -11,17 +10,22 @@
 
 | Metric | Value |
 | --- | --- |
-| Initial Memory | 531440 MB |
-| Final Memory | 531504 MB |
-| Memory Growth | 64 MB |
+| Initial Memory | 1420544 MB |
+| Final Memory | 1420896 MB |
+| Memory Growth | 352 MB |
 | Requests | 1000 |
-| Duration | 69s |
+| Duration | 68s |
 
 ## Analysis
 
-**Status:** ⚠ WARNING - Moderate memory growth detected
+**Status:** ✗ FAIL - Significant memory growth detected
 
-⚠ Moderate memory growth detected (>50MB). Monitor over longer periods to confirm.
+⚠ Significant memory growth detected (>100MB). This may indicate a memory leak.
+
+**Recommendations:**
+1. Profile with JProfiler or YourKit
+2. Analyze heap dumps
+3. Review object retention
 
 ---
 
@@ -35,7 +39,7 @@
 To visualize the memory usage over time:
 
 ```bash
-gnuplot -e "set terminal dumb; set datafile separator ','; plot '/Users/hido/development/github.com/haisamido/SFDaaS/tests/results/memory_leak_test.csv' using 1:3 with lines title 'Memory'"
+gnuplot -e "set terminal dumb; set datafile separator ','; plot './tests/results/memory_leak_test.csv' using 1:4 with lines title 'Memory (MB)'"
 ```
 
 **Memory leak test complete!**

@@ -6,7 +6,7 @@ Benchmarking localhost (be patient)
 Completed 5000 requests
 Completed 10000 requests
 Completed 15000 requests
-Finished 16799 requests
+Finished 17361 requests
 
 
 Server Software:        
@@ -17,31 +17,31 @@ Document Path:          /sfdaas/api/propagate?t0=2010-05-28T12:00:00.000%2B00:00
 Document Length:        3578 bytes
 
 Concurrency Level:      50
-Time taken for tests:   60.001 seconds
-Complete requests:      16799
-Failed requests:        16723
-   (Connect: 0, Receive: 0, Length: 16723, Exceptions: 0)
-Total transferred:      61666416 bytes
-HTML transferred:       60188104 bytes
-Requests per second:    279.98 [#/sec] (mean)
-Time per request:       178.586 [ms] (mean)
-Time per request:       3.572 [ms] (mean, across all concurrent requests)
-Transfer rate:          1003.66 [Kbytes/sec] received
+Time taken for tests:   60.002 seconds
+Complete requests:      17361
+Failed requests:        17217
+   (Connect: 0, Receive: 0, Length: 17217, Exceptions: 0)
+Total transferred:      63725852 bytes
+HTML transferred:       62198084 bytes
+Requests per second:    289.34 [#/sec] (mean)
+Time per request:       172.807 [ms] (mean)
+Time per request:       3.456 [ms] (mean, across all concurrent requests)
+Transfer rate:          1037.17 [Kbytes/sec] received
 
 Connection Times (ms)
               min  mean[+/-sd] median   max
-Connect:        0    0   0.2      0       9
-Processing:     2  178 109.2    154     656
-Waiting:        2  178 109.2    154     656
-Total:          3  178 109.2    154     656
+Connect:        0    0   0.5      0      24
+Processing:     3  172 104.8    150     590
+Waiting:        2  172 104.8    150     590
+Total:          3  172 104.8    150     590
 
 Percentage of the requests served within a certain time (ms)
-  50%    154
-  66%    206
-  75%    242
-  80%    263
-  90%    325
-  95%    388
-  98%    476
-  99%    521
- 100%    656 (longest request)
+  50%    150
+  66%    197
+  75%    229
+  80%    253
+  90%    324
+  95%    380
+  98%    447
+  99%    479
+ 100%    590 (longest request)

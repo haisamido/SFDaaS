@@ -1,6 +1,6 @@
 # SFDaaS Stress Test Summary
 
-**Duration:** 82s (1.36 minutes)
+**Duration:** 79s (1.31 minutes)
 **Server URL:** http://localhost:8080
 **Quick Mode:** false
 
@@ -21,32 +21,32 @@
 
 #### Light Load (500 requests, 25 concurrent)
 ```
-Requests per second:    288.97 [#/sec] (mean)
-Time per request:       86.515 [ms] (mean)
+Requests per second:    430.91 [#/sec] (mean)
+Time per request:       58.017 [ms] (mean)
 ```
 
 #### Medium Load (1000 requests, 50 concurrent)
 ```
-Requests per second:    256.74 [#/sec] (mean)
-Time per request:       194.750 [ms] (mean)
+Requests per second:    347.70 [#/sec] (mean)
+Time per request:       143.803 [ms] (mean)
 Document Path:          /sfdaas/api/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D
-  95%    261
+  95%    240
 ```
 
 #### Heavy Load (2000 requests, 100 concurrent)
 ```
-Requests per second:    265.70 [#/sec] (mean)
-Time per request:       376.360 [ms] (mean)
+Requests per second:    300.14 [#/sec] (mean)
+Time per request:       333.176 [ms] (mean)
 Document Path:          /sfdaas/api/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D
-  95%    505
-  99%    549
-Failed requests:        1992
+  95%    527
+  99%    611
+Failed requests:        1951
 ```
 
 #### Sustained Load (60s, 50 concurrent)
 ```
-Complete requests:      16799
-Requests per second:    279.98 [#/sec] (mean)
+Complete requests:      17361
+Requests per second:    289.34 [#/sec] (mean)
 ```
 
 ---
@@ -56,10 +56,10 @@ Requests per second:    279.98 [#/sec] (mean)
 ```
 Propagator | Avg Time (ms) | Min (ms) | Max (ms) | Status
 -----------|---------------|----------|----------|-------
-rungekutta | 1.66 | 1 | 2 | ✓
+rungekutta | 4.33 | 2 | 9 | ✓
 dormandprince | .33 | 0 | 1 | ✓
-adamsbashforth | .33 | 0 | 1 | ✓
-adamsmoulton | .66 | 0 | 1 | ✓
+adamsbashforth | 1.00 | 1 | 1 | ✓
+adamsmoulton | .33 | 0 | 1 | ✓
 ```
 
 ---
@@ -69,7 +69,7 @@ adamsmoulton | .66 | 0 | 1 | ✓
 ```
 Frame      | Time (ms) | Status
 -----------|-----------|-------
-eme2000 | 1 | ✓
+eme2000 | 2 | ✓
 gcrf | 2 | ✓
 teme | 5 | ✓
 mod | 3 | ✓
@@ -85,8 +85,8 @@ Step Size  | Time (ms) | Status
 -----------|-----------|-------
 60s | 2 | ✓
 30s | 3 | ✓
-10s | 9 | ✓
-1s | 94 | ✓
+10s | 10 | ✓
+1s | 102 | ✓
 ```
 
 ---
@@ -125,5 +125,5 @@ Step Size  | Time (ms) | Status
 4. **Verify memory stability** over extended runs
 5. **Identify bottlenecks** from 95th/99th percentile times
 
-For more details, see individual test result files in: `/Users/hido/development/github.com/haisamido/SFDaaS/tests/results/comprehensive_stress_test_results/`
+For more details, see individual test result files in: `./tests/results/comprehensive_stress_test_results/`
 

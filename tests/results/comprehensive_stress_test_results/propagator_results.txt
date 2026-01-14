@@ -1,6 +1,6 @@
 Propagator | Avg Time (ms) | Min (ms) | Max (ms) | Status
 -----------|---------------|----------|----------|-------
-rungekutta | 1.66 | 1 | 2 | ✓
+rungekutta | 4.33 | 2 | 9 | ✓
 dormandprince | .33 | 0 | 1 | ✓
-adamsbashforth | .33 | 0 | 1 | ✓
-adamsmoulton | .66 | 0 | 1 | ✓
+adamsbashforth | 1.00 | 1 | 1 | ✓
+adamsmoulton | .33 | 0 | 1 | ✓
