@@ -95,68 +95,6 @@ tasks:
       - echo "✓ Tests complete"
     silent: true
 
-  tests:healthcheck:
-    desc: Run quick health check (~5-10s)
-    cmds:
-      - echo "Running quick health check..."
-      - cd tests && ./quick_health_check.sh
-      - echo "✓ Health check complete"
-    silent: true
-
-  tests:stress:
-    desc: Run comprehensive stress test (may take several minutes)
-    cmds:
-      - echo "Running comprehensive stress test..."
-      - echo "This may take several minutes depending on system load"
-      - cd tests && ./comprehensive_stress_test.sh
-      - echo "✓ Stress test complete"
-    silent: true
-
-  tests:memory:
-    desc: Run memory leak detection test (default 1000 iterations)
-    cmds:
-      - echo "Running memory leak test..."
-      - cd tests && ./memory_leak_test.sh
-      - echo "✓ Memory leak test complete"
-    silent: true
-
-  tests:feature:
-    desc: Run comprehensive feature test (~30-60s)
-    cmds:
-      - echo "Running comprehensive feature test..."
-      - cd tests && ./feature_test.sh
-      - echo "✓ Feature test complete"
-    silent: true
-
-  tests:all:
-    desc: Run all tests (healthcheck, feature, stress, memory)
-    cmds:
-      - echo "=============================================="
-      - echo "Running all SFDaaS tests"
-      - echo "=============================================="
-      - echo ""
-      - echo "[1/4] Quick Health Check"
-      - echo "----------------------------------------------"
-      - cd tests && ./quick_health_check.sh
-      - echo ""
-      - echo "[2/4] Feature Test"
-      - echo "----------------------------------------------"
-      - cd tests && ./feature_test.sh
-      - echo ""
-      - echo "[3/4] Comprehensive Stress Test"
-      - echo "----------------------------------------------"
-      - cd tests && ./comprehensive_stress_test.sh --quick
-      - echo ""
-      - echo "[4/4] Memory Leak Test"
-      - echo "----------------------------------------------"
-      - cd tests && ./memory_leak_test.sh 500
-      - echo ""
-      - echo "=============================================="
-      - echo "✓ All tests complete!"
-      - echo "Results saved to tests/results/"
-      - echo "=============================================="
-    silent: true
-
   package:
     desc: Package application as standalone JAR
     deps: [clean]
@@ -488,4 +426,70 @@ tasks:
         CATALINA_HOME=/opt/tomcat task deploy-tomcat  # Deploy to Tomcat
 
         EOF
+    silent: true
+
+  # =============================================================================
+  # Test Tasks (tests:*)
+  # =============================================================================
+
+  tests:healthcheck:
+    desc: Run quick health check (~5-10s)
+    cmds:
+      - echo "Running quick health check..."
+      - cd tests && ./quick_health_check.sh
+      - echo "✓ Health check complete"
+    silent: true
+
+  tests:stress:
+    desc: Run comprehensive stress test (may take several minutes)
+    cmds:
+      - echo "Running comprehensive stress test..."
+      - echo "This may take several minutes depending on system load"
+      - cd tests && ./comprehensive_stress_test.sh
+      - echo "✓ Stress test complete"
+    silent: true
+
+  tests:memory:
+    desc: Run memory leak detection test (default 1000 iterations)
+    cmds:
+      - echo "Running memory leak test..."
+      - cd tests && ./memory_leak_test.sh
+      - echo "✓ Memory leak test complete"
+    silent: true
+
+  tests:feature:
+    desc: Run comprehensive feature test (~30-60s)
+    cmds:
+      - echo "Running comprehensive feature test..."
+      - cd tests && ./feature_test.sh
+      - echo "✓ Feature test complete"
+    silent: true
+
+  tests:all:
+    desc: Run all tests (healthcheck, feature, stress, memory)
+    cmds:
+      - echo "=============================================="
+      - echo "Running all SFDaaS tests"
+      - echo "=============================================="
+      - echo ""
+      - echo "[1/4] Quick Health Check"
+      - echo "----------------------------------------------"
+      - cd tests && ./quick_health_check.sh
+      - echo ""
+      - echo "[2/4] Feature Test"
+      - echo "----------------------------------------------"
+      - cd tests && ./feature_test.sh
+      - echo ""
+      - echo "[3/4] Comprehensive Stress Test"
+      - echo "----------------------------------------------"
+      - cd tests && ./comprehensive_stress_test.sh --quick
+      - echo ""
+      - echo "[4/4] Memory Leak Test"
+      - echo "----------------------------------------------"
+      - cd tests && ./memory_leak_test.sh 500
+      - echo ""
+      - echo "=============================================="
+      - echo "✓ All tests complete!"
+      - echo "Results saved to tests/results/"
+      - echo "=============================================="
     silent: true
