@@ -4,42 +4,44 @@ Licensed to The Apache Software Foundation, http://www.apache.org/
 
 Benchmarking localhost (be patient)
 Completed 5000 requests
-Finished 8620 requests
+Completed 10000 requests
+Completed 15000 requests
+Finished 16799 requests
 
 
 Server Software:        
 Server Hostname:        localhost
 Server Port:            8080
 
-Document Path:          /SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D
-Document Length:        3608 bytes
+Document Path:          /sfdaas/api/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D
+Document Length:        3578 bytes
 
-Concurrency Level:      25
-Time taken for tests:   30.001 seconds
-Complete requests:      8620
-Failed requests:        8583
-   (Connect: 0, Receive: 0, Length: 8583, Exceptions: 0)
-Total transferred:      31896548 bytes
-HTML transferred:       31137988 bytes
-Requests per second:    287.32 [#/sec] (mean)
-Time per request:       87.010 [ms] (mean)
-Time per request:       3.480 [ms] (mean, across all concurrent requests)
-Transfer rate:          1038.27 [Kbytes/sec] received
+Concurrency Level:      50
+Time taken for tests:   60.001 seconds
+Complete requests:      16799
+Failed requests:        16723
+   (Connect: 0, Receive: 0, Length: 16723, Exceptions: 0)
+Total transferred:      61666416 bytes
+HTML transferred:       60188104 bytes
+Requests per second:    279.98 [#/sec] (mean)
+Time per request:       178.586 [ms] (mean)
+Time per request:       3.572 [ms] (mean, across all concurrent requests)
+Transfer rate:          1003.66 [Kbytes/sec] received
 
 Connection Times (ms)
               min  mean[+/-sd] median   max
-Connect:        0    0   0.3      0      11
-Processing:     2   87  37.4     80     244
-Waiting:        2   86  37.3     80     244
-Total:          2   87  37.4     81     245
+Connect:        0    0   0.2      0       9
+Processing:     2  178 109.2    154     656
+Waiting:        2  178 109.2    154     656
+Total:          3  178 109.2    154     656
 
 Percentage of the requests served within a certain time (ms)
-  50%     81
-  66%     97
-  75%    109
-  80%    117
-  90%    140
-  95%    160
-  98%    178
-  99%    190
- 100%    245 (longest request)
+  50%    154
+  66%    206
+  75%    242
+  80%    263
+  90%    325
+  95%    388
+  98%    476
+  99%    521
+ 100%    656 (longest request)

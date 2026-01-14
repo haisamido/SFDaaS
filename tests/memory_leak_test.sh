@@ -49,7 +49,7 @@ SCRIPT_NAME=$(basename "$0" .sh)
 OUTPUT_FILE="${RESULTS_DIR}/${SCRIPT_NAME}.csv"
 REPORT_FILE="${RESULTS_DIR}/${SCRIPT_NAME}.md"
 
-echo "Iteration,RSS_KB,RSS_MB,Timestamp" > "$OUTPUT_FILE"
+echo "Step,Iteration,RSS_KB,RSS_MB" > "$OUTPUT_FILE"
 
 echo "Running $ITERATIONS requests..."
 echo "Memory samples will be taken every 50 requests"
@@ -59,6 +59,7 @@ echo "  watch -n 1 'ps -p $PID -o pid,rss,vsz,%mem,command'"
 echo ""
 
 START_TIME=$(date +%s)
+STEP=0
 
 for i in $(seq 1 $ITERATIONS); do
     # Make request
@@ -66,6 +67,7 @@ for i in $(seq 1 $ITERATIONS); do
 
     # Sample memory every 50 requests
     if [ $((i % 50)) -eq 0 ]; then
+        STEP=$((STEP + 1))
         if [ "$(uname)" = "Darwin" ]; then
             # macOS
             MEM_RSS=$(ps -p $PID -o rss= 2>/dev/null | tr -d ' ')
@@ -76,13 +78,12 @@ for i in $(seq 1 $ITERATIONS); do
 
         if [ -n "$MEM_RSS" ] && [ "$MEM_RSS" != "0" ]; then
             MEM_MB=$(echo "scale=2; $MEM_RSS / 1024" | bc)
-            TIMESTAMP=$(date +%s)
 
-            echo "$i,$MEM_RSS,$MEM_MB,$TIMESTAMP" >> "$OUTPUT_FILE"
+            echo "$STEP,$i,$MEM_RSS,$MEM_MB" >> "$OUTPUT_FILE"
 
-            echo -e "Request $i: ${CYAN}${MEM_MB} MB${NC}"
+            echo -e "Step $STEP (Request $i): ${CYAN}${MEM_MB} MB${NC}"
         else
-            echo -e "${YELLOW}Request $i: Could not read memory${NC}"
+            echo -e "${YELLOW}Step $STEP (Request $i): Could not read memory${NC}"
         fi
     fi
 
@@ -98,7 +99,7 @@ echo "======================="
 echo -e "${GREEN}Test completed!${NC}"
 echo ""
 echo "Duration: ${DURATION}s"
-echo "Results saved to: $OUTPUT_FILE"
+echo "Results saved to: ./tests/results/${SCRIPT_NAME}.csv"
 echo ""
 
 # Analyze results
@@ -131,7 +132,7 @@ fi
 
 echo ""
 echo "Visualize results:"
-echo "  gnuplot -e \"set terminal dumb; set datafile separator ','; plot '$OUTPUT_FILE' using 1:3 with lines title 'Memory'\""
+echo "  gnuplot -e \"set terminal dumb; set datafile separator ','; plot './tests/results/${SCRIPT_NAME}.csv' using 1:4 with lines title 'Memory (MB)'\""
 
 # Generate markdown report
 cat > "$REPORT_FILE" << EOF
@@ -140,7 +141,6 @@ cat > "$REPORT_FILE" << EOF
 **Server:** $BASE_URL
 **Iterations:** $ITERATIONS
 **Duration:** ${DURATION}s
-**PID:** $PID
 
 ---
 
@@ -207,11 +207,11 @@ cat >> "$REPORT_FILE" << EOF
 To visualize the memory usage over time:
 
 \`\`\`bash
-gnuplot -e "set terminal dumb; set datafile separator ','; plot '${OUTPUT_FILE}' using 1:3 with lines title 'Memory'"
+gnuplot -e "set terminal dumb; set datafile separator ','; plot './tests/results/${SCRIPT_NAME}.csv' using 1:4 with lines title 'Memory (MB)'"
 \`\`\`
 
 **Memory leak test complete!**
 EOF
 
 echo ""
-echo "Report saved to: $REPORT_FILE"
+echo "Report saved to: ./tests/results/${SCRIPT_NAME}.md"

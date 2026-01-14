@@ -3,45 +3,52 @@ Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
 Licensed to The Apache Software Foundation, http://www.apache.org/
 
 Benchmarking localhost (be patient)
-Completed 100 requests
 Completed 200 requests
-Completed 300 requests
-Finished 300 requests
+Completed 400 requests
+Completed 600 requests
+Completed 800 requests
+Completed 1000 requests
+Completed 1200 requests
+Completed 1400 requests
+Completed 1600 requests
+Completed 1800 requests
+Completed 2000 requests
+Finished 2000 requests
 
 
 Server Software:        
 Server Hostname:        localhost
 Server Port:            8080
 
-Document Path:          /SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D
-Document Length:        3608 bytes
+Document Path:          /sfdaas/api/propagate?t0=2010-05-28T12:00:00.000%2B00:00&tf=2010-05-29T12:00:00.000%2B00:00&r0=%5B3198022.67,2901879.73,5142928.95%5D&v0=%5B-6129.640631,4489.647187,1284.511245%5D
+Document Length:        3578 bytes
 
-Concurrency Level:      30
-Time taken for tests:   1.065 seconds
-Complete requests:      300
-Failed requests:        299
-   (Connect: 0, Receive: 0, Length: 299, Exceptions: 0)
-Total transferred:      1110140 bytes
-HTML transferred:       1083740 bytes
-Requests per second:    281.62 [#/sec] (mean)
-Time per request:       106.527 [ms] (mean)
-Time per request:       3.551 [ms] (mean, across all concurrent requests)
-Transfer rate:          1017.70 [Kbytes/sec] received
+Concurrency Level:      100
+Time taken for tests:   7.527 seconds
+Complete requests:      2000
+Failed requests:        1992
+   (Connect: 0, Receive: 0, Length: 1992, Exceptions: 0)
+Total transferred:      7342678 bytes
+HTML transferred:       7166678 bytes
+Requests per second:    265.70 [#/sec] (mean)
+Time per request:       376.360 [ms] (mean)
+Time per request:       3.764 [ms] (mean, across all concurrent requests)
+Transfer rate:          952.62 [Kbytes/sec] received
 
 Connection Times (ms)
               min  mean[+/-sd] median   max
-Connect:        0    0   0.3      0       1
-Processing:     4  104  34.2    101     190
-Waiting:        2  103  34.2    100     190
-Total:          4  104  34.2    101     190
+Connect:        0    0   1.0      0      18
+Processing:     5  369  91.1    377     595
+Waiting:        2  369  91.1    377     595
+Total:          5  369  90.9    377     595
 
 Percentage of the requests served within a certain time (ms)
-  50%    101
-  66%    115
-  75%    126
-  80%    132
-  90%    151
-  95%    166
-  98%    179
-  99%    189
- 100%    190 (longest request)
+  50%    377
+  66%    409
+  75%    429
+  80%    442
+  90%    478
+  95%    505
+  98%    536
+  99%    549
+ 100%    595 (longest request)

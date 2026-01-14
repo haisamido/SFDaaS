@@ -1,9 +1,9 @@
 # SFDaaS Memory Leak Test Report
 
 **Server:** http://localhost:8080
-**Iterations:** 100
-**Duration:** 7s
-**PID:** 13040
+**Iterations:** 1000
+**Duration:** 69s
+**PID:** 5274
 
 ---
 
@@ -11,17 +11,17 @@
 
 | Metric | Value |
 | --- | --- |
-| Initial Memory | 7.34 MB |
-| Final Memory | 7.34 MB |
-| Memory Growth | 0 MB |
-| Requests | 100 |
-| Duration | 7s |
+| Initial Memory | 531440 MB |
+| Final Memory | 531504 MB |
+| Memory Growth | 64 MB |
+| Requests | 1000 |
+| Duration | 69s |
 
 ## Analysis
 
-**Status:** ✓ PASS - Memory usage appears stable
+**Status:** ⚠ WARNING - Moderate memory growth detected
 
-✓ Memory usage appears stable. No significant memory growth detected.
+⚠ Moderate memory growth detected (>50MB). Monitor over longer periods to confirm.
 
 ---
 
@@ -35,7 +35,7 @@
 To visualize the memory usage over time:
 
 ```bash
-gnuplot -e "set terminal dumb; set datafile separator ','; plot './results/memory_leak_test.csv' using 1:3 with lines title 'Memory'"
+gnuplot -e "set terminal dumb; set datafile separator ','; plot '/Users/hido/development/github.com/haisamido/SFDaaS/tests/results/memory_leak_test.csv' using 1:3 with lines title 'Memory'"
 ```
 
 **Memory leak test complete!**

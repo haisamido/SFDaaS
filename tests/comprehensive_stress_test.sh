@@ -653,7 +653,6 @@ generate_summary() {
     cat > "$SUMMARY_FILE" << EOF
 # SFDaaS Stress Test Summary
 
-**Test Date:** $(date)
 **Duration:** ${duration}s (${duration_min} minutes)
 **Server URL:** $BASE_URL
 **Quick Mode:** $QUICK_MODE
@@ -777,18 +776,18 @@ EOF
 4. **Verify memory stability** over extended runs
 5. **Identify bottlenecks** from 95th/99th percentile times
 
-For more details, see individual test result files in: \`$OUTPUT_DIR/\`
+For more details, see individual test result files in: \`./tests/results/${SCRIPT_NAME}_results/\`
 
 EOF
 
-    print_success "Summary report generated: $SUMMARY_FILE"
+    print_success "Summary report generated: ./tests/results/${SCRIPT_NAME}.md"
     echo ""
 }
 
 display_final_summary() {
     print_header "Test Execution Complete!"
 
-    echo -e "${CYAN}Results Location:${NC} $OUTPUT_DIR"
+    echo -e "${CYAN}Results Location:${NC} ./tests/results/${SCRIPT_NAME}_results/"
     echo ""
     echo -e "${CYAN}Test Summary:${NC}"
     echo -e "  Total Tests:  $TOTAL_TESTS"
@@ -810,8 +809,8 @@ display_final_summary() {
     echo ""
 
     echo -e "${CYAN}Next Steps:${NC}"
-    echo "  1. Review summary: cat $SUMMARY_FILE"
-    echo "  2. Analyze detailed logs in $OUTPUT_DIR/"
+    echo "  1. Review summary: cat ./tests/results/${SCRIPT_NAME}.md"
+    echo "  2. Analyze detailed logs in ./tests/results/${SCRIPT_NAME}_results/"
     echo "  3. Compare propagator performance"
     echo "  4. Check for any failed tests"
     echo ""

@@ -114,7 +114,6 @@ cat > "$RESULT_FILE" << EOF
 # SFDaaS Feature Test Report
 
 **Server:** $BASE_URL
-**Date:** $(date)
 
 ---
 
@@ -571,4 +570,4 @@ else
 fi
 
 log_terminal ""
-log_terminal "Report saved to: ${RESULT_FILE}"
+log_terminal "Report saved to: ./tests/results/${SCRIPT_NAME}.md"
