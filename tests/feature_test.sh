@@ -446,9 +446,9 @@ log_output ""
 
 TOTAL_TESTS=$((TOTAL_TESTS + 1))
 RESPONSE=$(curl -s "${API_BASE}/usage")
-TITLE=$(echo "$RESPONSE" | jq -r '.title' 2>/dev/null)
+SERVICE=$(echo "$RESPONSE" | jq -r '.service' 2>/dev/null)
 
-if [ "$TITLE" != "null" ] && [ -n "$TITLE" ]; then
+if [ "$SERVICE" != "null" ] && [ -n "$SERVICE" ]; then
     log_terminal "${GREEN}[PASS]${NC} Usage endpoint returns documentation"
     log_output "| Usage endpoint | PASS |"
     PASSED_TESTS=$((PASSED_TESTS + 1))

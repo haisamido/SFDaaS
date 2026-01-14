@@ -96,12 +96,9 @@ public class JsonResponseBuilder {
         // Parameters
         JsonObject parameters = new JsonObject();
 
-        JsonObject caching = new JsonObject();
-        caching.addProperty("cf", "Caching flag (0=disabled, 1=enabled). Default: 0");
-        caching.addProperty("ca", "Caching server address(es), e.g., 127.0.0.1:11211");
-        caching.addProperty("ct", "Cache TTL in seconds. Default: 60");
-        caching.addProperty("ck", "Custom cache key (optional)");
-        parameters.add("caching", caching);
+        JsonObject stateStorage = new JsonObject();
+        stateStorage.addProperty("cache", "State storage URL. Supports Redis (redis://host:port/db/prefix) or Memcached (memcached://host:port/ttl/prefix). Optional - when provided, propagation states are stored and can be retrieved by key");
+        parameters.add("stateStorage", stateStorage);
 
         JsonObject session_params = new JsonObject();
         session_params.addProperty("sf", "Session flag (1=use session values)");
