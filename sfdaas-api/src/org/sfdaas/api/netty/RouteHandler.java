@@ -9,9 +9,6 @@ import java.util.TimeZone;
 import org.sfdaas.propagation.Propagator;
 
 import io.netty.handler.codec.http.FullHttpRequest;
-import net.spy.memcached.AddrUtil;
-import net.spy.memcached.BinaryConnectionFactory;
-import net.spy.memcached.MemcachedClient;
 
 /**
  * Handles routing and business logic for different HTTP endpoints.
@@ -28,7 +25,7 @@ public class RouteHandler {
 
     /**
      * Handles the /orekit/propagate endpoint.
-     * Performs orbit propagation with optional caching.
+     * Performs orbit propagation.
      */
     public static String handlePropagate(
             FullHttpRequest request,
@@ -43,10 +40,6 @@ public class RouteHandler {
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         // Extract parameters
-        String ca = params.get("ca"); // Cache server addresses
-        String cf = params.getOrDefault("cf", "0"); // Cache flag (0=disabled, 1=enabled)
-        String ct = params.getOrDefault("ct", "60"); // Cache TTL in seconds
-        String ck = params.get("ck"); // Custom cache key
 
         String sf = params.get("sf"); // Session flag
         String st = params.getOrDefault("st", "1800"); // Session timeout
@@ -100,132 +93,44 @@ public class RouteHandler {
 
         // Initialize diagnostics
         Map<String, Object> diagnostics = new HashMap<>();
-        Map<String, Object> cachingInfo = new HashMap<>();
         Map<String, Object> timingInfo = new HashMap<>();
-
-        // Build cache key
-        String username = System.getProperty("user.name");
-        String sessionId = session.getId();
-        String cacheKey = username + "]|[" + sessionId + "]|[" + t0 + "]|[" + r0 + "]|[" + v0 + "]|[" + tf;
-        if (ck != null) {
-            cacheKey = ck; // Use custom cache key if provided
-        }
 
         // Propagation results
         Map<String, String> aposteriori = new HashMap<>();
-        boolean cacheHit = false;
         long propagationStart = 0;
         long propagationEnd = 0;
 
         try {
-            // Caching logic
-            if ("1".equals(cf)) {
-                if (ca == null || ca.trim().isEmpty()) {
-                    return JsonResponseBuilder.buildErrorResponse(
-                            "Caching enabled (cf=1) but no cache server address provided (ca parameter missing)",
-                            400);
-                }
+            // Perform propagation
+            propagationStart = System.currentTimeMillis();
+            HashMap<String, String> propagatorParams = new HashMap<>();
+            propagatorParams.put("r0", r0);
+            propagatorParams.put("v0", v0);
+            propagatorParams.put("t0", t0);
+            propagatorParams.put("tf", tf);
+            propagatorParams.put("propagator", propagatorType);
+            propagatorParams.put("stepSize", stepSize);
+            propagatorParams.put("frame", frame);
+            propagatorParams.put("centralBody", centralBody);
+            propagatorParams.put("timeScale", timeScale);
+            propagatorParams.put("engine", engine);
+            if (outputInterval != null) {
+                propagatorParams.put("outputInterval", outputInterval);
+            }
+            if (stateCache != null) {
+                propagatorParams.put("cache", stateCache);
+            }
+            Propagator propagator = new Propagator(propagatorParams);
+            HashMap<String, String> finalState = propagator.propagate();
+            propagationEnd = System.currentTimeMillis();
 
-                cachingInfo.put("enabled", true);
-                cachingInfo.put("servers", ca.split("\\s+"));
-                cachingInfo.put("ttl", Integer.parseInt(ct));
-                cachingInfo.put("key", cacheKey);
+            aposteriori.put("tf", finalState.get("tf"));
+            aposteriori.put("rf", finalState.get("rf"));
+            aposteriori.put("vf", finalState.get("vf"));
 
-                // Try to get from cache
-                MemcachedClient cache = new MemcachedClient(
-                        new BinaryConnectionFactory(),
-                        AddrUtil.getAddresses(ca));
-
-                Object cachedContent = cache.get(cacheKey);
-
-                if (cachedContent != null) {
-                    // Cache hit
-                    cacheHit = true;
-                    @SuppressWarnings("unchecked")
-                    HashMap<String, String> finalState = (HashMap<String, String>) cachedContent;
-
-                    aposteriori.put("tf", finalState.get("tf"));
-                    aposteriori.put("rf", finalState.get("rf"));
-                    aposteriori.put("vf", finalState.get("vf"));
-
-                    cachingInfo.put("hit", true);
-                    cachingInfo.put("retrievedAt", df.format(new Date()));
-                    cache.shutdown();
-                } else {
-                    // Cache miss - need to propagate
-                    cachingInfo.put("hit", false);
-
-                    propagationStart = System.currentTimeMillis();
-                    HashMap<String, String> propagatorParams = new HashMap<>();
-                    propagatorParams.put("r0", r0);
-                    propagatorParams.put("v0", v0);
-                    propagatorParams.put("t0", t0);
-                    propagatorParams.put("tf", tf);
-                    propagatorParams.put("propagator", propagatorType);
-                    propagatorParams.put("stepSize", stepSize);
-                    propagatorParams.put("frame", frame);
-                    propagatorParams.put("centralBody", centralBody);
-                    propagatorParams.put("timeScale", timeScale);
-                    propagatorParams.put("engine", engine);
-                    if (outputInterval != null) {
-                        propagatorParams.put("outputInterval", outputInterval);
-                    }
-                    if (stateCache != null) {
-                        propagatorParams.put("cache", stateCache);
-                    }
-                    Propagator propagator = new Propagator(propagatorParams);
-                    HashMap<String, String> finalState = propagator.propagate();
-                    propagationEnd = System.currentTimeMillis();
-
-                    aposteriori.put("tf", finalState.get("tf"));
-                    aposteriori.put("rf", finalState.get("rf"));
-                    aposteriori.put("vf", finalState.get("vf"));
-
-                    // Add interval states if present
-                    if (finalState.containsKey("intervalStates")) {
-                        aposteriori.put("intervalStates", finalState.get("intervalStates"));
-                    }
-
-                    // Store in cache
-                    cache.set(cacheKey, Integer.parseInt(ct), finalState);
-                    cachingInfo.put("storedAt", df.format(new Date()));
-                    cachingInfo.put("expiresAt", df.format(new Date(System.currentTimeMillis() + Integer.parseInt(ct) * 1000L)));
-                    cache.shutdown();
-                }
-            } else {
-                // No caching - just propagate
-                cachingInfo.put("enabled", false);
-
-                propagationStart = System.currentTimeMillis();
-                HashMap<String, String> propagatorParams = new HashMap<>();
-                propagatorParams.put("r0", r0);
-                propagatorParams.put("v0", v0);
-                propagatorParams.put("t0", t0);
-                propagatorParams.put("tf", tf);
-                propagatorParams.put("propagator", propagatorType);
-                propagatorParams.put("stepSize", stepSize);
-                propagatorParams.put("frame", frame);
-                propagatorParams.put("centralBody", centralBody);
-                propagatorParams.put("timeScale", timeScale);
-                propagatorParams.put("engine", engine);
-                if (outputInterval != null) {
-                    propagatorParams.put("outputInterval", outputInterval);
-                }
-                if (stateCache != null) {
-                    propagatorParams.put("cache", stateCache);
-                }
-                Propagator propagator = new Propagator(propagatorParams);
-                HashMap<String, String> finalState = propagator.propagate();
-                propagationEnd = System.currentTimeMillis();
-
-                aposteriori.put("tf", finalState.get("tf"));
-                aposteriori.put("rf", finalState.get("rf"));
-                aposteriori.put("vf", finalState.get("vf"));
-
-                // Add interval states if present
-                if (finalState.containsKey("intervalStates")) {
-                    aposteriori.put("intervalStates", finalState.get("intervalStates"));
-                }
+            // Add interval states if present
+            if (finalState.containsKey("intervalStates")) {
+                aposteriori.put("intervalStates", finalState.get("intervalStates"));
             }
 
             // Build assumptions section
@@ -310,7 +215,6 @@ public class RouteHandler {
             diagnostics.put("assumptions", assumptions);
             diagnostics.put("timing", timingInfo);
             diagnostics.put("propagation", timingInfo); // Alias for compatibility
-            diagnostics.put("caching", cachingInfo);
             diagnostics.put("session", sessionInfo);
             diagnostics.put("request", requestInfo);
             diagnostics.put("system", systemInfo);

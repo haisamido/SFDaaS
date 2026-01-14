@@ -976,35 +976,21 @@
                     </div>
                 </div>
 
-                <!-- Optional: Caching -->
+                <!-- Optional: State Storage -->
                 <div class="propagator-section">
-                    <div class="section-title">💾 Caching Options (Optional)</div>
+                    <div class="section-title">💾 State Storage (Optional)</div>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="enableRedis">
-                                <input type="checkbox" id="enableRedis" name="enableRedis" style="width: auto; margin-right: 10px;">
-                                Enable Redis Storage
+                            <label for="enableStateStorage">
+                                <input type="checkbox" id="enableStateStorage" name="enableStateStorage" style="width: auto; margin-right: 10px;">
+                                Enable State Storage
                             </label>
-                            <span class="help-text">Store interval states as Redis keys</span>
+                            <span class="help-text">Store interval states to Redis or Memcached</span>
                         </div>
                         <div class="form-group" style="grid-column: span 2;">
-                            <label for="redisUrl">Redis URL</label>
-                            <input type="text" id="redisUrl" name="redisUrl" placeholder="redis://localhost:6379/0/sfdaas:states" disabled>
-                            <span class="help-text">Format: redis://host:port/db/prefix (e.g., redis://localhost:6379/0/sfdaas:states)</span>
-                        </div>
-                    </div>
-                    <div class="form-grid" style="margin-top: 20px;">
-                        <div class="form-group">
-                            <label for="enableCache">
-                                <input type="checkbox" id="enableCache" name="enableCache" style="width: auto; margin-right: 10px;">
-                                Enable Memcached Caching
-                            </label>
-                            <span class="help-text">Cache results for faster repeated queries</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="cacheServer">Cache Server Address</label>
-                            <input type="text" id="cacheServer" name="cacheServer" placeholder="127.0.0.1:11211" disabled>
-                            <span class="help-text">Memcached server address:port</span>
+                            <label for="cacheUrl">Cache URL</label>
+                            <input type="text" id="cacheUrl" name="cacheUrl" placeholder="redis://localhost:6379/0/sfdaas:states" disabled>
+                            <span class="help-text">Format: redis://host:port/db/prefix or memcached://host:port/ttl/prefix</span>
                         </div>
                     </div>
                 </div>
@@ -1103,19 +1089,14 @@
             document.getElementById(inputMap[orbitType]).classList.add('active');
         });
 
-        // Handle Redis checkbox
-        document.getElementById('enableRedis').addEventListener('change', function() {
-            const redisUrlInput = document.getElementById('redisUrl');
-            redisUrlInput.disabled = !this.checked;
+        // Handle state storage checkbox
+        document.getElementById('enableStateStorage').addEventListener('change', function() {
+            const cacheUrlInput = document.getElementById('cacheUrl');
+            cacheUrlInput.disabled = !this.checked;
             // Set default value when enabled
-            if (this.checked && !redisUrlInput.value) {
-                redisUrlInput.value = 'redis://localhost:6379/0/sfdaas:states';
+            if (this.checked && !cacheUrlInput.value) {
+                cacheUrlInput.value = 'redis://localhost:6379/0/sfdaas:states';
             }
-        });
-
-        // Handle cache checkbox
-        document.getElementById('enableCache').addEventListener('change', function() {
-            document.getElementById('cacheServer').disabled = !this.checked;
         });
 
         // Load example data
@@ -1227,16 +1208,10 @@
                     params.append('outputInterval', outputInterval);
                 }
 
-                // Add Redis storage if enabled
-                if (document.getElementById('enableRedis').checked) {
-                    const redisUrl = formData.get('redisUrl') || 'redis://localhost:6379/0/sfdaas:states';
-                    params.append('cache', redisUrl.trim());
-                }
-
-                // Add caching if enabled
-                if (document.getElementById('enableCache').checked) {
-                    params.append('cf', '1');
-                    params.append('ca', formData.get('cacheServer'));
+                // Add state storage if enabled (Redis or Memcached)
+                if (document.getElementById('enableStateStorage').checked) {
+                    const cacheUrl = formData.get('cacheUrl') || 'redis://localhost:6379/0/sfdaas:states';
+                    params.append('cache', cacheUrl.trim());
                 }
 
                 const url = `${API_BASE}?${params.toString()}`;
