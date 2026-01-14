@@ -2,7 +2,7 @@
 
 Overview
 --------
-SFDaaS provides a RESTful web service for satellite orbit propagation. It performs numerical integration of satellite trajectories using OreKit[http://orekit.org]'s high-precision orbital mechanics models, with optional result caching via Memcached.
+SFDaaS provides a RESTful web service for satellite orbit propagation. It performs numerical integration of satellite trajectories using OreKit[http://orekit.org]'s high-precision orbital mechanics models.
 
 [![Build System](https://img.shields.io/badge/build-Maven-C71A36?logo=apache-maven)](https://maven.apache.org/)
 [![Server](https://img.shields.io/badge/server-Netty-00ADD8?logo=netty)](https://netty.io/)
@@ -45,7 +45,7 @@ SFDaaS provides a RESTful web service for satellite orbit propagation. It perfor
 **Key Capabilities:**
 - Numerical orbit propagation in J2000 Earth-centered frame
 - Forward and backward time propagation
-- Optional Memcached caching for performance
+- Optional state storage to Redis or Memcached
 - RESTful JSON API with comprehensive diagnostics
 - ISO-8601 epoch format support
 - Standalone deployment (no application server required)
@@ -131,9 +131,9 @@ curl "http://localhost:8080/SFDaaS/orekit/propagate?t0=2010-05-28T12:00:00.000&t
 - **Time Flexibility**: Propagate forwards or backwards in time
 - **Reference Frame**: J2000 Earth-centered inertial frame
 - **Epoch Format**: ISO-8601 standard (UTC timezone)
-- **Caching**: Optional Memcached integration for performance
+- **State Storage**: Optional Redis or Memcached for interval state storage
 - **Session Management**: In-memory HTTP session support
-- **Diagnostics**: Detailed timing, caching, session, and request information
+- **Diagnostics**: Detailed timing, session, and request information
 - **Modern Build System**: Maven with Task automation
 
 ---
@@ -305,7 +305,6 @@ All responses are in JSON format with the following structure:
   },
   "diagnostics": {
     "timing": { "propagationTimeMs": 123, "totalTimeMs": 456 },
-    "caching": { "enabled": false, "hit": false },
     "session": { "id": "...", "creationTime": 1234567890 },
     "request": { "method": "GET", "uri": "...", "headers": {...} },
     "orekit": { "version": "13.1.2", "dataPath": "./data" }
@@ -361,27 +360,6 @@ v0=[-6129.640631,4489.647187,1284.511245]"
     }
   }
 }
-```
-
-### With Memcached Caching
-
-**Additional Parameters:**
-- `cf=1` - Enable caching flag
-- `ca=127.0.0.1:11211` - Memcached server address and port
-- `ct=60` - Cache expiration time in seconds (default: 60)
-- `ck={KEY}` - Custom cache key (optional)
-
-**Example Request:**
-
-```bash
-curl "http://localhost:8080/SFDaaS/orekit/propagate?\
-cf=1&\
-ca=127.0.0.1:11211&\
-ct=60&\
-t0=2010-05-28T12:00:00.000&\
-tf=2010-05-29T12:00:00.000&\
-r0=[3198022.67,2901879.73,5142928.95]&\
-v0=[-6129.640631,4489.647187,1284.511245]"
 ```
 
 ### Session Management
@@ -451,9 +429,27 @@ java -Dserver.contextPath=/myapp -jar target/SFDaaS-jar-with-dependencies.jar
 
 ```
 
-### Memcached Setup (Optional)
+### State Storage Setup (Optional)
 
-To enable caching features:
+To enable interval state storage to Redis or Memcached:
+
+**Redis:**
+
+```bash
+# Install Redis
+# macOS
+brew install redis
+brew services start redis
+
+# Ubuntu/Debian
+sudo apt-get install redis-server
+sudo systemctl start redis
+
+# Use with cache parameter
+curl "http://localhost:8080/SFDaaS/orekit/propagate?...&cache=redis://localhost:6379/0/sfdaas:states"
+```
+
+**Memcached:**
 
 ```bash
 # Install Memcached
@@ -465,13 +461,8 @@ brew services start memcached
 sudo apt-get install memcached
 sudo systemctl start memcached
 
-# RHEL/CentOS
-sudo yum install memcached
-sudo systemctl start memcached
-
-# Or run manually
-memcached -d -m 64 -p 11211
-
+# Use with cache parameter
+curl "http://localhost:8080/SFDaaS/orekit/propagate?...&cache=memcached://localhost:11211/3600/sfdaas:states"
 ```
 
 ---
@@ -539,19 +530,23 @@ SFDaaS/
 ├── NETTY-MIGRATION.md               # Netty migration documentation
 ├── Usage.html                       # Original usage documentation
 │
-├── sfdaas-core/                     # Backend Java code
+├── sfdaas-core/                     # Core business logic
 │   └── src/
-│       └── org/sfdaas/              # Application code
+│       └── org/sfdaas/
 │           ├── propagation/
 │           │   └── Propagator.java  # Core propagation logic
-│           ├── netty/               # Netty server implementation
-│           │   ├── NettyServer.java # Main server class
-│           │   ├── HttpRequestHandler.java
-│           │   ├── HttpSession.java
-│           │   ├── SessionManager.java
-│           │   ├── RouteHandler.java
-│           │   └── JsonResponseBuilder.java
-│           └── utils/               # Utility classes
+│           └── utils/
+│               └── StateStorage.java # Redis/Memcached state storage
+│
+├── sfdaas-api/                      # Netty API server
+│   └── src/
+│       └── org/sfdaas/api/netty/
+│           ├── NettyServer.java     # Main server class
+│           ├── HttpRequestHandler.java
+│           ├── HttpSession.java
+│           ├── SessionManager.java
+│           ├── RouteHandler.java
+│           └── JsonResponseBuilder.java
 │
 ├── sfdaas-web/                      # Frontend web application
 │   └── src/
@@ -855,7 +850,8 @@ The project uses Maven for dependency management with the following libraries:
 | **Gson** | 2.10.1 | JSON serialization/deserialization |
 | **OreKit** | 13.1.2 | Space flight dynamics library |
 | **Hipparchus** | 4.0.2 | Mathematical library (OreKit dependency) |
-| **Spymemcached** | 2.12.3 | Memcached client for caching |
+| **Jedis** | 5.1.0 | Redis client for state storage |
+| **Spymemcached** | 2.12.3 | Memcached client for state storage |
 
 **Migration Note:** The project was migrated from Tomcat servlet-based architecture to Netty standalone server in January 2026. See [NETTY-MIGRATION.md](NETTY-MIGRATION.md) for details.
 

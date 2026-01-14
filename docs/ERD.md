@@ -23,7 +23,6 @@ erDiagram
     RouteHandler ||--|| Propagator : "instantiates"
     RouteHandler ||--o{ HttpSession : "reads/updates"
     RouteHandler ||--|| JsonResponseBuilder : "uses"
-    RouteHandler ||--o{ MemcachedClient : "optional caching"
 
     %% ============================================================================
     %% CORE DOMAIN LAYER - Orbit Propagation
@@ -37,12 +36,10 @@ erDiagram
     Propagator ||--|| IntegratorFactory : "uses"
     Propagator ||--|| FrameFactory : "uses"
     Propagator ||--|| OreKitLibrary : "integrates"
+    Propagator ||--o{ StateStorage : "stores interval states"
 
-    IntegratorFactory ||--|| PropagatorType : "reads"
-    IntegratorFactory ||--|| HipparchusLibrary : "creates integrators from"
-
-    FrameFactory ||--|| FrameType : "reads"
-    FrameFactory ||--|| OreKitLibrary : "creates frames from"
+    StateStorage ||--o{ RedisClient : "uses"
+    StateStorage ||--o{ MemcachedClient : "uses"
 
     %% ============================================================================
     %% EXTERNAL DEPENDENCIES
@@ -119,6 +116,18 @@ erDiagram
         TimeScale getTimeScale()
     }
 
+    StateStorage {
+        string type
+        string host
+        int port
+        int database
+        string prefix
+        StateStorage fromUrl()
+        void store()
+        String retrieve()
+        void close()
+    }
+
     EngineType {
         string OREKIT
         string GMAT
@@ -172,6 +181,12 @@ erDiagram
         Frame createFrame()
     }
 
+    RedisClient {
+        void set()
+        string get()
+        void close()
+    }
+
     MemcachedClient {
         Object get()
         void set()
@@ -213,8 +228,8 @@ sequenceDiagram
     participant RouteHandler
     participant Propagator
     participant OreKit
+    participant StateStorage
     participant JsonResponseBuilder
-    participant Memcached
 
     Client->>NettyServer: HTTP Request
     NettyServer->>HttpRequestHandler: channelRead0(request)
@@ -234,25 +249,22 @@ sequenceDiagram
     else API request (/propagate)
         HttpRequestHandler->>RouteHandler: handlePropagate(request, session, params)
 
-        alt Caching enabled (cf=1)
-            RouteHandler->>Memcached: get(cacheKey)
-            alt Cache hit
-                Memcached->>RouteHandler: cached result
-            else Cache miss
-                RouteHandler->>Propagator: new Propagator(r0, v0, t0, tf, ..., timeScale)
-                Propagator->>OreKit: initialize(integrator, frame, orbit, timeScale)
-                Propagator->>OreKit: propagate(timeScale)
-                OreKit->>Propagator: final state (rf, vf, tf)
-                Propagator->>RouteHandler: HashMap result
-                RouteHandler->>Memcached: set(cacheKey, result, ttl)
+        RouteHandler->>Propagator: new Propagator(r0, v0, t0, tf, ..., timeScale)
+        Propagator->>OreKit: initialize(integrator, frame, orbit, timeScale)
+
+        alt State storage enabled (cache URL provided)
+            Propagator->>StateStorage: connect(redis://host:port/db/prefix)
+            loop For each integration step
+                Propagator->>OreKit: propagate step
+                OreKit->>Propagator: intermediate state
+                Propagator->>StateStorage: store(key, state)
             end
-        else No caching
-            RouteHandler->>Propagator: new Propagator(r0, v0, t0, tf, ..., timeScale)
-            Propagator->>OreKit: initialize(integrator, frame, orbit, timeScale)
+        else No state storage
             Propagator->>OreKit: propagate(timeScale)
-            OreKit->>Propagator: final state (rf, vf, tf)
-            Propagator->>RouteHandler: HashMap result
         end
+
+        OreKit->>Propagator: final state (rf, vf, tf)
+        Propagator->>RouteHandler: HashMap result
 
         RouteHandler->>JsonResponseBuilder: buildPropagationResponse(apriori, aposteriori, diagnostics)
         JsonResponseBuilder->>RouteHandler: JSON string
@@ -266,19 +278,20 @@ sequenceDiagram
 ```mermaid
 graph TB
     subgraph "HTTP Layer"
-        NettyServer[NettyServer<br/>Port: 8080<br/>Context: /SFDaaS]
+        NettyServer[NettyServer<br/>Port: 8080<br/>Context: /sfdaas]
         HttpRequestHandler[HttpRequestHandler<br/>Request Routing<br/>Cookie Handling]
         SessionManager[SessionManager<br/>Session Lifecycle<br/>Cleanup Task: 60s]
         HttpSession[HttpSession<br/>UUID-based ID<br/>Timeout: 1800s]
     end
 
     subgraph "Business Logic Layer"
-        RouteHandler[RouteHandler<br/>/propagate<br/>/propagate/usage]
+        RouteHandler[RouteHandler<br/>/api/propagate<br/>/api/propagate/usage]
         JsonResponseBuilder[JsonResponseBuilder<br/>JSON Formatting<br/>API Documentation]
     end
 
     subgraph "Propagation Domain Layer"
         Propagator[Propagator<br/>initialize<br/>propagate]
+        StateStorage[StateStorage<br/>Redis/Memcached<br/>Interval States]
         EngineType[EngineType Enum<br/>OreKit (implemented)<br/>GMAT (placeholder)]
         PropagatorType[PropagatorType Enum<br/>RungeKutta<br/>DormandPrince<br/>AdamsBashforth<br/>AdamsMoulton]
         FrameType[FrameType Enum<br/>EME2000<br/>GCRF<br/>ITRF<br/>TEME<br/>MOD<br/>TOD]
@@ -295,7 +308,8 @@ graph TB
         OreKit[OreKit 13.1.2<br/>NumericalPropagator<br/>CartesianOrbit<br/>CelestialBodyFactory]
         Hipparchus[Hipparchus 4.0.2<br/>AbstractIntegrator<br/>Vector3D]
         Gson[Gson 2.10.1<br/>JSON Serialization]
-        Memcached[Spy Memcached 2.12.3<br/>Optional Caching]
+        Jedis[Jedis 5.1.0<br/>Redis Client]
+        Spymemcached[Spy Memcached 2.12.3<br/>Memcached Client]
         Netty[Netty 4.1.104<br/>Async HTTP Server]
     end
 
@@ -313,7 +327,6 @@ graph TB
     RouteHandler --> Propagator
     RouteHandler --> HttpSession
     RouteHandler --> JsonResponseBuilder
-    RouteHandler --> Memcached
 
     JsonResponseBuilder --> Gson
 
@@ -325,6 +338,10 @@ graph TB
     Propagator --> IntegratorFactory
     Propagator --> FrameFactory
     Propagator --> OreKit
+    Propagator --> StateStorage
+
+    StateStorage --> Jedis
+    StateStorage --> Spymemcached
 
     IntegratorFactory --> PropagatorType
     IntegratorFactory --> Hipparchus
@@ -336,6 +353,7 @@ graph TB
     style Propagator fill:#fff4e1
     style OreKit fill:#e8f5e9
     style RouteHandler fill:#f3e5f5
+    style StateStorage fill:#ffe0b2
 ```
 
 ## Data Flow Diagram
@@ -355,16 +373,15 @@ flowchart LR
         centralBody["Central Body<br/>earth, sun, moon, etc.<br/>or custom mu value"]
         orbitType["Orbit Type<br/>cartesian (default)"]
         forceModels["Force Models<br/>(future)"]
-        caching["Caching Options<br/>cf, ca, ct, ck"]
+        stateStorage["State Storage<br/>cache URL (redis/memcached)"]
         session["Session Options<br/>sf, st"]
     end
 
     subgraph Processing["Processing Pipeline"]
         validation["Parameter Validation<br/>Required: t0, r0, v0, tf"]
         sessionMgmt["Session Management<br/>Get/Create Session<br/>Update Timeout"]
-        cacheCheck["Cache Lookup<br/>Memcached (optional)"]
         propagation["Orbit Propagation<br/>OreKit NumericalPropagator"]
-        cacheStore["Cache Storage<br/>Store result with TTL"]
+        stateStore["State Storage<br/>Store interval states"]
         diagnostics["Diagnostics Assembly<br/>Timing, Session, Request, System"]
         jsonFormat["JSON Response Builder<br/>apriori + aposteriori + diagnostics"]
     end
@@ -373,7 +390,7 @@ flowchart LR
         apriori["Apriori State<br/>t0, r0, v0<br/>engine, frame, centralBody, timeScale<br/>propagator, stepSize"]
         aposteriori["Aposteriori State<br/>tf, rf, vf"]
         diagTiming["Timing Diagnostics<br/>Propagation duration<br/>Total runtime"]
-        diagCaching["Caching Diagnostics<br/>Hit/miss, servers, TTL"]
+        diagStorage["State Storage Diagnostics<br/>Type, host, port, prefix"]
         diagSession["Session Diagnostics<br/>ID, creation, expiry"]
         diagRequest["Request Diagnostics<br/>Method, URI, headers"]
         diagSystem["System Diagnostics<br/>User, directories"]
@@ -393,24 +410,21 @@ flowchart LR
     orbitType --> validation
     forceModels --> validation
 
-    caching --> sessionMgmt
+    stateStorage --> sessionMgmt
     session --> sessionMgmt
 
     validation --> sessionMgmt
-    sessionMgmt --> cacheCheck
+    sessionMgmt --> propagation
 
-    cacheCheck -->|Cache miss| propagation
-    cacheCheck -->|Cache hit| diagnostics
-
-    propagation --> cacheStore
-    cacheStore --> diagnostics
+    propagation --> stateStore
+    stateStore --> diagnostics
 
     diagnostics --> jsonFormat
 
     jsonFormat --> apriori
     jsonFormat --> aposteriori
     jsonFormat --> diagTiming
-    jsonFormat --> diagCaching
+    jsonFormat --> diagStorage
     jsonFormat --> diagSession
     jsonFormat --> diagRequest
     jsonFormat --> diagSystem
@@ -431,7 +445,6 @@ flowchart LR
 | RouteHandler | instantiates | Propagator | N:N |
 | RouteHandler | reads/updates | HttpSession | N:N |
 | RouteHandler | uses | JsonResponseBuilder | N:1 |
-| RouteHandler | optionally uses | MemcachedClient | N:N |
 | Propagator | references | EngineType | N:1 |
 | Propagator | references | PropagatorType | N:1 |
 | Propagator | references | FrameType | N:1 |
@@ -440,6 +453,9 @@ flowchart LR
 | Propagator | uses | IntegratorFactory | N:1 |
 | Propagator | uses | FrameFactory | N:1 |
 | Propagator | integrates with | OreKitLibrary | N:1 |
+| Propagator | stores states via | StateStorage | N:N |
+| StateStorage | uses | RedisClient | N:1 |
+| StateStorage | uses | MemcachedClient | N:1 |
 | IntegratorFactory | reads | PropagatorType | N:N |
 | IntegratorFactory | creates from | HipparchusLibrary | N:1 |
 | FrameFactory | reads | FrameType | N:N |
@@ -456,6 +472,13 @@ flowchart LR
 - `numericalPropagator: NumericalPropagator` - OreKit propagator instance
 - `engineType: EngineType` - Space flight dynamics engine (default: OREKIT)
 - `frameType: FrameType` - Reference frame enumeration
+
+**StateStorage**
+- `type: String` - Storage type ("redis" or "memcached")
+- `host: String` - Server hostname
+- `port: int` - Server port
+- `database: int` - Redis database number (Redis only)
+- `prefix: String` - Key prefix for namespacing
 
 **EngineType Enum Values**
 - `OREKIT` - ORbit Extrapolation KIT - Java space dynamics library (implemented, default)
@@ -489,7 +512,7 @@ flowchart LR
 
 **NettyServer**
 - `port: int` - HTTP server port (default: 8080)
-- `contextPath: String` - Application context path (default: /SFDaaS)
+- `contextPath: String` - Application context path (default: /sfdaas)
 - `sessionManager: SessionManager` - Session lifecycle manager
 - `bossGroup: EventLoopGroup` - Connection acceptor
 - `workerGroup: EventLoopGroup` - I/O handler
@@ -525,12 +548,11 @@ flowchart LR
 - `orbitType` - Orbit representation (default: cartesian)
 - `forceModels` - Perturbation models (future feature)
 
-**Caching Parameters**
+**State Storage Parameter**
 
-- `cf` - Cache flag (0=disabled, 1=enabled)
-- `ca` - Cache server addresses (comma-separated)
-- `ct` - Cache TTL in seconds (default: 60)
-- `ck` - Custom cache key prefix
+- `cache` - State storage URL for interval propagation states
+  - Redis format: `redis://host:port/db/prefix`
+  - Memcached format: `memcached://host:port/ttl/prefix`
 
 **Session Parameters**
 
@@ -546,7 +568,8 @@ flowchart LR
 | Orbit Propagation | OreKit | 13.1.2 | Space flight dynamics library |
 | Numerical Integration | Hipparchus | 4.0.2 | Mathematical library (OreKit dependency) |
 | JSON Processing | Gson | 2.10.1 | JSON serialization/deserialization |
-| Caching | Spy Memcached | 2.12.3 | Optional distributed caching |
+| State Storage (Redis) | Jedis | 5.1.0 | Redis client for state storage |
+| State Storage (Memcached) | Spy Memcached | 2.12.3 | Memcached client for state storage |
 | Build Tool | Maven | 3.x | Dependency management and build |
 | Task Runner | Task | 3.x | Development workflow automation |
 
@@ -561,6 +584,7 @@ flowchart LR
 | RouteHandler | `sfdaas-api/src/org/sfdaas/api/netty/RouteHandler.java` |
 | JsonResponseBuilder | `sfdaas-api/src/org/sfdaas/api/netty/JsonResponseBuilder.java` |
 | Propagator | `sfdaas-core/src/org/sfdaas/propagation/Propagator.java` |
+| StateStorage | `sfdaas-core/src/org/sfdaas/utils/StateStorage.java` |
 | EngineType | `sfdaas-core/src/org/sfdaas/propagation/EngineType.java` |
 | PropagatorType | `sfdaas-core/src/org/sfdaas/propagation/PropagatorType.java` |
 | FrameType | `sfdaas-core/src/org/sfdaas/propagation/FrameType.java` |

@@ -47,30 +47,35 @@ SFDaaS was successfully migrated from a traditional Java EE servlet-based applic
 ### After (Netty)
 
 ```
-┌─────────────────────────────────────┐
-│      NettyServer.java               │
-│   (Standalone - Single JAR 21MB)   │
-│                                     │
-│  ┌───────────────────────────────┐ │
-│  │  HttpRequestHandler           │ │
-│  │  • Netty Channel Handler      │ │
-│  │  • Async/Non-blocking I/O     │ │
-│  │  • JSON output                │ │
-│  └───────────────────────────────┘ │
-│                                     │
-│  ┌───────────────────────────────┐ │
-│  │  RouteHandler                 │ │
-│  │  • Business Logic             │ │
-│  │  • Propagator Integration     │ │
-│  │  • Memcached Support          │ │
-│  └───────────────────────────────┘ │
-│                                     │
-│  ┌───────────────────────────────┐ │
-│  │  SessionManager               │ │
-│  │  • In-memory Sessions         │ │
-│  │  • Auto-cleanup               │ │
-│  └───────────────────────────────┘ │
-└─────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│              Standalone JAR (21MB)                          │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  sfdaas-api (org.sfdaas.api.netty)                  │   │
+│  │                                                     │   │
+│  │  ┌─────────────────┐  ┌─────────────────────────┐  │   │
+│  │  │ NettyServer     │  │ HttpRequestHandler      │  │   │
+│  │  │ • Main class    │  │ • Channel Handler       │  │   │
+│  │  │ • Server config │  │ • Async/Non-blocking    │  │   │
+│  │  └─────────────────┘  └─────────────────────────┘  │   │
+│  │                                                     │   │
+│  │  ┌─────────────────┐  ┌─────────────────────────┐  │   │
+│  │  │ RouteHandler    │  │ SessionManager          │  │   │
+│  │  │ • URL routing   │  │ • In-memory sessions    │  │   │
+│  │  │ • JSON output   │  │ • Auto-cleanup          │  │   │
+│  │  └─────────────────┘  └─────────────────────────┘  │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  sfdaas-core (org.sfdaas)                           │   │
+│  │                                                     │   │
+│  │  ┌─────────────────┐  ┌─────────────────────────┐  │   │
+│  │  │ Propagator      │  │ StateStorage            │  │   │
+│  │  │ • OreKit        │  │ • Redis support         │  │   │
+│  │  │ • Orbit calcs   │  │ • Memcached support     │  │   │
+│  │  └─────────────────┘  └─────────────────────────┘  │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -131,7 +136,7 @@ SFDaaS was successfully migrated from a traditional Java EE servlet-based applic
 1. **Propagator.java** - Core propagation logic (completely decoupled)
 2. **RegexPatterns.java** - Utility classes
 3. **OreKit data files** - Unchanged
-4. **Memcached integration** - Same Spymemcached client
+4. **State storage** - Redis/Memcached support via StateStorage class
 
 ---
 
@@ -268,10 +273,6 @@ A posteriori state:
       "propagationTimeMs": 45,
       "totalTimeMs": 67
     },
-    "caching": {
-      "enabled": false,
-      "hit": false
-    },
     "session": {
       "id": "abc123...",
       "creationTime": 1736629200000
@@ -343,7 +344,7 @@ task stop   # Stop cleanly
 ### 5. API Modernization
 
 ✅ **JSON responses**: Machine-readable, structured data
-✅ **Comprehensive diagnostics**: Timing, caching, session info
+✅ **Comprehensive diagnostics**: Timing, session, request info
 ✅ **Error handling**: Proper HTTP status codes
 ✅ **Content negotiation ready**: Easy to add XML, etc.
 
@@ -405,7 +406,7 @@ java -Dserver.port=8080 -jar SFDaaS-jar-with-dependencies.jar
 ✅ **Query parameters**: Unchanged
 ✅ **URLs**: Same paths (/SFDaaS/orekit/propagate)
 ✅ **Business logic**: Propagator unchanged
-✅ **Caching**: Same Memcached integration
+✅ **State storage**: Redis/Memcached support via cache parameter
 ✅ **Sessions**: Same behavior (creation, timeout)
 
 ---
@@ -438,7 +439,7 @@ java -Dserver.port=8080 -jar SFDaaS-jar-with-dependencies.jar
 3. ✅ Tested usage endpoint (JSON response)
 4. ✅ Tested propagation endpoint (with diagnostics)
 5. ✅ Tested session management (creation, expiration)
-6. ✅ Tested caching integration (Memcached)
+6. ✅ Tested state storage integration (Redis/Memcached)
 7. ✅ Tested port configuration (environment variables)
 8. ✅ Tested all Taskfile commands
 
@@ -465,7 +466,7 @@ java -Dserver.port=8080 -jar SFDaaS-jar-with-dependencies.jar
 - [x] Server startup on custom port (9999)
 - [x] Usage endpoint returns valid JSON
 - [x] Propagation endpoint (basic request)
-- [x] Propagation with caching (Memcached)
+- [x] Propagation with state storage (Redis/Memcached)
 - [x] Session management (cookie handling)
 - [x] Error handling (404, 500)
 - [x] Task commands (run, stop, ps, logs)
