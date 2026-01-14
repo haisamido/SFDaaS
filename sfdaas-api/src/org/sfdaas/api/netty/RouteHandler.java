@@ -64,9 +64,7 @@ public class RouteHandler {
         String outputInterval = params.get("outputInterval"); // Output interval in seconds (optional)
         String forceModels = params.getOrDefault("forceModels", "none"); // Force models
         String engine = params.getOrDefault("engine", "orekit"); // Space flight dynamics engine
-        String redisHost = params.get("redisHost"); // Redis host for state storage (optional)
-        String redisPort = params.get("redisPort"); // Redis port (optional, default 6379)
-        String redisPrefix = params.get("redisPrefix"); // Redis key prefix (optional, default sfdaas:states)
+        String stateCache = params.get("cache"); // Cache URL for state storage (e.g., redis://localhost:6379/0/prefix)
 
         // Validate required parameters
         if (t0 == null || r0 == null || v0 == null || tf == null) {
@@ -172,14 +170,8 @@ public class RouteHandler {
                     if (outputInterval != null) {
                         propagatorParams.put("outputInterval", outputInterval);
                     }
-                    if (redisHost != null) {
-                        propagatorParams.put("redisHost", redisHost);
-                    }
-                    if (redisPort != null) {
-                        propagatorParams.put("redisPort", redisPort);
-                    }
-                    if (redisPrefix != null) {
-                        propagatorParams.put("redisPrefix", redisPrefix);
+                    if (stateCache != null) {
+                        propagatorParams.put("cache", stateCache);
                     }
                     Propagator propagator = new Propagator(propagatorParams);
                     HashMap<String, String> finalState = propagator.propagate();
@@ -219,14 +211,8 @@ public class RouteHandler {
                 if (outputInterval != null) {
                     propagatorParams.put("outputInterval", outputInterval);
                 }
-                if (redisHost != null) {
-                    propagatorParams.put("redisHost", redisHost);
-                }
-                if (redisPort != null) {
-                    propagatorParams.put("redisPort", redisPort);
-                }
-                if (redisPrefix != null) {
-                    propagatorParams.put("redisPrefix", redisPrefix);
+                if (stateCache != null) {
+                    propagatorParams.put("cache", stateCache);
                 }
                 Propagator propagator = new Propagator(propagatorParams);
                 HashMap<String, String> finalState = propagator.propagate();

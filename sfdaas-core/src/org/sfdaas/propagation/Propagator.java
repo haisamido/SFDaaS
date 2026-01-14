@@ -21,8 +21,7 @@ import org.orekit.time.AbsoluteDate;
 import org.orekit.time.TimeScalesFactory;
 import org.orekit.utils.PVCoordinates;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.exceptions.JedisException;
+import org.sfdaas.utils.StateStorage;
 
 /***
  * <p>Class to perform propagation using a numerical propagator.  The initial 
@@ -329,33 +328,14 @@ public class Propagator {
                     double intervalSeconds = Double.parseDouble(outputIntervalStr.trim());
 
                     if (intervalSeconds > 0) {
-                        // Check if Redis storage is enabled
-                        String redisHost = parms.get("redisHost");
-                        String redisPortStr = parms.get("redisPort");
-                        String redisPrefix = parms.get("redisPrefix");
-                        if (redisPrefix == null || redisPrefix.trim().isEmpty()) {
-                            redisPrefix = "sfdaas:states";
-                        }
-                        Jedis jedis = null;
-                        boolean redisEnabled = false;
-
-                        if (redisHost != null && !redisHost.trim().isEmpty()) {
-                            try {
-                                int redisPort = (redisPortStr != null) ? Integer.parseInt(redisPortStr) : 6379;
-                                jedis = new Jedis(redisHost, redisPort);
-                                jedis.ping(); // Test connection
-                                redisEnabled = true;
-                                System.out.println("Redis connection established: " + redisHost + ":" + redisPort);
-                            } catch (JedisException | NumberFormatException e) {
-                                System.err.println("Failed to connect to Redis: " + e.getMessage());
-                                jedis = null;
-                            }
-                        }
+                        // Initialize state storage (Redis via cache URL)
+                        StateStorage stateStorage = new StateStorage(parms.get("cache"));
 
                         // Add initial state as first row
                         SpacecraftState initialState = numericalPropagator.getInitialState();
+                        String t0Str = t0Date.toString(orekitTimeScale);
                         String initialRow = String.format("%s,%f,%f,%f,%f,%f,%f",
-                            t0Date.toString(orekitTimeScale),
+                            t0Str,
                             initialState.getPVCoordinates().getPosition().getX(),
                             initialState.getPVCoordinates().getPosition().getY(),
                             initialState.getPVCoordinates().getPosition().getZ(),
@@ -363,16 +343,7 @@ public class Propagator {
                             initialState.getPVCoordinates().getVelocity().getY(),
                             initialState.getPVCoordinates().getVelocity().getZ());
                         intervalStatesList.add(initialRow);
-
-                        // Store initial state in Redis if enabled
-                        if (redisEnabled && jedis != null) {
-                            try {
-                                String key = redisPrefix + ":" + t0Date.toString(orekitTimeScale).replace(":", "-");
-                                jedis.set(key, initialRow);
-                            } catch (JedisException e) {
-                                System.err.println("Failed to store initial state in Redis: " + e.getMessage());
-                            }
-                        }
+                        stateStorage.storeState(t0Str, initialRow);
 
                         // Calculate number of interval points
                         double totalDuration = tfDate.durationFrom(t0Date);
@@ -387,8 +358,9 @@ public class Propagator {
                             SpacecraftState intermediateState = numericalPropagator.propagate(intermediateDate);
 
                             // Format as comma-separated row: t,rx,ry,rz,vx,vy,vz
+                            String intermediateStr = intermediateDate.toString(orekitTimeScale);
                             String stateRow = String.format("%s,%f,%f,%f,%f,%f,%f",
-                                intermediateDate.toString(orekitTimeScale),
+                                intermediateStr,
                                 intermediateState.getPVCoordinates().getPosition().getX(),
                                 intermediateState.getPVCoordinates().getPosition().getY(),
                                 intermediateState.getPVCoordinates().getPosition().getZ(),
@@ -397,24 +369,16 @@ public class Propagator {
                                 intermediateState.getPVCoordinates().getVelocity().getZ());
 
                             intervalStatesList.add(stateRow);
-
-                            // Store intermediate state in Redis if enabled
-                            if (redisEnabled && jedis != null) {
-                                try {
-                                    String key = redisPrefix + ":" + intermediateDate.toString(orekitTimeScale).replace(":", "-");
-                                    jedis.set(key, stateRow);
-                                } catch (JedisException e) {
-                                    System.err.println("Failed to store intermediate state in Redis: " + e.getMessage());
-                                }
-                            }
+                            stateStorage.storeState(intermediateStr, stateRow);
                         }
 
                         // Propagate to final time to get final state
                         final_state = numericalPropagator.propagate(tfDate);
 
-                        // Add final state to the list and publish to Redis
+                        // Add final state to the list and store in Redis
+                        String tfStr = tfDate.toString(orekitTimeScale);
                         String finalRow = String.format("%s,%f,%f,%f,%f,%f,%f",
-                            tfDate.toString(orekitTimeScale),
+                            tfStr,
                             final_state.getPVCoordinates().getPosition().getX(),
                             final_state.getPVCoordinates().getPosition().getY(),
                             final_state.getPVCoordinates().getPosition().getZ(),
@@ -422,25 +386,10 @@ public class Propagator {
                             final_state.getPVCoordinates().getVelocity().getY(),
                             final_state.getPVCoordinates().getVelocity().getZ());
                         intervalStatesList.add(finalRow);
+                        stateStorage.storeState(tfStr, finalRow);
 
-                        // Store final state in Redis if enabled
-                        if (redisEnabled && jedis != null) {
-                            try {
-                                String key = redisPrefix + ":" + tfDate.toString(orekitTimeScale).replace(":", "-");
-                                jedis.set(key, finalRow);
-                            } catch (JedisException e) {
-                                System.err.println("Failed to store final state in Redis: " + e.getMessage());
-                            }
-                        }
-
-                        // Close Redis connection if it was opened
-                        if (jedis != null) {
-                            try {
-                                jedis.close();
-                            } catch (JedisException e) {
-                                System.err.println("Failed to close Redis connection: " + e.getMessage());
-                            }
-                        }
+                        // Close state storage connection
+                        stateStorage.close();
                     }
                 } catch (NumberFormatException e) {
                     System.err.println("Invalid outputInterval value: " + outputIntervalStr);
