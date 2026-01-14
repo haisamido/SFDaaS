@@ -192,6 +192,19 @@ create_output_dir() {
     echo ""
 }
 
+# Convert TSV file from ab format to step-based format
+# Replaces timestamp columns with Step column
+convert_tsv_to_steps() {
+    local tsv_file="$1"
+    if [ -f "$tsv_file" ]; then
+        # Create temp file with new format: Step and other columns (excluding starttime and seconds)
+        awk -F'\t' 'BEGIN {OFS="\t"}
+            NR==1 {print "Step", $3, $4, $5, $6}
+            NR>1 {print NR-1, $3, $4, $5, $6}' "$tsv_file" > "${tsv_file}.tmp"
+        mv "${tsv_file}.tmp" "$tsv_file"
+    fi
+}
+
 test_light_load() {
     print_section "Test 1: Light Load (500 requests, 25 concurrent)"
 
@@ -209,6 +222,8 @@ test_light_load() {
 
     if ab -n $requests -c $concurrent -g "$OUTPUT_DIR/light_load.tsv" \
         "${API_BASE}?${BASE_PARAMS}" > "$OUTPUT_DIR/light_load.txt" 2>&1; then
+
+        convert_tsv_to_steps "$OUTPUT_DIR/light_load.tsv"
 
         local rps=$(grep "Requests per second" "$OUTPUT_DIR/light_load.txt" | awk '{print $4}')
         local mean_time=$(grep "Time per request" "$OUTPUT_DIR/light_load.txt" | head -1 | awk '{print $4}')
@@ -243,6 +258,8 @@ test_medium_load() {
 
     if ab -n $requests -c $concurrent -g "$OUTPUT_DIR/medium_load.tsv" \
         "${API_BASE}?${BASE_PARAMS}" > "$OUTPUT_DIR/medium_load.txt" 2>&1; then
+
+        convert_tsv_to_steps "$OUTPUT_DIR/medium_load.tsv"
 
         local rps=$(grep "Requests per second" "$OUTPUT_DIR/medium_load.txt" | awk '{print $4}')
         local mean_time=$(grep "Time per request" "$OUTPUT_DIR/medium_load.txt" | head -1 | awk '{print $4}')
@@ -279,6 +296,8 @@ test_heavy_load() {
 
     if ab -n $requests -c $concurrent -g "$OUTPUT_DIR/heavy_load.tsv" \
         "${API_BASE}?${BASE_PARAMS}" > "$OUTPUT_DIR/heavy_load.txt" 2>&1; then
+
+        convert_tsv_to_steps "$OUTPUT_DIR/heavy_load.tsv"
 
         local rps=$(grep "Requests per second" "$OUTPUT_DIR/heavy_load.txt" | awk '{print $4}')
         local mean_time=$(grep "Time per request" "$OUTPUT_DIR/heavy_load.txt" | head -1 | awk '{print $4}')
