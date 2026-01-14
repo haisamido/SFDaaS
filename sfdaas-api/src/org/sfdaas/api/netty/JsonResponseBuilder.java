@@ -138,9 +138,9 @@ public class JsonResponseBuilder {
         examples.add(ex1);
 
         JsonObject ex2 = new JsonObject();
-        ex2.addProperty("description", "Propagation with caching");
+        ex2.addProperty("description", "Propagation with state storage (Redis)");
         ex2.addProperty("url", "http://localhost:8080/sfdaas/api/propagate?" +
-                "cf=1&ca=127.0.0.1:11211&" +
+                "cache=redis://localhost:6379/0/sfdaas:states&" +
                 "t0=2010-05-28T12:00:00.000+00:00&" +
                 "tf=2010-05-29T12:00:00.000+00:00&" +
                 "r0=[3198022.67,2901879.73,5142928.95]&" +
