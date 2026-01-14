@@ -8,18 +8,57 @@ This directory contains comprehensive testing tools, scripts, and documentation 
 tests/
 ├── README.md                        # This file - complete testing documentation
 ├── STRESS_TESTING.md                # Comprehensive stress testing guide
+├── feature_test.sh*                 # Feature test suite (all API features)
 ├── comprehensive_stress_test.sh*    # Full 10-test stress testing suite
 ├── memory_leak_test.sh*             # Memory leak detection script
 ├── quick_health_check.sh*           # Fast health check (~5-10s)
 └── results/                         # Test results output directory (git-ignored)
-    └── .gitignore
+    ├── feature_test.md              # Feature test results
+    ├── quick_health_check.md        # Health check results
+    ├── comprehensive_stress_test.md # Stress test summary
+    ├── memory_leak_test.md          # Memory test results
+    └── memory_leak_test.csv         # Memory data (CSV)
 ```
 
 **Note:** All test results are automatically saved to the `results/` directory to keep test outputs organized and separate from source files.
 
 ## Scripts Overview
 
-### 1. Comprehensive Stress Test
+### 1. Feature Test (NEW)
+**File:** `feature_test.sh`
+
+Comprehensive feature test that validates all API features including new ones added in January 2026.
+
+**Usage:**
+```bash
+# Test localhost
+./feature_test.sh
+
+# Test remote server
+./feature_test.sh http://example.com
+```
+
+**Tests Included:**
+1. Basic propagation and response structure
+2. All propagator types (rungekutta, dormandprince, adamsbashforth, adamsmoulton)
+3. All reference frames (eme2000, gcrf, teme, mod, tod)
+4. Time scales (UTC, TAI)
+5. Central bodies (earth, sun, moon, mars, jupiter, venus, saturn, custom mu)
+6. Step sizes (60s, 30s, 10s, 1s, 0.1s)
+7. Output interval (CSV states with full double precision)
+8. State storage URL parameter (redis://, memcached://)
+9. Session management (creation, persistence, timeout)
+10. API usage endpoint
+11. Error handling (missing params, invalid values)
+12. Backward/forward propagation
+
+**Run Time:** ~30-60 seconds
+
+**Output:** `results/feature_test.md`
+
+---
+
+### 2. Comprehensive Stress Test
 **File:** `comprehensive_stress_test.sh`
 
 Complete stress testing suite that runs 10 different test scenarios and generates detailed reports.
@@ -59,13 +98,13 @@ Complete stress testing suite that runs 10 different test scenarios and generate
 
 **Output:**
 - Detailed test results in timestamped directory
-- `SUMMARY.md` - Comprehensive test summary
+- `comprehensive_stress_test.md` - Test summary
 - Individual `.txt` files for each test
 - `.tsv` files for time-series data analysis
 
 ---
 
-### 2. Quick Health Check
+### 3. Quick Health Check
 **File:** `quick_health_check.sh`
 
 Fast health check to verify SFDaaS is running and all components are functional.
@@ -82,14 +121,17 @@ Fast health check to verify SFDaaS is running and all components are functional.
 **Checks:**
 - Server connectivity
 - Basic propagation test
-- All propagators (rungekutta, dormandprince, adamsbashforth, adamsmoulton)
-- All reference frames (eme2000, gcrf, teme, mod, tod)
+- All propagators
+- All reference frames
+- Time scales
 
 **Run Time:** ~5-10 seconds
 
+**Output:** `results/quick_health_check.md`
+
 ---
 
-### 3. Memory Leak Test
+### 4. Memory Leak Test
 **File:** `memory_leak_test.sh`
 
 Runs repeated requests while monitoring memory usage to detect potential memory leaks.
