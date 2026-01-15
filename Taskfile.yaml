@@ -473,3 +473,84 @@ tasks:
       - task: tests:stress
       - task: tests:memory
     silent: true
+
+  # =============================================================================
+  # WebAssembly Build Tasks (wasm:*)
+  # =============================================================================
+
+  wasm:build:
+    desc: Build WebAssembly version of SFDaaS using TeaVM (requires JDK 21 or earlier)
+    cmds:
+      - |
+        echo "Building WebAssembly version of SFDaaS..."
+        echo ""
+        # Check Java version - TeaVM 0.10.2 requires JDK 21 or earlier
+        JAVA_VER=$(java -version 2>&1 | head -1 | cut -d'"' -f2 | cut -d'.' -f1)
+        if [ "$JAVA_VER" -gt 21 ]; then
+          echo "ERROR: TeaVM 0.10.2 requires JDK 21 or earlier"
+          echo "Current Java version: $(java -version 2>&1 | head -1)"
+          echo ""
+          echo "To fix, install JDK 21 and set JAVA_HOME:"
+          echo "  brew install openjdk@21"
+          echo "  export JAVA_HOME=/opt/homebrew/opt/openjdk@21"
+          echo "  task wasm:build"
+          echo ""
+          echo "Or use Docker:"
+          echo "  task wasm:build-docker"
+          exit 1
+        fi
+        cd wasm && mvn clean package
+        echo ""
+        echo "✓ WASM build complete!"
+        echo "Output directory: wasm/target/wasm/"
+        echo ""
+        echo "Files generated:"
+        ls -lh wasm/target/wasm/ 2>/dev/null || echo "  (build may have failed - check Maven output)"
+        echo ""
+        echo "To serve locally: task wasm:serve"
+    silent: true
+
+  wasm:build-docker:
+    desc: Build WASM using Docker with JDK 21
+    cmds:
+      - echo "Building WebAssembly version using Docker (JDK 21)..."
+      - |
+        docker run --rm \
+          -v "$(pwd)":/app \
+          -w /app/wasm \
+          maven:3.9-eclipse-temurin-21 \
+          mvn clean package
+      - echo ""
+      - echo "✓ WASM build complete!"
+      - ls -lh wasm/target/wasm/ 2>/dev/null
+    silent: true
+
+  wasm:start:
+    desc: Serve WASM build locally for testing
+    cmds:
+      - echo "Starting local server for WASM build..."
+      - echo "Open http{{":"}}//localhost{{":"}}8000 in your browser"
+      - cd wasm/target/wasm && python3 -m http.server 8000
+    silent: true
+
+  wasm:stop:
+    desc: Stop the WASM local server
+    cmds:
+      - |
+        echo "Stopping WASM local server..."
+        # Find and kill python http.server on port 8000
+        PID=$(lsof -ti :8000 2>/dev/null)
+        if [ -n "$PID" ]; then
+          kill $PID 2>/dev/null && echo "✓ WASM server stopped (PID: $PID)" || echo "Failed to stop server"
+        else
+          echo "No WASM server running on port 8000"
+        fi
+    silent: true
+
+  wasm:clean:
+    desc: Clean WASM build artifacts
+    cmds:
+      - echo "Cleaning WASM build artifacts..."
+      - cd wasm && mvn clean
+      - echo "✓ WASM clean complete"
+    silent: true

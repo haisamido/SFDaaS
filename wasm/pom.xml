@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.sfdaas</groupId>
+    <artifactId>SFDaaS-wasm</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>SFDaaS WebAssembly Build</name>
+    <description>WebAssembly version of Space Flight Dynamics as a Service using TeaVM</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- TeaVM 0.10.2 supports up to Java 21 bytecode -->
+        <maven.compiler.release>11</maven.compiler.release>
+        <teavm.version>0.10.2</teavm.version>
+    </properties>
+
+    <dependencies>
+        <!-- TeaVM libraries -->
+        <dependency>
+            <groupId>org.teavm</groupId>
+            <artifactId>teavm-classlib</artifactId>
+            <version>${teavm.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.teavm</groupId>
+            <artifactId>teavm-jso</artifactId>
+            <version>${teavm.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.teavm</groupId>
+            <artifactId>teavm-jso-apis</artifactId>
+            <version>${teavm.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Gson - JSON serialization (TeaVM compatible) -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
+
+        <!-- NOTE: Orekit is NOT included in WASM build because:
+             1. Orekit requires file I/O for ephemeris data (not available in browser)
+             2. Dependencies may be compiled with newer Java versions
+             The WASM version uses standalone two-body dynamics implementation -->
+    </dependencies>
+
+    <build>
+        <finalName>SFDaaS-wasm</finalName>
+
+        <sourceDirectory>src</sourceDirectory>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <release>11</release>
+                </configuration>
+            </plugin>
+
+            <!-- TeaVM Maven Plugin -->
+            <plugin>
+                <groupId>org.teavm</groupId>
+                <artifactId>teavm-maven-plugin</artifactId>
+                <version>${teavm.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-wasm</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <phase>process-classes</phase>
+                        <configuration>
+                            <!-- Entry point class -->
+                            <mainClass>org.sfdaas.wasm.SFDaaSWasm</mainClass>
+                            <!-- Output directory -->
+                            <targetDirectory>${project.build.directory}/wasm</targetDirectory>
+                            <!-- Target type: JAVASCRIPT is more compatible than WEBASSEMBLY -->
+                            <targetType>JAVASCRIPT</targetType>
+                            <!-- Optimization level: SIMPLE, ADVANCED, FULL -->
+                            <optimizationLevel>SIMPLE</optimizationLevel>
+                            <!-- Generate source maps for debugging -->
+                            <sourceMapsGenerated>true</sourceMapsGenerated>
+                            <!-- Debug information -->
+                            <debugInformationGenerated>true</debugInformationGenerated>
+                            <!-- Output file name -->
+                            <targetFileName>sfdaas.js</targetFileName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Copy WASM-specific web resources -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-web-resources</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/wasm</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <!-- Use WASM-specific webapp with local propagation -->
+                                    <directory>${project.basedir}/webapp</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>teavm</id>
+            <url>https://teavm.org/maven/repository</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>teavm</id>
+            <url>https://teavm.org/maven/repository</url>
+        </pluginRepository>
+    </pluginRepositories>
+</project>
